@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package blanketops.events.v1alpha1;
+
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/events/v1alpha1;v1alpha1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// -----------------------------------------------------------------------------
+// GitHubEvent
+// -----------------------------------------------------------------------------
+
+message GitHubEvent {
+  GitHubEventSpec spec = 1;
+  GitHubEventStatus status = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+
+message GitHubEventSpec {
+  // Repository in owner/name form (e.g. ntlaletsi70/my-app)
+  string repository = 1;
+
+  // Event type (push, pull_request, release, manual, etc.)
+  GitHubEventType event_type = 2;
+
+  // Git ref associated with the event
+  string ref = 3;
+
+  // Commit SHA (if applicable)
+  string commit_sha = 4;
+
+  // Actor that caused the event
+  string actor = 5;
+
+  // External event identifier (GitHub delivery ID, etc.)
+  string event_id = 6;
+
+  // Timestamp when GitHub emitted the event
+  google.protobuf.Timestamp occurred_at = 7;
+}
+
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+
+message GitHubEventStatus {
+  // Whether the event was accepted by the system
+  bool accepted = 1;
+
+  // Whether downstream execution was triggered
+  bool triggered = 2;
+
+  // Reference to the resource that was triggered
+  // (e.g. Build/name, Deployment/name)
+  string triggered_ref = 3;
+
+  // Human-readable reason or explanation
+  string reason = 4;
+
+  // Time the event was processed
+  google.protobuf.Timestamp processed_at = 5;
+}
+
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum GitHubEventType {
+  GITHUB_EVENT_TYPE_UNSPECIFIED = 0;
+  PUSH = 1;
+  PULL_REQUEST = 2;
+  RELEASE = 3;
+  MANUAL = 4;
+}
