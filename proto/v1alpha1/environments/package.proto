@@ -116,10 +116,7 @@ message PackageState {
 
 enum PackagePhase {
   PACKAGE_PHASE_UNSPECIFIED = 0;
-  PENDING = 1;
-  RECONCILING = 2;
-  READY = 3;
-  DRIFTED = 4;
-  FAILED = 5;
-  UNKNOWN = 6;
+  PACKAGE_PHASE_PENDING = 1;
+  PACKAGE_PHASE_READY = 2;
+  PACKAGE_PHASE_FAILED = 3;
 }

@@ -26,16 +26,16 @@ message DeploymentSpec {
   repeated string service_units = 1;
 
   // Target runtime backend
-  Runtime runtime = 2;
+  DeploymentRuntime runtime = 2;
 
   // Enable automatic image updates from build outputs
   bool image_automation = 3;
 
   // Optional GitOps repository containing manifests
-  ManifestsRepo manifests_repo = 4;
+  DeploymentManifestsRepo manifests_repo = 4;
 
   // Reconciliation strategy
-  ReconciliationStrategy reconciliation_strategy = 5;
+  DeploymentReconciliationStrategy reconciliation_strategy = 5;
 }
 
 
@@ -43,7 +43,7 @@ message DeploymentSpec {
 // GitOps
 // -----------------------------------------------------------------------------
 
-message ManifestsRepo {
+message DeploymentManifestsRepo {
   // Repository URL
   string url = 1;
 
@@ -72,7 +72,7 @@ message DeploymentStatus {
   string message = 2;
 
   // Runtime actually used
-  Runtime runtime = 3;
+  DeploymentRuntime runtime = 3;
 
   // Strategy applied (rolling, canary, etc)
   DeploymentStrategy strategy = 4;
@@ -92,13 +92,13 @@ message DeploymentStatus {
 message ServiceUnitDeploymentStatus {
   string name = 1;
 
-  ServiceUnitPhase phase = 2;
+  DeploymentServiceUnitPhase phase = 2;
 
   // Image that was deployed
   string image = 3;
 
   // Runtime backend used
-  Runtime runtime = 4;
+  DeploymentRuntime runtime = 4;
 
   // Status message
   string message = 5;
@@ -111,45 +111,44 @@ message ServiceUnitDeploymentStatus {
 
 
 // -----------------------------------------------------------------------------
-// Enums
+// Enums (GLOBAL-SAFE)
 // -----------------------------------------------------------------------------
 
-enum Runtime {
-  RUNTIME_UNSPECIFIED = 0;
-  KUBERNETES_CONTAINER = 1;
-  KNATIVE_SERVICE = 2;
-  WASM = 3;
-  AWS_ECS = 4;
-  AZURE_CONTAINER = 5;
+enum DeploymentRuntime {
+  DEPLOYMENT_RUNTIME_UNSPECIFIED = 0;
+  DEPLOYMENT_RUNTIME_KUBERNETES_CONTAINER = 1;
+  DEPLOYMENT_RUNTIME_KNATIVE_SERVICE = 2;
+  DEPLOYMENT_RUNTIME_WASM = 3;
+  DEPLOYMENT_RUNTIME_AWS_ECS = 4;
+  DEPLOYMENT_RUNTIME_AZURE_CONTAINER = 5;
 }
 
-enum ReconciliationStrategy {
-  RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
-  KUSTOMIZE = 1;
-  HELM = 2;
+
+enum DeploymentReconciliationStrategy {
+  DEPLOYMENT_RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
+  DEPLOYMENT_RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
+  DEPLOYMENT_RECONCILIATION_STRATEGY_HELM = 2;
 }
 
 enum DeploymentPhase {
   DEPLOYMENT_PHASE_UNSPECIFIED = 0;
-  PENDING = 1;
-  RECONCILING = 2;
-  DEPLOYING = 3;
-  READY = 4;
-  DEGRADED = 5;
-  FAILED = 6;
+  DEPLOYMENT_PHASE_PENDING = 1;
+  DEPLOYMENT_PHASE_DEPLOYING = 2;
+  DEPLOYMENT_PHASE_READY = 3;
+  DEPLOYMENT_PHASE_FAILED = 4;
 }
 
 enum DeploymentStrategy {
   DEPLOYMENT_STRATEGY_UNSPECIFIED = 0;
-  ROLLING = 1;
-  CANARY = 2;
-  BLUE_GREEN = 3;
+  DEPLOYMENT_STRATEGY_ROLLING = 1;
+  DEPLOYMENT_STRATEGY_CANARY = 2;
+  DEPLOYMENT_STRATEGY_BLUE_GREEN = 3;
 }
 
-enum ServiceUnitPhase {
-  SERVICE_UNIT_PHASE_UNSPECIFIED = 0;
-  PENDING = 1;
-  DEPLOYING = 2;
-  READY = 3;
-  FAILED = 4;
+enum DeploymentServiceUnitPhase {
+  DEPLOYMENT_SERVICE_UNIT_PHASE_UNSPECIFIED = 0;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_PENDING = 1;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_DEPLOYING = 2;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_READY = 3;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_FAILED = 4;
 }

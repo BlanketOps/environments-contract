@@ -23,10 +23,10 @@ message BuildTrigger {
 
 message BuildTriggerSpec {
   // Origin of the trigger
-  TriggerSource source = 1;
+  BuildTriggerSource source = 1;
 
   // Type of event
-  TriggerType type = 2;
+  BuildTriggerType type = 2;
 
   // Repository identifier (org/name)
   string repository = 3;
@@ -44,7 +44,7 @@ message BuildTriggerSpec {
   string event_id = 7;
 
   // Target build
-  BuildRef build = 8;
+  BuildTriggerBuildRef build = 8;
 }
 
 
@@ -52,27 +52,27 @@ message BuildTriggerSpec {
 // References
 // -----------------------------------------------------------------------------
 
-message BuildRef {
+message BuildTriggerBuildRef {
   string name = 1;
 }
 
 
 // -----------------------------------------------------------------------------
-// Enums
+// Enums (GLOBAL-SAFE)
 // -----------------------------------------------------------------------------
 
-enum TriggerSource {
-  TRIGGER_SOURCE_UNSPECIFIED = 0;
-  GITHUB = 1;
-  GITLAB = 2;
-  MANUAL = 3;
+enum BuildTriggerSource {
+  BUILD_TRIGGER_SOURCE_UNSPECIFIED = 0;
+  BUILD_TRIGGER_SOURCE_GITHUB = 1;
+  BUILD_TRIGGER_SOURCE_GITLAB = 2;
+  BUILD_TRIGGER_SOURCE_MANUAL = 3;
 }
 
-enum TriggerType {
-  TRIGGER_TYPE_UNSPECIFIED = 0;
-  PUSH = 1;
-  PULL_REQUEST = 2;
-  MANUAL_TRIGGER = 3;
+enum BuildTriggerType {
+  BUILD_TRIGGER_TYPE_UNSPECIFIED = 0;
+  BUILD_TRIGGER_TYPE_PUSH = 1;
+  BUILD_TRIGGER_TYPE_PULL_REQUEST = 2;
+  BUILD_TRIGGER_TYPE_MANUAL = 3;
 }
 
 
@@ -82,11 +82,11 @@ enum TriggerType {
 
 message BuildTriggerStatus {
   enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    PENDING = 1;
-    ACCEPTED = 2;
-    REJECTED = 3;
-    CONSUMED = 4;
+    BUILD_TRIGGER_PHASE_UNSPECIFIED = 0;
+    BUILD_TRIGGER_PHASE_PENDING = 1;
+    BUILD_TRIGGER_PHASE_ACCEPTED = 2;
+    BUILD_TRIGGER_PHASE_REJECTED = 3;
+    BUILD_TRIGGER_PHASE_CONSUMED = 4;
   }
 
   Phase phase = 1;

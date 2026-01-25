@@ -85,11 +85,10 @@ message RouteCondition {
 
 enum RoutePhase {
   ROUTE_PHASE_UNSPECIFIED = 0;
-  PENDING = 1;
-  PROVISIONING = 2;
-  READY = 3;
-  DEGRADED = 4;
-  FAILED = 5;
+  ROUTE_PHASE_PENDING = 1;
+  ROUTE_PHASE_READY = 2;
+  ROUTE_PHASE_DEGRADED = 3;
+  ROUTE_PHASE_FAILED = 4;
 }
 
 enum RouteRuntime {

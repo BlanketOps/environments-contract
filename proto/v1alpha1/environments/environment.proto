@@ -41,19 +41,19 @@ message EnvironmentSpec {
   string description = 6;
 
   // ServiceUnits that make up this environment
-  repeated ServiceUnitReference service_units = 7;
+  repeated EnvironmentServiceUnitRef service_units = 7;
 
   // Deployment intent (how service units are materialized)
-  DeploymentReference deployment = 8;
+  EnvironmentDeploymentRef deployment = 8;
 
   // Optional external routing
-  RouteReference route = 9;
+  EnvironmentRouteRef route = 9;
 
   // Reconciliation / drift control
-  ReconcilePolicy reconcile = 10;
+  EnvironmentReconcilePolicy reconcile = 10;
 
   // Optional packaging / release artifact
-  PackageReference package = 11;
+  EnvironmentPackageRef package = 11;
 }
 
 
@@ -61,19 +61,19 @@ message EnvironmentSpec {
 // References (composition, not ownership)
 // -----------------------------------------------------------------------------
 
-message ServiceUnitReference {
+message EnvironmentServiceUnitRef {
   string name = 1;
 }
 
-message DeploymentReference {
+message EnvironmentDeploymentRef {
   string name = 1;
 }
 
-message RouteReference {
+message EnvironmentRouteRef {
   string name = 1;
 }
 
-message PackageReference {
+message EnvironmentPackageRef {
   string name = 1;
 }
 
@@ -82,16 +82,16 @@ message PackageReference {
 // Reconciliation
 // -----------------------------------------------------------------------------
 
-message ReconcilePolicy {
+message EnvironmentReconcilePolicy {
   bool enabled = 1;
   bool image_automation = 2;
-  ReconcileStrategy strategy = 3;
+  EnvironmentReconcileStrategy strategy = 3;
 }
 
-enum ReconcileStrategy {
-  RECONCILE_STRATEGY_UNSPECIFIED = 0;
-  GITOPS = 1;
-  KUSTOMIZE = 2;
+enum EnvironmentReconcileStrategy {
+  ENVIRONMENT_RECONCILE_STRATEGY_UNSPECIFIED = 0;
+  ENVIRONMENT_RECONCILE_STRATEGY_GITOPS = 1;
+  ENVIRONMENT_RECONCILE_STRATEGY_KUSTOMIZE = 2;
 }
 
 
@@ -118,8 +118,8 @@ message EnvironmentCondition {
 
 enum EnvironmentType {
   ENVIRONMENT_TYPE_UNSPECIFIED = 0;
-  DEVELOPMENT = 1;
-  STAGING = 2;
-  PRODUCTION = 3;
-  TESTING = 4;
+  ENVIRONMENT_TYPE_DEVELOPMENT = 1;
+  ENVIRONMENT_TYPE_STAGING = 2;
+  ENVIRONMENT_TYPE_PRODUCTION = 3;
+  ENVIRONMENT_TYPE_TESTING = 4;
 }
