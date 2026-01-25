@@ -904,7 +904,7 @@ const file_blanketops_environments_v1_serviceunit_proto_rawDesc = "" +
 	"\x1fSERVICE_UNIT_RUNTIME_KUBERNETES\x10\x01\x12 \n" +
 	"\x1cSERVICE_UNIT_RUNTIME_KNATIVE\x10\x02\x12\x1c\n" +
 	"\x18SERVICE_UNIT_RUNTIME_ECS\x10\x03\x12\x1d\n" +
-	"\x19SERVICE_UNIT_RUNTIME_WASM\x10\x04BSZQgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1b\x06proto3"
+	"\x19SERVICE_UNIT_RUNTIME_WASM\x10\x04BWZUgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1b\x06proto3"
 
 var (
 	file_blanketops_environments_v1_serviceunit_proto_rawDescOnce sync.Once

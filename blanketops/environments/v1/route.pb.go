@@ -533,7 +533,7 @@ const file_blanketops_environments_v1_route_proto_rawDesc = "" +
 	"\x13TLS_STATUS_DISABLED\x10\x01\x12\x1b\n" +
 	"\x17TLS_STATUS_PROVISIONING\x10\x02\x12\x15\n" +
 	"\x11TLS_STATUS_ACTIVE\x10\x03\x12\x15\n" +
-	"\x11TLS_STATUS_FAILED\x10\x04BSZQgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1b\x06proto3"
+	"\x11TLS_STATUS_FAILED\x10\x04BWZUgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1b\x06proto3"
 
 var (
 	file_blanketops_environments_v1_route_proto_rawDescOnce sync.Once

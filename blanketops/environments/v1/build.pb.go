@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: blanketops/environments/v1alpha1/build.proto
+// source: blanketops/environments/v1/build.proto
 
-package v1alpha1
+package v1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -56,11 +56,11 @@ func (x BuildStrategy_Kind) String() string {
 }
 
 func (BuildStrategy_Kind) Descriptor() protoreflect.EnumDescriptor {
-	return file_blanketops_environments_v1alpha1_build_proto_enumTypes[0].Descriptor()
+	return file_blanketops_environments_v1_build_proto_enumTypes[0].Descriptor()
 }
 
 func (BuildStrategy_Kind) Type() protoreflect.EnumType {
-	return &file_blanketops_environments_v1alpha1_build_proto_enumTypes[0]
+	return &file_blanketops_environments_v1_build_proto_enumTypes[0]
 }
 
 func (x BuildStrategy_Kind) Number() protoreflect.EnumNumber {
@@ -69,7 +69,7 @@ func (x BuildStrategy_Kind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use BuildStrategy_Kind.Descriptor instead.
 func (BuildStrategy_Kind) EnumDescriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{3, 0}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{3, 0}
 }
 
 type BuildTriggerPolicy_Type int32
@@ -111,11 +111,11 @@ func (x BuildTriggerPolicy_Type) String() string {
 }
 
 func (BuildTriggerPolicy_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_blanketops_environments_v1alpha1_build_proto_enumTypes[1].Descriptor()
+	return file_blanketops_environments_v1_build_proto_enumTypes[1].Descriptor()
 }
 
 func (BuildTriggerPolicy_Type) Type() protoreflect.EnumType {
-	return &file_blanketops_environments_v1alpha1_build_proto_enumTypes[1]
+	return &file_blanketops_environments_v1_build_proto_enumTypes[1]
 }
 
 func (x BuildTriggerPolicy_Type) Number() protoreflect.EnumNumber {
@@ -124,7 +124,7 @@ func (x BuildTriggerPolicy_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use BuildTriggerPolicy_Type.Descriptor instead.
 func (BuildTriggerPolicy_Type) EnumDescriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{5, 0}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type BuildStatus_Phase int32
@@ -169,11 +169,11 @@ func (x BuildStatus_Phase) String() string {
 }
 
 func (BuildStatus_Phase) Descriptor() protoreflect.EnumDescriptor {
-	return file_blanketops_environments_v1alpha1_build_proto_enumTypes[2].Descriptor()
+	return file_blanketops_environments_v1_build_proto_enumTypes[2].Descriptor()
 }
 
 func (BuildStatus_Phase) Type() protoreflect.EnumType {
-	return &file_blanketops_environments_v1alpha1_build_proto_enumTypes[2]
+	return &file_blanketops_environments_v1_build_proto_enumTypes[2]
 }
 
 func (x BuildStatus_Phase) Number() protoreflect.EnumNumber {
@@ -182,7 +182,7 @@ func (x BuildStatus_Phase) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use BuildStatus_Phase.Descriptor instead.
 func (BuildStatus_Phase) EnumDescriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{9, 0}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{9, 0}
 }
 
 type Build struct {
@@ -195,7 +195,7 @@ type Build struct {
 
 func (x *Build) Reset() {
 	*x = Build{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[0]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -207,7 +207,7 @@ func (x *Build) String() string {
 func (*Build) ProtoMessage() {}
 
 func (x *Build) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[0]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -220,7 +220,7 @@ func (x *Build) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Build.ProtoReflect.Descriptor instead.
 func (*Build) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{0}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Build) GetSpec() *BuildSpec {
@@ -261,7 +261,7 @@ type BuildSpec struct {
 
 func (x *BuildSpec) Reset() {
 	*x = BuildSpec{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[1]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -273,7 +273,7 @@ func (x *BuildSpec) String() string {
 func (*BuildSpec) ProtoMessage() {}
 
 func (x *BuildSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[1]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -286,7 +286,7 @@ func (x *BuildSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildSpec.ProtoReflect.Descriptor instead.
 func (*BuildSpec) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{1}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *BuildSpec) GetImage() string {
@@ -359,7 +359,7 @@ type GitSource struct {
 
 func (x *GitSource) Reset() {
 	*x = GitSource{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[2]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -371,7 +371,7 @@ func (x *GitSource) String() string {
 func (*GitSource) ProtoMessage() {}
 
 func (x *GitSource) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[2]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -384,7 +384,7 @@ func (x *GitSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GitSource.ProtoReflect.Descriptor instead.
 func (*GitSource) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{2}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GitSource) GetUrl() string {
@@ -432,14 +432,14 @@ func (x *GitSource) GetCloneSecret() string {
 type BuildStrategy struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Kind          BuildStrategy_Kind     `protobuf:"varint,2,opt,name=kind,proto3,enum=blanketops.environments.v1alpha1.BuildStrategy_Kind" json:"kind,omitempty"`
+	Kind          BuildStrategy_Kind     `protobuf:"varint,2,opt,name=kind,proto3,enum=blanketops.environments.v1.BuildStrategy_Kind" json:"kind,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BuildStrategy) Reset() {
 	*x = BuildStrategy{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[3]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +451,7 @@ func (x *BuildStrategy) String() string {
 func (*BuildStrategy) ProtoMessage() {}
 
 func (x *BuildStrategy) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[3]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,7 +464,7 @@ func (x *BuildStrategy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildStrategy.ProtoReflect.Descriptor instead.
 func (*BuildStrategy) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{3}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *BuildStrategy) GetName() string {
@@ -491,7 +491,7 @@ type BuildPolicy struct {
 
 func (x *BuildPolicy) Reset() {
 	*x = BuildPolicy{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[4]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -503,7 +503,7 @@ func (x *BuildPolicy) String() string {
 func (*BuildPolicy) ProtoMessage() {}
 
 func (x *BuildPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[4]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,7 +516,7 @@ func (x *BuildPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildPolicy.ProtoReflect.Descriptor instead.
 func (*BuildPolicy) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{4}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *BuildPolicy) GetAllowedTriggers() []*BuildTriggerPolicy {
@@ -535,14 +535,14 @@ func (x *BuildPolicy) GetRetry() *RetryPolicy {
 
 type BuildTriggerPolicy struct {
 	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Type          BuildTriggerPolicy_Type `protobuf:"varint,1,opt,name=type,proto3,enum=blanketops.environments.v1alpha1.BuildTriggerPolicy_Type" json:"type,omitempty"`
+	Type          BuildTriggerPolicy_Type `protobuf:"varint,1,opt,name=type,proto3,enum=blanketops.environments.v1.BuildTriggerPolicy_Type" json:"type,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *BuildTriggerPolicy) Reset() {
 	*x = BuildTriggerPolicy{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[5]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -554,7 +554,7 @@ func (x *BuildTriggerPolicy) String() string {
 func (*BuildTriggerPolicy) ProtoMessage() {}
 
 func (x *BuildTriggerPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[5]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -567,7 +567,7 @@ func (x *BuildTriggerPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildTriggerPolicy.ProtoReflect.Descriptor instead.
 func (*BuildTriggerPolicy) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{5}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *BuildTriggerPolicy) GetType() BuildTriggerPolicy_Type {
@@ -587,7 +587,7 @@ type RetryPolicy struct {
 
 func (x *RetryPolicy) Reset() {
 	*x = RetryPolicy{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[6]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -599,7 +599,7 @@ func (x *RetryPolicy) String() string {
 func (*RetryPolicy) ProtoMessage() {}
 
 func (x *RetryPolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[6]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -612,7 +612,7 @@ func (x *RetryPolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RetryPolicy.ProtoReflect.Descriptor instead.
 func (*RetryPolicy) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{6}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *RetryPolicy) GetOnFailure() bool {
@@ -639,7 +639,7 @@ type ServiceAccount struct {
 
 func (x *ServiceAccount) Reset() {
 	*x = ServiceAccount{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[7]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -651,7 +651,7 @@ func (x *ServiceAccount) String() string {
 func (*ServiceAccount) ProtoMessage() {}
 
 func (x *ServiceAccount) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[7]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -664,7 +664,7 @@ func (x *ServiceAccount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServiceAccount.ProtoReflect.Descriptor instead.
 func (*ServiceAccount) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{7}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ServiceAccount) GetName() string {
@@ -691,7 +691,7 @@ type Param struct {
 
 func (x *Param) Reset() {
 	*x = Param{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[8]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -703,7 +703,7 @@ func (x *Param) String() string {
 func (*Param) ProtoMessage() {}
 
 func (x *Param) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[8]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -716,7 +716,7 @@ func (x *Param) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Param.ProtoReflect.Descriptor instead.
 func (*Param) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{8}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *Param) GetName() string {
@@ -735,7 +735,7 @@ func (x *Param) GetValue() string {
 
 type BuildStatus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	Phase BuildStatus_Phase      `protobuf:"varint,1,opt,name=phase,proto3,enum=blanketops.environments.v1alpha1.BuildStatus_Phase" json:"phase,omitempty"`
+	Phase BuildStatus_Phase      `protobuf:"varint,1,opt,name=phase,proto3,enum=blanketops.environments.v1.BuildStatus_Phase" json:"phase,omitempty"`
 	// Image produced by the build (if any)
 	Image string `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"`
 	// Reference to the execution that produced this result
@@ -751,7 +751,7 @@ type BuildStatus struct {
 
 func (x *BuildStatus) Reset() {
 	*x = BuildStatus{}
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[9]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -763,7 +763,7 @@ func (x *BuildStatus) String() string {
 func (*BuildStatus) ProtoMessage() {}
 
 func (x *BuildStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1alpha1_build_proto_msgTypes[9]
+	mi := &file_blanketops_environments_v1_build_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -776,7 +776,7 @@ func (x *BuildStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BuildStatus.ProtoReflect.Descriptor instead.
 func (*BuildStatus) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP(), []int{9}
+	return file_blanketops_environments_v1_build_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *BuildStatus) GetPhase() BuildStatus_Phase {
@@ -821,21 +821,21 @@ func (x *BuildStatus) GetCompletionTime() *timestamppb.Timestamp {
 	return nil
 }
 
-var File_blanketops_environments_v1alpha1_build_proto protoreflect.FileDescriptor
+var File_blanketops_environments_v1_build_proto protoreflect.FileDescriptor
 
-const file_blanketops_environments_v1alpha1_build_proto_rawDesc = "" +
+const file_blanketops_environments_v1_build_proto_rawDesc = "" +
 	"\n" +
-	",blanketops/environments/v1alpha1/build.proto\x12 blanketops.environments.v1alpha1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"\x8f\x01\n" +
-	"\x05Build\x12?\n" +
-	"\x04spec\x18\x01 \x01(\v2+.blanketops.environments.v1alpha1.BuildSpecR\x04spec\x12E\n" +
-	"\x06status\x18\x02 \x01(\v2-.blanketops.environments.v1alpha1.BuildStatusR\x06status\"\x88\x04\n" +
+	"&blanketops/environments/v1/build.proto\x12\x1ablanketops.environments.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"\x83\x01\n" +
+	"\x05Build\x129\n" +
+	"\x04spec\x18\x01 \x01(\v2%.blanketops.environments.v1.BuildSpecR\x04spec\x12?\n" +
+	"\x06status\x18\x02 \x01(\v2'.blanketops.environments.v1.BuildStatusR\x06status\"\xea\x03\n" +
 	"\tBuildSpec\x12\x14\n" +
-	"\x05image\x18\x01 \x01(\tR\x05image\x12K\n" +
-	"\bstrategy\x18\x02 \x01(\v2/.blanketops.environments.v1alpha1.BuildStrategyR\bstrategy\x12C\n" +
-	"\x06source\x18\x03 \x01(\v2+.blanketops.environments.v1alpha1.GitSourceR\x06source\x12E\n" +
-	"\x06policy\x18\x04 \x01(\v2-.blanketops.environments.v1alpha1.BuildPolicyR\x06policy\x12Y\n" +
-	"\x0fservice_account\x18\x05 \x01(\v20.blanketops.environments.v1alpha1.ServiceAccountR\x0eserviceAccount\x12?\n" +
-	"\x06params\x18\x06 \x03(\v2'.blanketops.environments.v1alpha1.ParamR\x06params\x123\n" +
+	"\x05image\x18\x01 \x01(\tR\x05image\x12E\n" +
+	"\bstrategy\x18\x02 \x01(\v2).blanketops.environments.v1.BuildStrategyR\bstrategy\x12=\n" +
+	"\x06source\x18\x03 \x01(\v2%.blanketops.environments.v1.GitSourceR\x06source\x12?\n" +
+	"\x06policy\x18\x04 \x01(\v2'.blanketops.environments.v1.BuildPolicyR\x06policy\x12S\n" +
+	"\x0fservice_account\x18\x05 \x01(\v2*.blanketops.environments.v1.ServiceAccountR\x0eserviceAccount\x129\n" +
+	"\x06params\x18\x06 \x03(\v2!.blanketops.environments.v1.ParamR\x06params\x123\n" +
 	"\atimeout\x18\a \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12;\n" +
 	"\ftime_to_live\x18\b \x01(\v2\x19.google.protobuf.DurationR\n" +
 	"timeToLive\"\xb2\x01\n" +
@@ -847,19 +847,19 @@ const file_blanketops_environments_v1alpha1_build_proto_rawDesc = "" +
 	"\x05depth\x18\x04 \x01(\rR\x05depth\x12\x1d\n" +
 	"\n" +
 	"ssl_verify\x18\x05 \x01(\bR\tsslVerify\x12!\n" +
-	"\fclone_secret\x18\x06 \x01(\tR\vcloneSecret\"\xb2\x01\n" +
+	"\fclone_secret\x18\x06 \x01(\tR\vcloneSecret\"\xac\x01\n" +
 	"\rBuildStrategy\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12H\n" +
-	"\x04kind\x18\x02 \x01(\x0e24.blanketops.environments.v1alpha1.BuildStrategy.KindR\x04kind\"C\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12B\n" +
+	"\x04kind\x18\x02 \x01(\x0e2..blanketops.environments.v1.BuildStrategy.KindR\x04kind\"C\n" +
 	"\x04Kind\x12\x14\n" +
 	"\x10KIND_UNSPECIFIED\x10\x00\x12\x10\n" +
 	"\fKIND_CLUSTER\x10\x01\x12\x13\n" +
-	"\x0fKIND_NAMESPACED\x10\x02\"\xb3\x01\n" +
-	"\vBuildPolicy\x12_\n" +
-	"\x10allowed_triggers\x18\x01 \x03(\v24.blanketops.environments.v1alpha1.BuildTriggerPolicyR\x0fallowedTriggers\x12C\n" +
-	"\x05retry\x18\x02 \x01(\v2-.blanketops.environments.v1alpha1.RetryPolicyR\x05retry\"\xcb\x01\n" +
-	"\x12BuildTriggerPolicy\x12M\n" +
-	"\x04type\x18\x01 \x01(\x0e29.blanketops.environments.v1alpha1.BuildTriggerPolicy.TypeR\x04type\"f\n" +
+	"\x0fKIND_NAMESPACED\x10\x02\"\xa7\x01\n" +
+	"\vBuildPolicy\x12Y\n" +
+	"\x10allowed_triggers\x18\x01 \x03(\v2..blanketops.environments.v1.BuildTriggerPolicyR\x0fallowedTriggers\x12=\n" +
+	"\x05retry\x18\x02 \x01(\v2'.blanketops.environments.v1.RetryPolicyR\x05retry\"\xc5\x01\n" +
+	"\x12BuildTriggerPolicy\x12G\n" +
+	"\x04type\x18\x01 \x01(\x0e23.blanketops.environments.v1.BuildTriggerPolicy.TypeR\x04type\"f\n" +
 	"\x04Type\x12\x14\n" +
 	"\x10TYPE_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vTYPE_MANUAL\x10\x01\x12\r\n" +
@@ -875,9 +875,9 @@ const file_blanketops_environments_v1alpha1_build_proto_rawDesc = "" +
 	"\x06secret\x18\x02 \x01(\tR\x06secret\"1\n" +
 	"\x05Param\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value\"\xb0\x03\n" +
-	"\vBuildStatus\x12I\n" +
-	"\x05phase\x18\x01 \x01(\x0e23.blanketops.environments.v1alpha1.BuildStatus.PhaseR\x05phase\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value\"\xaa\x03\n" +
+	"\vBuildStatus\x12C\n" +
+	"\x05phase\x18\x01 \x01(\x0e2-.blanketops.environments.v1.BuildStatus.PhaseR\x05phase\x12\x14\n" +
 	"\x05image\x18\x02 \x01(\tR\x05image\x12#\n" +
 	"\rexecution_ref\x18\x03 \x01(\tR\fexecutionRef\x12\x18\n" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x129\n" +
@@ -890,56 +890,56 @@ const file_blanketops_environments_v1alpha1_build_proto_rawDesc = "" +
 	"\rPHASE_RUNNING\x10\x02\x12\x13\n" +
 	"\x0fPHASE_SUCCEEDED\x10\x03\x12\x10\n" +
 	"\fPHASE_FAILED\x10\x04\x12\x13\n" +
-	"\x0fPHASE_CANCELLED\x10\x05B_Z]github.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1alpha1;v1alpha1b\x06proto3"
+	"\x0fPHASE_CANCELLED\x10\x05BWZUgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1b\x06proto3"
 
 var (
-	file_blanketops_environments_v1alpha1_build_proto_rawDescOnce sync.Once
-	file_blanketops_environments_v1alpha1_build_proto_rawDescData []byte
+	file_blanketops_environments_v1_build_proto_rawDescOnce sync.Once
+	file_blanketops_environments_v1_build_proto_rawDescData []byte
 )
 
-func file_blanketops_environments_v1alpha1_build_proto_rawDescGZIP() []byte {
-	file_blanketops_environments_v1alpha1_build_proto_rawDescOnce.Do(func() {
-		file_blanketops_environments_v1alpha1_build_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1alpha1_build_proto_rawDesc), len(file_blanketops_environments_v1alpha1_build_proto_rawDesc)))
+func file_blanketops_environments_v1_build_proto_rawDescGZIP() []byte {
+	file_blanketops_environments_v1_build_proto_rawDescOnce.Do(func() {
+		file_blanketops_environments_v1_build_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1_build_proto_rawDesc), len(file_blanketops_environments_v1_build_proto_rawDesc)))
 	})
-	return file_blanketops_environments_v1alpha1_build_proto_rawDescData
+	return file_blanketops_environments_v1_build_proto_rawDescData
 }
 
-var file_blanketops_environments_v1alpha1_build_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_blanketops_environments_v1alpha1_build_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
-var file_blanketops_environments_v1alpha1_build_proto_goTypes = []any{
-	(BuildStrategy_Kind)(0),       // 0: blanketops.environments.v1alpha1.BuildStrategy.Kind
-	(BuildTriggerPolicy_Type)(0),  // 1: blanketops.environments.v1alpha1.BuildTriggerPolicy.Type
-	(BuildStatus_Phase)(0),        // 2: blanketops.environments.v1alpha1.BuildStatus.Phase
-	(*Build)(nil),                 // 3: blanketops.environments.v1alpha1.Build
-	(*BuildSpec)(nil),             // 4: blanketops.environments.v1alpha1.BuildSpec
-	(*GitSource)(nil),             // 5: blanketops.environments.v1alpha1.GitSource
-	(*BuildStrategy)(nil),         // 6: blanketops.environments.v1alpha1.BuildStrategy
-	(*BuildPolicy)(nil),           // 7: blanketops.environments.v1alpha1.BuildPolicy
-	(*BuildTriggerPolicy)(nil),    // 8: blanketops.environments.v1alpha1.BuildTriggerPolicy
-	(*RetryPolicy)(nil),           // 9: blanketops.environments.v1alpha1.RetryPolicy
-	(*ServiceAccount)(nil),        // 10: blanketops.environments.v1alpha1.ServiceAccount
-	(*Param)(nil),                 // 11: blanketops.environments.v1alpha1.Param
-	(*BuildStatus)(nil),           // 12: blanketops.environments.v1alpha1.BuildStatus
+var file_blanketops_environments_v1_build_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+var file_blanketops_environments_v1_build_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_blanketops_environments_v1_build_proto_goTypes = []any{
+	(BuildStrategy_Kind)(0),       // 0: blanketops.environments.v1.BuildStrategy.Kind
+	(BuildTriggerPolicy_Type)(0),  // 1: blanketops.environments.v1.BuildTriggerPolicy.Type
+	(BuildStatus_Phase)(0),        // 2: blanketops.environments.v1.BuildStatus.Phase
+	(*Build)(nil),                 // 3: blanketops.environments.v1.Build
+	(*BuildSpec)(nil),             // 4: blanketops.environments.v1.BuildSpec
+	(*GitSource)(nil),             // 5: blanketops.environments.v1.GitSource
+	(*BuildStrategy)(nil),         // 6: blanketops.environments.v1.BuildStrategy
+	(*BuildPolicy)(nil),           // 7: blanketops.environments.v1.BuildPolicy
+	(*BuildTriggerPolicy)(nil),    // 8: blanketops.environments.v1.BuildTriggerPolicy
+	(*RetryPolicy)(nil),           // 9: blanketops.environments.v1.RetryPolicy
+	(*ServiceAccount)(nil),        // 10: blanketops.environments.v1.ServiceAccount
+	(*Param)(nil),                 // 11: blanketops.environments.v1.Param
+	(*BuildStatus)(nil),           // 12: blanketops.environments.v1.BuildStatus
 	(*durationpb.Duration)(nil),   // 13: google.protobuf.Duration
 	(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
 }
-var file_blanketops_environments_v1alpha1_build_proto_depIdxs = []int32{
-	4,  // 0: blanketops.environments.v1alpha1.Build.spec:type_name -> blanketops.environments.v1alpha1.BuildSpec
-	12, // 1: blanketops.environments.v1alpha1.Build.status:type_name -> blanketops.environments.v1alpha1.BuildStatus
-	6,  // 2: blanketops.environments.v1alpha1.BuildSpec.strategy:type_name -> blanketops.environments.v1alpha1.BuildStrategy
-	5,  // 3: blanketops.environments.v1alpha1.BuildSpec.source:type_name -> blanketops.environments.v1alpha1.GitSource
-	7,  // 4: blanketops.environments.v1alpha1.BuildSpec.policy:type_name -> blanketops.environments.v1alpha1.BuildPolicy
-	10, // 5: blanketops.environments.v1alpha1.BuildSpec.service_account:type_name -> blanketops.environments.v1alpha1.ServiceAccount
-	11, // 6: blanketops.environments.v1alpha1.BuildSpec.params:type_name -> blanketops.environments.v1alpha1.Param
-	13, // 7: blanketops.environments.v1alpha1.BuildSpec.timeout:type_name -> google.protobuf.Duration
-	13, // 8: blanketops.environments.v1alpha1.BuildSpec.time_to_live:type_name -> google.protobuf.Duration
-	0,  // 9: blanketops.environments.v1alpha1.BuildStrategy.kind:type_name -> blanketops.environments.v1alpha1.BuildStrategy.Kind
-	8,  // 10: blanketops.environments.v1alpha1.BuildPolicy.allowed_triggers:type_name -> blanketops.environments.v1alpha1.BuildTriggerPolicy
-	9,  // 11: blanketops.environments.v1alpha1.BuildPolicy.retry:type_name -> blanketops.environments.v1alpha1.RetryPolicy
-	1,  // 12: blanketops.environments.v1alpha1.BuildTriggerPolicy.type:type_name -> blanketops.environments.v1alpha1.BuildTriggerPolicy.Type
-	2,  // 13: blanketops.environments.v1alpha1.BuildStatus.phase:type_name -> blanketops.environments.v1alpha1.BuildStatus.Phase
-	14, // 14: blanketops.environments.v1alpha1.BuildStatus.start_time:type_name -> google.protobuf.Timestamp
-	14, // 15: blanketops.environments.v1alpha1.BuildStatus.completion_time:type_name -> google.protobuf.Timestamp
+var file_blanketops_environments_v1_build_proto_depIdxs = []int32{
+	4,  // 0: blanketops.environments.v1.Build.spec:type_name -> blanketops.environments.v1.BuildSpec
+	12, // 1: blanketops.environments.v1.Build.status:type_name -> blanketops.environments.v1.BuildStatus
+	6,  // 2: blanketops.environments.v1.BuildSpec.strategy:type_name -> blanketops.environments.v1.BuildStrategy
+	5,  // 3: blanketops.environments.v1.BuildSpec.source:type_name -> blanketops.environments.v1.GitSource
+	7,  // 4: blanketops.environments.v1.BuildSpec.policy:type_name -> blanketops.environments.v1.BuildPolicy
+	10, // 5: blanketops.environments.v1.BuildSpec.service_account:type_name -> blanketops.environments.v1.ServiceAccount
+	11, // 6: blanketops.environments.v1.BuildSpec.params:type_name -> blanketops.environments.v1.Param
+	13, // 7: blanketops.environments.v1.BuildSpec.timeout:type_name -> google.protobuf.Duration
+	13, // 8: blanketops.environments.v1.BuildSpec.time_to_live:type_name -> google.protobuf.Duration
+	0,  // 9: blanketops.environments.v1.BuildStrategy.kind:type_name -> blanketops.environments.v1.BuildStrategy.Kind
+	8,  // 10: blanketops.environments.v1.BuildPolicy.allowed_triggers:type_name -> blanketops.environments.v1.BuildTriggerPolicy
+	9,  // 11: blanketops.environments.v1.BuildPolicy.retry:type_name -> blanketops.environments.v1.RetryPolicy
+	1,  // 12: blanketops.environments.v1.BuildTriggerPolicy.type:type_name -> blanketops.environments.v1.BuildTriggerPolicy.Type
+	2,  // 13: blanketops.environments.v1.BuildStatus.phase:type_name -> blanketops.environments.v1.BuildStatus.Phase
+	14, // 14: blanketops.environments.v1.BuildStatus.start_time:type_name -> google.protobuf.Timestamp
+	14, // 15: blanketops.environments.v1.BuildStatus.completion_time:type_name -> google.protobuf.Timestamp
 	16, // [16:16] is the sub-list for method output_type
 	16, // [16:16] is the sub-list for method input_type
 	16, // [16:16] is the sub-list for extension type_name
@@ -947,27 +947,27 @@ var file_blanketops_environments_v1alpha1_build_proto_depIdxs = []int32{
 	0,  // [0:16] is the sub-list for field type_name
 }
 
-func init() { file_blanketops_environments_v1alpha1_build_proto_init() }
-func file_blanketops_environments_v1alpha1_build_proto_init() {
-	if File_blanketops_environments_v1alpha1_build_proto != nil {
+func init() { file_blanketops_environments_v1_build_proto_init() }
+func file_blanketops_environments_v1_build_proto_init() {
+	if File_blanketops_environments_v1_build_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1alpha1_build_proto_rawDesc), len(file_blanketops_environments_v1alpha1_build_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1_build_proto_rawDesc), len(file_blanketops_environments_v1_build_proto_rawDesc)),
 			NumEnums:      3,
 			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_blanketops_environments_v1alpha1_build_proto_goTypes,
-		DependencyIndexes: file_blanketops_environments_v1alpha1_build_proto_depIdxs,
-		EnumInfos:         file_blanketops_environments_v1alpha1_build_proto_enumTypes,
-		MessageInfos:      file_blanketops_environments_v1alpha1_build_proto_msgTypes,
+		GoTypes:           file_blanketops_environments_v1_build_proto_goTypes,
+		DependencyIndexes: file_blanketops_environments_v1_build_proto_depIdxs,
+		EnumInfos:         file_blanketops_environments_v1_build_proto_enumTypes,
+		MessageInfos:      file_blanketops_environments_v1_build_proto_msgTypes,
 	}.Build()
-	File_blanketops_environments_v1alpha1_build_proto = out.File
-	file_blanketops_environments_v1alpha1_build_proto_goTypes = nil
-	file_blanketops_environments_v1alpha1_build_proto_depIdxs = nil
+	File_blanketops_environments_v1_build_proto = out.File
+	file_blanketops_environments_v1_build_proto_goTypes = nil
+	file_blanketops_environments_v1_build_proto_depIdxs = nil
 }

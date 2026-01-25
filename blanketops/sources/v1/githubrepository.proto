@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package blanketops.sources.v1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/sources/v1;v1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/sources/v1;v1";
 
 import "google/protobuf/timestamp.proto";
 

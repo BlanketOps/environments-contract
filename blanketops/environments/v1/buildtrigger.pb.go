@@ -519,7 +519,7 @@ const file_blanketops_environments_v1_buildtrigger_proto_rawDesc = "" +
 	"\x1eBUILD_TRIGGER_TYPE_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17BUILD_TRIGGER_TYPE_PUSH\x10\x01\x12#\n" +
 	"\x1fBUILD_TRIGGER_TYPE_PULL_REQUEST\x10\x02\x12\x1d\n" +
-	"\x19BUILD_TRIGGER_TYPE_MANUAL\x10\x03BSZQgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1b\x06proto3"
+	"\x19BUILD_TRIGGER_TYPE_MANUAL\x10\x03BWZUgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1b\x06proto3"
 
 var (
 	file_blanketops_environments_v1_buildtrigger_proto_rawDescOnce sync.Once

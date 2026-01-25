@@ -753,7 +753,7 @@ const file_blanketops_environments_v1_deployment_proto_rawDesc = "" +
 	"%DEPLOYMENT_SERVICE_UNIT_PHASE_PENDING\x10\x01\x12+\n" +
 	"'DEPLOYMENT_SERVICE_UNIT_PHASE_DEPLOYING\x10\x02\x12'\n" +
 	"#DEPLOYMENT_SERVICE_UNIT_PHASE_READY\x10\x03\x12(\n" +
-	"$DEPLOYMENT_SERVICE_UNIT_PHASE_FAILED\x10\x04BSZQgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1b\x06proto3"
+	"$DEPLOYMENT_SERVICE_UNIT_PHASE_FAILED\x10\x04BWZUgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1b\x06proto3"
 
 var (
 	file_blanketops_environments_v1_deployment_proto_rawDescOnce sync.Once

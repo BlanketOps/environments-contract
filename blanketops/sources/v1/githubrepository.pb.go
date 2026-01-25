@@ -441,7 +441,7 @@ const file_blanketops_sources_v1_githubrepository_proto_rawDesc = "" +
 	"\x13GIT_EVENT_TYPE_PUSH\x10\x01\x12\x1f\n" +
 	"\x1bGIT_EVENT_TYPE_PULL_REQUEST\x10\x02\x12\x1a\n" +
 	"\x16GIT_EVENT_TYPE_RELEASE\x10\x03\x12\x16\n" +
-	"\x12GIT_EVENT_TYPE_TAG\x10\x04BNZLgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/sources/v1;v1b\x06proto3"
+	"\x12GIT_EVENT_TYPE_TAG\x10\x04BRZPgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/sources/v1;v1b\x06proto3"
 
 var (
 	file_blanketops_sources_v1_githubrepository_proto_rawDescOnce sync.Once

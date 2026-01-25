@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package blanketops.events.v1alpha1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/events/v1alpha1;v1alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/events/v1alpha1;v1alpha1";
+
 
 import "google/protobuf/timestamp.proto";
 

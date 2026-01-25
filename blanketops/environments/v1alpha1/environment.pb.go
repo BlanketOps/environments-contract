@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        (unknown)
-// source: blanketops/environments/v1/environment.proto
+// source: blanketops/environments/v1alpha1/environment.proto
 
-package v1
+package v1alpha1
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -55,11 +55,11 @@ func (x EnvironmentReconcileStrategy) String() string {
 }
 
 func (EnvironmentReconcileStrategy) Descriptor() protoreflect.EnumDescriptor {
-	return file_blanketops_environments_v1_environment_proto_enumTypes[0].Descriptor()
+	return file_blanketops_environments_v1alpha1_environment_proto_enumTypes[0].Descriptor()
 }
 
 func (EnvironmentReconcileStrategy) Type() protoreflect.EnumType {
-	return &file_blanketops_environments_v1_environment_proto_enumTypes[0]
+	return &file_blanketops_environments_v1alpha1_environment_proto_enumTypes[0]
 }
 
 func (x EnvironmentReconcileStrategy) Number() protoreflect.EnumNumber {
@@ -68,7 +68,7 @@ func (x EnvironmentReconcileStrategy) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EnvironmentReconcileStrategy.Descriptor instead.
 func (EnvironmentReconcileStrategy) EnumDescriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{0}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{0}
 }
 
 type EnvironmentType int32
@@ -110,11 +110,11 @@ func (x EnvironmentType) String() string {
 }
 
 func (EnvironmentType) Descriptor() protoreflect.EnumDescriptor {
-	return file_blanketops_environments_v1_environment_proto_enumTypes[1].Descriptor()
+	return file_blanketops_environments_v1alpha1_environment_proto_enumTypes[1].Descriptor()
 }
 
 func (EnvironmentType) Type() protoreflect.EnumType {
-	return &file_blanketops_environments_v1_environment_proto_enumTypes[1]
+	return &file_blanketops_environments_v1alpha1_environment_proto_enumTypes[1]
 }
 
 func (x EnvironmentType) Number() protoreflect.EnumNumber {
@@ -123,7 +123,7 @@ func (x EnvironmentType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use EnvironmentType.Descriptor instead.
 func (EnvironmentType) EnumDescriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{1}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{1}
 }
 
 type Environment struct {
@@ -136,7 +136,7 @@ type Environment struct {
 
 func (x *Environment) Reset() {
 	*x = Environment{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[0]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -148,7 +148,7 @@ func (x *Environment) String() string {
 func (*Environment) ProtoMessage() {}
 
 func (x *Environment) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[0]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -161,7 +161,7 @@ func (x *Environment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Environment.ProtoReflect.Descriptor instead.
 func (*Environment) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{0}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Environment) GetSpec() *EnvironmentSpec {
@@ -187,7 +187,7 @@ type EnvironmentSpec struct {
 	// Owning Git org / user
 	GitOwner string `protobuf:"bytes,3,opt,name=git_owner,json=gitOwner,proto3" json:"git_owner,omitempty"`
 	// Environment classification (dev, staging, prod, etc.)
-	EnvironmentType EnvironmentType `protobuf:"varint,4,opt,name=environment_type,json=environmentType,proto3,enum=blanketops.environments.v1.EnvironmentType" json:"environment_type,omitempty"`
+	EnvironmentType EnvironmentType `protobuf:"varint,4,opt,name=environment_type,json=environmentType,proto3,enum=blanketops.environments.v1alpha1.EnvironmentType" json:"environment_type,omitempty"`
 	// Application version (semantic or otherwise)
 	Version string `protobuf:"bytes,5,opt,name=version,proto3" json:"version,omitempty"`
 	// Optional description
@@ -208,7 +208,7 @@ type EnvironmentSpec struct {
 
 func (x *EnvironmentSpec) Reset() {
 	*x = EnvironmentSpec{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[1]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -220,7 +220,7 @@ func (x *EnvironmentSpec) String() string {
 func (*EnvironmentSpec) ProtoMessage() {}
 
 func (x *EnvironmentSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[1]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -233,7 +233,7 @@ func (x *EnvironmentSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentSpec.ProtoReflect.Descriptor instead.
 func (*EnvironmentSpec) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{1}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *EnvironmentSpec) GetApplicationName() string {
@@ -322,7 +322,7 @@ type EnvironmentServiceUnitRef struct {
 
 func (x *EnvironmentServiceUnitRef) Reset() {
 	*x = EnvironmentServiceUnitRef{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[2]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -334,7 +334,7 @@ func (x *EnvironmentServiceUnitRef) String() string {
 func (*EnvironmentServiceUnitRef) ProtoMessage() {}
 
 func (x *EnvironmentServiceUnitRef) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[2]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -347,7 +347,7 @@ func (x *EnvironmentServiceUnitRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentServiceUnitRef.ProtoReflect.Descriptor instead.
 func (*EnvironmentServiceUnitRef) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{2}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *EnvironmentServiceUnitRef) GetName() string {
@@ -366,7 +366,7 @@ type EnvironmentDeploymentRef struct {
 
 func (x *EnvironmentDeploymentRef) Reset() {
 	*x = EnvironmentDeploymentRef{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[3]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -378,7 +378,7 @@ func (x *EnvironmentDeploymentRef) String() string {
 func (*EnvironmentDeploymentRef) ProtoMessage() {}
 
 func (x *EnvironmentDeploymentRef) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[3]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +391,7 @@ func (x *EnvironmentDeploymentRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentDeploymentRef.ProtoReflect.Descriptor instead.
 func (*EnvironmentDeploymentRef) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{3}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *EnvironmentDeploymentRef) GetName() string {
@@ -410,7 +410,7 @@ type EnvironmentRouteRef struct {
 
 func (x *EnvironmentRouteRef) Reset() {
 	*x = EnvironmentRouteRef{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[4]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -422,7 +422,7 @@ func (x *EnvironmentRouteRef) String() string {
 func (*EnvironmentRouteRef) ProtoMessage() {}
 
 func (x *EnvironmentRouteRef) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[4]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -435,7 +435,7 @@ func (x *EnvironmentRouteRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentRouteRef.ProtoReflect.Descriptor instead.
 func (*EnvironmentRouteRef) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{4}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *EnvironmentRouteRef) GetName() string {
@@ -454,7 +454,7 @@ type EnvironmentPackageRef struct {
 
 func (x *EnvironmentPackageRef) Reset() {
 	*x = EnvironmentPackageRef{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[5]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -466,7 +466,7 @@ func (x *EnvironmentPackageRef) String() string {
 func (*EnvironmentPackageRef) ProtoMessage() {}
 
 func (x *EnvironmentPackageRef) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[5]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -479,7 +479,7 @@ func (x *EnvironmentPackageRef) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentPackageRef.ProtoReflect.Descriptor instead.
 func (*EnvironmentPackageRef) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{5}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *EnvironmentPackageRef) GetName() string {
@@ -493,14 +493,14 @@ type EnvironmentReconcilePolicy struct {
 	state           protoimpl.MessageState       `protogen:"open.v1"`
 	Enabled         bool                         `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
 	ImageAutomation bool                         `protobuf:"varint,2,opt,name=image_automation,json=imageAutomation,proto3" json:"image_automation,omitempty"`
-	Strategy        EnvironmentReconcileStrategy `protobuf:"varint,3,opt,name=strategy,proto3,enum=blanketops.environments.v1.EnvironmentReconcileStrategy" json:"strategy,omitempty"`
+	Strategy        EnvironmentReconcileStrategy `protobuf:"varint,3,opt,name=strategy,proto3,enum=blanketops.environments.v1alpha1.EnvironmentReconcileStrategy" json:"strategy,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
 
 func (x *EnvironmentReconcilePolicy) Reset() {
 	*x = EnvironmentReconcilePolicy{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[6]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -512,7 +512,7 @@ func (x *EnvironmentReconcilePolicy) String() string {
 func (*EnvironmentReconcilePolicy) ProtoMessage() {}
 
 func (x *EnvironmentReconcilePolicy) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[6]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -525,7 +525,7 @@ func (x *EnvironmentReconcilePolicy) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentReconcilePolicy.ProtoReflect.Descriptor instead.
 func (*EnvironmentReconcilePolicy) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{6}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *EnvironmentReconcilePolicy) GetEnabled() bool {
@@ -558,7 +558,7 @@ type EnvironmentStatus struct {
 
 func (x *EnvironmentStatus) Reset() {
 	*x = EnvironmentStatus{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[7]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -570,7 +570,7 @@ func (x *EnvironmentStatus) String() string {
 func (*EnvironmentStatus) ProtoMessage() {}
 
 func (x *EnvironmentStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[7]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -583,7 +583,7 @@ func (x *EnvironmentStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentStatus.ProtoReflect.Descriptor instead.
 func (*EnvironmentStatus) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{7}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *EnvironmentStatus) GetConditions() []*EnvironmentCondition {
@@ -606,7 +606,7 @@ type EnvironmentCondition struct {
 
 func (x *EnvironmentCondition) Reset() {
 	*x = EnvironmentCondition{}
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[8]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -618,7 +618,7 @@ func (x *EnvironmentCondition) String() string {
 func (*EnvironmentCondition) ProtoMessage() {}
 
 func (x *EnvironmentCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_environments_v1_environment_proto_msgTypes[8]
+	mi := &file_blanketops_environments_v1alpha1_environment_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -631,7 +631,7 @@ func (x *EnvironmentCondition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use EnvironmentCondition.ProtoReflect.Descriptor instead.
 func (*EnvironmentCondition) Descriptor() ([]byte, []int) {
-	return file_blanketops_environments_v1_environment_proto_rawDescGZIP(), []int{8}
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *EnvironmentCondition) GetType() string {
@@ -669,29 +669,29 @@ func (x *EnvironmentCondition) GetLastTransitionTime() *timestamppb.Timestamp {
 	return nil
 }
 
-var File_blanketops_environments_v1_environment_proto protoreflect.FileDescriptor
+var File_blanketops_environments_v1alpha1_environment_proto protoreflect.FileDescriptor
 
-const file_blanketops_environments_v1_environment_proto_rawDesc = "" +
+const file_blanketops_environments_v1alpha1_environment_proto_rawDesc = "" +
 	"\n" +
-	",blanketops/environments/v1/environment.proto\x12\x1ablanketops.environments.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\x95\x01\n" +
-	"\vEnvironment\x12?\n" +
-	"\x04spec\x18\x01 \x01(\v2+.blanketops.environments.v1.EnvironmentSpecR\x04spec\x12E\n" +
-	"\x06status\x18\x02 \x01(\v2-.blanketops.environments.v1.EnvironmentStatusR\x06status\"\xa1\x05\n" +
+	"2blanketops/environments/v1alpha1/environment.proto\x12 blanketops.environments.v1alpha1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa1\x01\n" +
+	"\vEnvironment\x12E\n" +
+	"\x04spec\x18\x01 \x01(\v21.blanketops.environments.v1alpha1.EnvironmentSpecR\x04spec\x12K\n" +
+	"\x06status\x18\x02 \x01(\v23.blanketops.environments.v1alpha1.EnvironmentStatusR\x06status\"\xc5\x05\n" +
 	"\x0fEnvironmentSpec\x12)\n" +
 	"\x10application_name\x18\x01 \x01(\tR\x0fapplicationName\x12\x16\n" +
 	"\x06branch\x18\x02 \x01(\tR\x06branch\x12\x1b\n" +
-	"\tgit_owner\x18\x03 \x01(\tR\bgitOwner\x12V\n" +
-	"\x10environment_type\x18\x04 \x01(\x0e2+.blanketops.environments.v1.EnvironmentTypeR\x0fenvironmentType\x12\x18\n" +
+	"\tgit_owner\x18\x03 \x01(\tR\bgitOwner\x12\\\n" +
+	"\x10environment_type\x18\x04 \x01(\x0e21.blanketops.environments.v1alpha1.EnvironmentTypeR\x0fenvironmentType\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\x12 \n" +
-	"\vdescription\x18\x06 \x01(\tR\vdescription\x12Z\n" +
-	"\rservice_units\x18\a \x03(\v25.blanketops.environments.v1.EnvironmentServiceUnitRefR\fserviceUnits\x12T\n" +
+	"\vdescription\x18\x06 \x01(\tR\vdescription\x12`\n" +
+	"\rservice_units\x18\a \x03(\v2;.blanketops.environments.v1alpha1.EnvironmentServiceUnitRefR\fserviceUnits\x12Z\n" +
 	"\n" +
-	"deployment\x18\b \x01(\v24.blanketops.environments.v1.EnvironmentDeploymentRefR\n" +
-	"deployment\x12E\n" +
-	"\x05route\x18\t \x01(\v2/.blanketops.environments.v1.EnvironmentRouteRefR\x05route\x12T\n" +
+	"deployment\x18\b \x01(\v2:.blanketops.environments.v1alpha1.EnvironmentDeploymentRefR\n" +
+	"deployment\x12K\n" +
+	"\x05route\x18\t \x01(\v25.blanketops.environments.v1alpha1.EnvironmentRouteRefR\x05route\x12Z\n" +
 	"\treconcile\x18\n" +
-	" \x01(\v26.blanketops.environments.v1.EnvironmentReconcilePolicyR\treconcile\x12K\n" +
-	"\apackage\x18\v \x01(\v21.blanketops.environments.v1.EnvironmentPackageRefR\apackage\"/\n" +
+	" \x01(\v2<.blanketops.environments.v1alpha1.EnvironmentReconcilePolicyR\treconcile\x12Q\n" +
+	"\apackage\x18\v \x01(\v27.blanketops.environments.v1alpha1.EnvironmentPackageRefR\apackage\"/\n" +
 	"\x19EnvironmentServiceUnitRef\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\".\n" +
 	"\x18EnvironmentDeploymentRef\x12\x12\n" +
@@ -699,14 +699,14 @@ const file_blanketops_environments_v1_environment_proto_rawDesc = "" +
 	"\x13EnvironmentRouteRef\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"+\n" +
 	"\x15EnvironmentPackageRef\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\xb7\x01\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\xbd\x01\n" +
 	"\x1aEnvironmentReconcilePolicy\x12\x18\n" +
 	"\aenabled\x18\x01 \x01(\bR\aenabled\x12)\n" +
-	"\x10image_automation\x18\x02 \x01(\bR\x0fimageAutomation\x12T\n" +
-	"\bstrategy\x18\x03 \x01(\x0e28.blanketops.environments.v1.EnvironmentReconcileStrategyR\bstrategy\"e\n" +
-	"\x11EnvironmentStatus\x12P\n" +
+	"\x10image_automation\x18\x02 \x01(\bR\x0fimageAutomation\x12Z\n" +
+	"\bstrategy\x18\x03 \x01(\x0e2>.blanketops.environments.v1alpha1.EnvironmentReconcileStrategyR\bstrategy\"k\n" +
+	"\x11EnvironmentStatus\x12V\n" +
 	"\n" +
-	"conditions\x18\x01 \x03(\v20.blanketops.environments.v1.EnvironmentConditionR\n" +
+	"conditions\x18\x01 \x03(\v26.blanketops.environments.v1alpha1.EnvironmentConditionR\n" +
 	"conditions\"\xc2\x01\n" +
 	"\x14EnvironmentCondition\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x16\n" +
@@ -723,48 +723,48 @@ const file_blanketops_environments_v1_environment_proto_rawDesc = "" +
 	"\x1cENVIRONMENT_TYPE_DEVELOPMENT\x10\x01\x12\x1c\n" +
 	"\x18ENVIRONMENT_TYPE_STAGING\x10\x02\x12\x1f\n" +
 	"\x1bENVIRONMENT_TYPE_PRODUCTION\x10\x03\x12\x1c\n" +
-	"\x18ENVIRONMENT_TYPE_TESTING\x10\x04BSZQgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1b\x06proto3"
+	"\x18ENVIRONMENT_TYPE_TESTING\x10\x04BcZagithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1b\x06proto3"
 
 var (
-	file_blanketops_environments_v1_environment_proto_rawDescOnce sync.Once
-	file_blanketops_environments_v1_environment_proto_rawDescData []byte
+	file_blanketops_environments_v1alpha1_environment_proto_rawDescOnce sync.Once
+	file_blanketops_environments_v1alpha1_environment_proto_rawDescData []byte
 )
 
-func file_blanketops_environments_v1_environment_proto_rawDescGZIP() []byte {
-	file_blanketops_environments_v1_environment_proto_rawDescOnce.Do(func() {
-		file_blanketops_environments_v1_environment_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1_environment_proto_rawDesc), len(file_blanketops_environments_v1_environment_proto_rawDesc)))
+func file_blanketops_environments_v1alpha1_environment_proto_rawDescGZIP() []byte {
+	file_blanketops_environments_v1alpha1_environment_proto_rawDescOnce.Do(func() {
+		file_blanketops_environments_v1alpha1_environment_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1alpha1_environment_proto_rawDesc), len(file_blanketops_environments_v1alpha1_environment_proto_rawDesc)))
 	})
-	return file_blanketops_environments_v1_environment_proto_rawDescData
+	return file_blanketops_environments_v1alpha1_environment_proto_rawDescData
 }
 
-var file_blanketops_environments_v1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_blanketops_environments_v1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
-var file_blanketops_environments_v1_environment_proto_goTypes = []any{
-	(EnvironmentReconcileStrategy)(0),  // 0: blanketops.environments.v1.EnvironmentReconcileStrategy
-	(EnvironmentType)(0),               // 1: blanketops.environments.v1.EnvironmentType
-	(*Environment)(nil),                // 2: blanketops.environments.v1.Environment
-	(*EnvironmentSpec)(nil),            // 3: blanketops.environments.v1.EnvironmentSpec
-	(*EnvironmentServiceUnitRef)(nil),  // 4: blanketops.environments.v1.EnvironmentServiceUnitRef
-	(*EnvironmentDeploymentRef)(nil),   // 5: blanketops.environments.v1.EnvironmentDeploymentRef
-	(*EnvironmentRouteRef)(nil),        // 6: blanketops.environments.v1.EnvironmentRouteRef
-	(*EnvironmentPackageRef)(nil),      // 7: blanketops.environments.v1.EnvironmentPackageRef
-	(*EnvironmentReconcilePolicy)(nil), // 8: blanketops.environments.v1.EnvironmentReconcilePolicy
-	(*EnvironmentStatus)(nil),          // 9: blanketops.environments.v1.EnvironmentStatus
-	(*EnvironmentCondition)(nil),       // 10: blanketops.environments.v1.EnvironmentCondition
+var file_blanketops_environments_v1alpha1_environment_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_blanketops_environments_v1alpha1_environment_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_blanketops_environments_v1alpha1_environment_proto_goTypes = []any{
+	(EnvironmentReconcileStrategy)(0),  // 0: blanketops.environments.v1alpha1.EnvironmentReconcileStrategy
+	(EnvironmentType)(0),               // 1: blanketops.environments.v1alpha1.EnvironmentType
+	(*Environment)(nil),                // 2: blanketops.environments.v1alpha1.Environment
+	(*EnvironmentSpec)(nil),            // 3: blanketops.environments.v1alpha1.EnvironmentSpec
+	(*EnvironmentServiceUnitRef)(nil),  // 4: blanketops.environments.v1alpha1.EnvironmentServiceUnitRef
+	(*EnvironmentDeploymentRef)(nil),   // 5: blanketops.environments.v1alpha1.EnvironmentDeploymentRef
+	(*EnvironmentRouteRef)(nil),        // 6: blanketops.environments.v1alpha1.EnvironmentRouteRef
+	(*EnvironmentPackageRef)(nil),      // 7: blanketops.environments.v1alpha1.EnvironmentPackageRef
+	(*EnvironmentReconcilePolicy)(nil), // 8: blanketops.environments.v1alpha1.EnvironmentReconcilePolicy
+	(*EnvironmentStatus)(nil),          // 9: blanketops.environments.v1alpha1.EnvironmentStatus
+	(*EnvironmentCondition)(nil),       // 10: blanketops.environments.v1alpha1.EnvironmentCondition
 	(*timestamppb.Timestamp)(nil),      // 11: google.protobuf.Timestamp
 }
-var file_blanketops_environments_v1_environment_proto_depIdxs = []int32{
-	3,  // 0: blanketops.environments.v1.Environment.spec:type_name -> blanketops.environments.v1.EnvironmentSpec
-	9,  // 1: blanketops.environments.v1.Environment.status:type_name -> blanketops.environments.v1.EnvironmentStatus
-	1,  // 2: blanketops.environments.v1.EnvironmentSpec.environment_type:type_name -> blanketops.environments.v1.EnvironmentType
-	4,  // 3: blanketops.environments.v1.EnvironmentSpec.service_units:type_name -> blanketops.environments.v1.EnvironmentServiceUnitRef
-	5,  // 4: blanketops.environments.v1.EnvironmentSpec.deployment:type_name -> blanketops.environments.v1.EnvironmentDeploymentRef
-	6,  // 5: blanketops.environments.v1.EnvironmentSpec.route:type_name -> blanketops.environments.v1.EnvironmentRouteRef
-	8,  // 6: blanketops.environments.v1.EnvironmentSpec.reconcile:type_name -> blanketops.environments.v1.EnvironmentReconcilePolicy
-	7,  // 7: blanketops.environments.v1.EnvironmentSpec.package:type_name -> blanketops.environments.v1.EnvironmentPackageRef
-	0,  // 8: blanketops.environments.v1.EnvironmentReconcilePolicy.strategy:type_name -> blanketops.environments.v1.EnvironmentReconcileStrategy
-	10, // 9: blanketops.environments.v1.EnvironmentStatus.conditions:type_name -> blanketops.environments.v1.EnvironmentCondition
-	11, // 10: blanketops.environments.v1.EnvironmentCondition.last_transition_time:type_name -> google.protobuf.Timestamp
+var file_blanketops_environments_v1alpha1_environment_proto_depIdxs = []int32{
+	3,  // 0: blanketops.environments.v1alpha1.Environment.spec:type_name -> blanketops.environments.v1alpha1.EnvironmentSpec
+	9,  // 1: blanketops.environments.v1alpha1.Environment.status:type_name -> blanketops.environments.v1alpha1.EnvironmentStatus
+	1,  // 2: blanketops.environments.v1alpha1.EnvironmentSpec.environment_type:type_name -> blanketops.environments.v1alpha1.EnvironmentType
+	4,  // 3: blanketops.environments.v1alpha1.EnvironmentSpec.service_units:type_name -> blanketops.environments.v1alpha1.EnvironmentServiceUnitRef
+	5,  // 4: blanketops.environments.v1alpha1.EnvironmentSpec.deployment:type_name -> blanketops.environments.v1alpha1.EnvironmentDeploymentRef
+	6,  // 5: blanketops.environments.v1alpha1.EnvironmentSpec.route:type_name -> blanketops.environments.v1alpha1.EnvironmentRouteRef
+	8,  // 6: blanketops.environments.v1alpha1.EnvironmentSpec.reconcile:type_name -> blanketops.environments.v1alpha1.EnvironmentReconcilePolicy
+	7,  // 7: blanketops.environments.v1alpha1.EnvironmentSpec.package:type_name -> blanketops.environments.v1alpha1.EnvironmentPackageRef
+	0,  // 8: blanketops.environments.v1alpha1.EnvironmentReconcilePolicy.strategy:type_name -> blanketops.environments.v1alpha1.EnvironmentReconcileStrategy
+	10, // 9: blanketops.environments.v1alpha1.EnvironmentStatus.conditions:type_name -> blanketops.environments.v1alpha1.EnvironmentCondition
+	11, // 10: blanketops.environments.v1alpha1.EnvironmentCondition.last_transition_time:type_name -> google.protobuf.Timestamp
 	11, // [11:11] is the sub-list for method output_type
 	11, // [11:11] is the sub-list for method input_type
 	11, // [11:11] is the sub-list for extension type_name
@@ -772,27 +772,27 @@ var file_blanketops_environments_v1_environment_proto_depIdxs = []int32{
 	0,  // [0:11] is the sub-list for field type_name
 }
 
-func init() { file_blanketops_environments_v1_environment_proto_init() }
-func file_blanketops_environments_v1_environment_proto_init() {
-	if File_blanketops_environments_v1_environment_proto != nil {
+func init() { file_blanketops_environments_v1alpha1_environment_proto_init() }
+func file_blanketops_environments_v1alpha1_environment_proto_init() {
+	if File_blanketops_environments_v1alpha1_environment_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1_environment_proto_rawDesc), len(file_blanketops_environments_v1_environment_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blanketops_environments_v1alpha1_environment_proto_rawDesc), len(file_blanketops_environments_v1alpha1_environment_proto_rawDesc)),
 			NumEnums:      2,
 			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_blanketops_environments_v1_environment_proto_goTypes,
-		DependencyIndexes: file_blanketops_environments_v1_environment_proto_depIdxs,
-		EnumInfos:         file_blanketops_environments_v1_environment_proto_enumTypes,
-		MessageInfos:      file_blanketops_environments_v1_environment_proto_msgTypes,
+		GoTypes:           file_blanketops_environments_v1alpha1_environment_proto_goTypes,
+		DependencyIndexes: file_blanketops_environments_v1alpha1_environment_proto_depIdxs,
+		EnumInfos:         file_blanketops_environments_v1alpha1_environment_proto_enumTypes,
+		MessageInfos:      file_blanketops_environments_v1alpha1_environment_proto_msgTypes,
 	}.Build()
-	File_blanketops_environments_v1_environment_proto = out.File
-	file_blanketops_environments_v1_environment_proto_goTypes = nil
-	file_blanketops_environments_v1_environment_proto_depIdxs = nil
+	File_blanketops_environments_v1alpha1_environment_proto = out.File
+	file_blanketops_environments_v1alpha1_environment_proto_goTypes = nil
+	file_blanketops_environments_v1alpha1_environment_proto_depIdxs = nil
 }

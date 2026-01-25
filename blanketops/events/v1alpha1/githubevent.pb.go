@@ -342,7 +342,7 @@ const file_blanketops_events_v1alpha1_githubevent_proto_rawDesc = "" +
 	"\x17GIT_HUB_EVENT_TYPE_PUSH\x10\x01\x12#\n" +
 	"\x1fGIT_HUB_EVENT_TYPE_PULL_REQUEST\x10\x02\x12\x1e\n" +
 	"\x1aGIT_HUB_EVENT_TYPE_RELEASE\x10\x03\x12\x1d\n" +
-	"\x19GIT_HUB_EVENT_TYPE_MANUAL\x10\x04BYZWgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/events/v1alpha1;v1alpha1b\x06proto3"
+	"\x19GIT_HUB_EVENT_TYPE_MANUAL\x10\x04B]Z[github.com/ntlaletsi70/blanketops-environments-contract/blanketops/events/v1alpha1;v1alpha1b\x06proto3"
 
 var (
 	file_blanketops_events_v1alpha1_githubevent_proto_rawDescOnce sync.Once

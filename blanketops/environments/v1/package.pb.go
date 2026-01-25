@@ -604,7 +604,7 @@ const file_blanketops_environments_v1_package_proto_rawDesc = "" +
 	"\x19PACKAGE_PHASE_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15PACKAGE_PHASE_PENDING\x10\x01\x12\x17\n" +
 	"\x13PACKAGE_PHASE_READY\x10\x02\x12\x18\n" +
-	"\x14PACKAGE_PHASE_FAILED\x10\x03BSZQgithub.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1b\x06proto3"
+	"\x14PACKAGE_PHASE_FAILED\x10\x03BWZUgithub.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1b\x06proto3"
 
 var (
 	file_blanketops_environments_v1_package_proto_rawDescOnce sync.Once
