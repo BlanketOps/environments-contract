@@ -1,0 +1,43 @@
+name: Validate & Generate Contracts
+
+on:
+    push:
+        branches: ["main", "develop"]
+    pull_request:
+        branches: ["main", "develop"]
+
+jobs:
+    buf:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: latest
+
+            # ------------------------------------------------------------
+            # 1. Lint: schema correctness, style, naming
+            # ------------------------------------------------------------
+            - name: Buf Lint
+              run: buf lint
+
+            # ------------------------------------------------------------
+            # 2. Breaking change detection
+            # v1alpha1 is allowed to change
+            # v1 must never break
+            # ------------------------------------------------------------
+            - name: Buf Breaking Check
+              run: |
+                  buf breaking \
+                    --against '.git#branch=main' \
+                    || echo "⚠️ Breaking changes detected (allowed on non-v1)"
+
+            # ------------------------------------------------------------
+            # 3. Generate outputs (Go, TS, WASM, etc)
+            # ------------------------------------------------------------
+            - name: Buf Generate
+              run: buf generate

@@ -1,0 +1,125 @@
+syntax = "proto3";
+
+package blanketops.environments.v1alpha1;
+
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1alpha1;v1alpha1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// -----------------------------------------------------------------------------
+// Environment
+// -----------------------------------------------------------------------------
+
+message Environment {
+  EnvironmentSpec spec = 1;
+  EnvironmentStatus status = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+
+message EnvironmentSpec {
+  // Human-readable application identifier
+  string application_name = 1;
+
+  // Git branch associated with this environment
+  string branch = 2;
+
+  // Owning Git org / user
+  string git_owner = 3;
+
+  // Environment classification (dev, staging, prod, etc.)
+  EnvironmentType environment_type = 4;
+
+  // Application version (semantic or otherwise)
+  string version = 5;
+
+  // Optional description
+  string description = 6;
+
+  // ServiceUnits that make up this environment
+  repeated ServiceUnitReference service_units = 7;
+
+  // Deployment intent (how service units are materialized)
+  DeploymentReference deployment = 8;
+
+  // Optional external routing
+  RouteReference route = 9;
+
+  // Reconciliation / drift control
+  ReconcilePolicy reconcile = 10;
+
+  // Optional packaging / release artifact
+  PackageReference package = 11;
+}
+
+
+// -----------------------------------------------------------------------------
+// References (composition, not ownership)
+// -----------------------------------------------------------------------------
+
+message ServiceUnitReference {
+  string name = 1;
+}
+
+message DeploymentReference {
+  string name = 1;
+}
+
+message RouteReference {
+  string name = 1;
+}
+
+message PackageReference {
+  string name = 1;
+}
+
+
+// -----------------------------------------------------------------------------
+// Reconciliation
+// -----------------------------------------------------------------------------
+
+message ReconcilePolicy {
+  bool enabled = 1;
+  bool image_automation = 2;
+  ReconcileStrategy strategy = 3;
+}
+
+enum ReconcileStrategy {
+  RECONCILE_STRATEGY_UNSPECIFIED = 0;
+  GITOPS = 1;
+  KUSTOMIZE = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+
+message EnvironmentStatus {
+  repeated EnvironmentCondition conditions = 1;
+}
+
+message EnvironmentCondition {
+  string type = 1;
+  string status = 2;
+  string reason = 3;
+  string message = 4;
+  google.protobuf.Timestamp last_transition_time = 5;
+}
+
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum EnvironmentType {
+  ENVIRONMENT_TYPE_UNSPECIFIED = 0;
+  DEVELOPMENT = 1;
+  STAGING = 2;
+  PRODUCTION = 3;
+  TESTING = 4;
+}
