@@ -84,21 +84,22 @@ message BuildStrategy {
 // -----------------------------------------------------------------------------
 
 message BuildPolicy {
-  repeated BuildTrigger allowed_triggers = 1;
+  repeated BuildTriggerPolicy allowed_triggers = 1;
   RetryPolicy retry = 2;
 }
 
-message BuildTrigger {
+message BuildTriggerPolicy {
   enum Type {
-    BUILD_TRIGGER_TYPE_UNSPECIFIED = 0;
-    BUILD_TRIGGER_TYPE_MANUAL = 1;
-    BUILD_TRIGGER_TYPE_PUSH = 2;
-    BUILD_TRIGGER_TYPE_PULL_REQUEST = 3;
-    BUILD_TRIGGER_TYPE_SCHEDULE = 4;
+    BUILD_TRIGGER_POLICY_TYPE_UNSPECIFIED = 0;
+    BUILD_TRIGGER_POLICY_TYPE_MANUAL = 1;
+    BUILD_TRIGGER_POLICY_TYPE_PUSH = 2;
+    BUILD_TRIGGER_POLICY_TYPE_PULL_REQUEST = 3;
+    BUILD_TRIGGER_POLICY_TYPE_SCHEDULE = 4;
   }
 
   Type type = 1;
 }
+
 
 message RetryPolicy {
   bool on_failure = 1;
