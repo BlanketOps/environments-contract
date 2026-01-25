@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package blanketops.environments.v1;
+
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+
+// -----------------------------------------------------------------------------
+// Build
+// -----------------------------------------------------------------------------
+
+message Build {
+  BuildSpec spec = 1;
+  BuildStatus status = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+
+message BuildSpec {
+  // Fully qualified destination image reference
+  string image = 1;
+
+  // Strategy used to build the image
+  BuildStrategy strategy = 2;
+
+  // Source repository for the build
+  GitSource source = 3;
+
+  // Optional execution policy
+  BuildPolicy policy = 4;
+
+  // Optional service account identity
+  ServiceAccount service_account = 5;
+
+  // Optional strategy parameters
+  repeated Param params = 6;
+
+  // Optional timeout for a single execution
+  google.protobuf.Duration timeout = 7;
+
+  // Optional image TTL after successful build
+  google.protobuf.Duration time_to_live = 8;
+}
+
+
+// -----------------------------------------------------------------------------
+// Source
+// -----------------------------------------------------------------------------
+
+message GitSource {
+  string url = 1;
+  string revision = 2;
+  string context_dir = 3;
+  uint32 depth = 4;
+  bool ssl_verify = 5;
+  string clone_secret = 6;
+}
+
+
+// -----------------------------------------------------------------------------
+// Strategy
+// -----------------------------------------------------------------------------
+
+message BuildStrategy {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_CLUSTER = 1;
+    KIND_NAMESPACED = 2;
+  }
+
+  string name = 1;
+  Kind kind = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Policy
+// -----------------------------------------------------------------------------
+
+message BuildPolicy {
+  repeated BuildTriggerPolicy allowed_triggers = 1;
+  RetryPolicy retry = 2;
+}
+
+message BuildTriggerPolicy {
+  enum Type {
+   TYPE_UNSPECIFIED = 0;
+   TYPE_MANUAL = 1;
+   TYPE_PUSH = 2;
+   TYPE_PULL_REQUEST = 3;
+   TYPE_SCHEDULE = 4;
+  }
+
+  Type type = 1;
+}
+
+
+message RetryPolicy {
+  bool on_failure = 1;
+  uint32 max_attempts = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Identity
+// -----------------------------------------------------------------------------
+
+message ServiceAccount {
+  string name = 1;
+  string secret = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Parameters
+// -----------------------------------------------------------------------------
+
+message Param {
+  string name = 1;
+  string value = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+
+message BuildStatus {
+  enum Phase {
+    PHASE_UNSPECIFIED = 0;
+    PHASE_PENDING = 1;
+    PHASE_RUNNING = 2;
+    PHASE_SUCCEEDED = 3;
+    PHASE_FAILED = 4;
+    PHASE_CANCELLED = 5;
+  }
+
+  Phase phase = 1;
+
+  // Image produced by the build (if any)
+  string image = 2;
+
+  // Reference to the execution that produced this result
+  string execution_ref = 3;
+
+  // Free-form status message
+  string message = 4;
+
+  // Observability
+  google.protobuf.Timestamp start_time = 5;
+  google.protobuf.Timestamp completion_time = 6;
+}

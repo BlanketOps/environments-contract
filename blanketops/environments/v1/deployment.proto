@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package blanketops.environments.v1;
+
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// -----------------------------------------------------------------------------
+// Deployment
+// -----------------------------------------------------------------------------
+
+message Deployment {
+  DeploymentSpec spec = 1;
+  DeploymentStatus status = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+
+message DeploymentSpec {
+  // ServiceUnits that make up this deployment
+  repeated string service_units = 1;
+
+  // Target runtime backend
+  DeploymentRuntime runtime = 2;
+
+  // Enable automatic image updates from build outputs
+  bool image_automation = 3;
+
+  // Optional GitOps repository containing manifests
+  DeploymentManifestsRepo manifests_repo = 4;
+
+  // Reconciliation strategy
+  DeploymentReconciliationStrategy reconciliation_strategy = 5;
+}
+
+
+// -----------------------------------------------------------------------------
+// GitOps
+// -----------------------------------------------------------------------------
+
+message DeploymentManifestsRepo {
+  // Repository URL
+  string url = 1;
+
+  // Git reference (branch / tag / sha)
+  string ref = 2;
+
+  // Secret used to authenticate
+  string clone_secret = 3;
+
+  // Application strategy (kustomize, helm, etc)
+  string strategy = 4;
+
+  // Path inside the repository
+  string path = 5;
+}
+
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+
+message DeploymentStatus {
+  DeploymentPhase phase = 1;
+
+  // Human-readable summary
+  string message = 2;
+
+  // Runtime actually used
+  DeploymentRuntime runtime = 3;
+
+  // Strategy applied (rolling, canary, etc)
+  DeploymentStrategy strategy = 4;
+
+  // Per-ServiceUnit status
+  repeated ServiceUnitDeploymentStatus service_unit_statuses = 5;
+
+  // Last update timestamp
+  google.protobuf.Timestamp last_updated_at = 6;
+}
+
+
+// -----------------------------------------------------------------------------
+// ServiceUnit Status
+// -----------------------------------------------------------------------------
+
+message ServiceUnitDeploymentStatus {
+  string name = 1;
+
+  DeploymentServiceUnitPhase phase = 2;
+
+  // Image that was deployed
+  string image = 3;
+
+  // Runtime backend used
+  DeploymentRuntime runtime = 4;
+
+  // Status message
+  string message = 5;
+
+  // Error details if failed
+  string error = 6;
+
+  google.protobuf.Timestamp last_transition_time = 7;
+}
+
+
+// -----------------------------------------------------------------------------
+// Enums (GLOBAL-SAFE)
+// -----------------------------------------------------------------------------
+
+enum DeploymentRuntime {
+  DEPLOYMENT_RUNTIME_UNSPECIFIED = 0;
+  DEPLOYMENT_RUNTIME_KUBERNETES_CONTAINER = 1;
+  DEPLOYMENT_RUNTIME_KNATIVE_SERVICE = 2;
+  DEPLOYMENT_RUNTIME_WASM = 3;
+  DEPLOYMENT_RUNTIME_AWS_ECS = 4;
+  DEPLOYMENT_RUNTIME_AZURE_CONTAINER = 5;
+}
+
+
+enum DeploymentReconciliationStrategy {
+  DEPLOYMENT_RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
+  DEPLOYMENT_RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
+  DEPLOYMENT_RECONCILIATION_STRATEGY_HELM = 2;
+}
+
+enum DeploymentPhase {
+  DEPLOYMENT_PHASE_UNSPECIFIED = 0;
+  DEPLOYMENT_PHASE_PENDING = 1;
+  DEPLOYMENT_PHASE_DEPLOYING = 2;
+  DEPLOYMENT_PHASE_READY = 3;
+  DEPLOYMENT_PHASE_FAILED = 4;
+}
+
+enum DeploymentStrategy {
+  DEPLOYMENT_STRATEGY_UNSPECIFIED = 0;
+  DEPLOYMENT_STRATEGY_ROLLING = 1;
+  DEPLOYMENT_STRATEGY_CANARY = 2;
+  DEPLOYMENT_STRATEGY_BLUE_GREEN = 3;
+}
+
+enum DeploymentServiceUnitPhase {
+  DEPLOYMENT_SERVICE_UNIT_PHASE_UNSPECIFIED = 0;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_PENDING = 1;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_DEPLOYING = 2;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_READY = 3;
+  DEPLOYMENT_SERVICE_UNIT_PHASE_FAILED = 4;
+}

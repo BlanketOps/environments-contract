@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package blanketops.environments.v1;
+
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/environments/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// -----------------------------------------------------------------------------
+// BuildTrigger
+// -----------------------------------------------------------------------------
+
+message BuildTrigger {
+  BuildTriggerSpec spec = 1;
+  BuildTriggerStatus status = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+
+message BuildTriggerSpec {
+  // Origin of the trigger
+  BuildTriggerSource source = 1;
+
+  // Type of event
+  BuildTriggerType type = 2;
+
+  // Repository identifier (org/name)
+  string repository = 3;
+
+  // Git ref (branch, tag, PR ref)
+  string ref = 4;
+
+  // Commit SHA (if applicable)
+  string sha = 5;
+
+  // Actor that caused the event
+  string actor = 6;
+
+  // External event ID for idempotency
+  string event_id = 7;
+
+  // Target build
+  BuildTriggerBuildRef build = 8;
+}
+
+
+// -----------------------------------------------------------------------------
+// References
+// -----------------------------------------------------------------------------
+
+message BuildTriggerBuildRef {
+  string name = 1;
+}
+
+
+// -----------------------------------------------------------------------------
+// Enums (GLOBAL-SAFE)
+// -----------------------------------------------------------------------------
+
+enum BuildTriggerSource {
+  BUILD_TRIGGER_SOURCE_UNSPECIFIED = 0;
+  BUILD_TRIGGER_SOURCE_GITHUB = 1;
+  BUILD_TRIGGER_SOURCE_GITLAB = 2;
+  BUILD_TRIGGER_SOURCE_MANUAL = 3;
+}
+
+enum BuildTriggerType {
+  BUILD_TRIGGER_TYPE_UNSPECIFIED = 0;
+  BUILD_TRIGGER_TYPE_PUSH = 1;
+  BUILD_TRIGGER_TYPE_PULL_REQUEST = 2;
+  BUILD_TRIGGER_TYPE_MANUAL = 3;
+}
+
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+
+message BuildTriggerStatus {
+  enum Phase {
+    PHASE_UNSPECIFIED = 0;
+    PHASE_PENDING = 1;
+    PHASE_ACCEPTED = 2;
+    PHASE_REJECTED = 3;
+    PHASE_CONSUMED = 4;
+  }
+  Phase phase = 1;
+
+  // Reason for acceptance or rejection
+  string reason = 2;
+
+  // Component that accepted the trigger
+  string accepted_by = 3;
+
+  // Execution created as a result
+  string execution_ref = 4;
+
+  // Human-readable status message
+  string message = 5;
+
+  // When the trigger was last processed
+  google.protobuf.Timestamp observed_at = 6;
+}

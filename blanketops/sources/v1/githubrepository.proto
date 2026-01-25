@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package blanketops.sources.v1;
+
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/gen/go/sources/v1;v1";
+
+import "google/protobuf/timestamp.proto";
+
+
+// -----------------------------------------------------------------------------
+// GitRepository
+// -----------------------------------------------------------------------------
+
+message GitRepository {
+  GitRepositorySpec spec = 1;
+  GitRepositoryStatus status = 2;
+}
+
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+
+message GitRepositorySpec {
+  // Source provider (github, gitlab, bitbucket, etc.)
+  GitProvider provider = 1;
+
+  // Repository identity
+  GitRepositoryRef repository = 2;
+
+  // Events this repository is allowed to emit
+  repeated GitRepositoryWebhook webhooks = 3;
+}
+
+
+message GitRepositoryRef {
+  string owner = 1;
+  string name = 2;
+}
+
+
+message GitRepositoryWebhook {
+  // Events to subscribe to (push, pull_request, release, etc.)
+  repeated GitEventType events = 1;
+}
+
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+
+message GitRepositoryStatus {
+  // Indicates whether the repository is ready for use
+  bool ready = 1;
+
+  // Human-readable reason if not ready
+  string reason = 2;
+
+  // Last time the repository status changed
+  google.protobuf.Timestamp last_updated_at = 3;
+}
+
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum GitProvider {
+  GIT_PROVIDER_UNSPECIFIED = 0;
+  GIT_PROVIDER_GITHUB = 1;
+  GIT_PROVIDER_GITLAB = 2;
+  GIT_PROVIDER_BITBUCKET = 3;
+  GIT_PROVIDER_GENERIC_GIT = 4;
+}
+
+enum GitEventType {
+  GIT_EVENT_TYPE_UNSPECIFIED = 0;
+  GIT_EVENT_TYPE_PUSH = 1;
+  GIT_EVENT_TYPE_PULL_REQUEST = 2;
+  GIT_EVENT_TYPE_RELEASE = 3;
+  GIT_EVENT_TYPE_TAG = 4;
+}
