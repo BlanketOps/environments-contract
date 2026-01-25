@@ -69,9 +69,9 @@ message GitSource {
 
 message BuildStrategy {
   enum Kind {
-    BUILD_STRATEGY_KIND_UNSPECIFIED = 0;
-    BUILD_STRATEGY_KIND_CLUSTER = 1;
-    BUILD_STRATEGY_KIND_NAMESPACED = 2;
+    KIND_UNSPECIFIED = 0;
+    KIND_CLUSTER = 1;
+    KIND_NAMESPACED = 2;
   }
 
   string name = 1;
@@ -90,11 +90,11 @@ message BuildPolicy {
 
 message BuildTriggerPolicy {
   enum Type {
-    BUILD_TRIGGER_POLICY_TYPE_UNSPECIFIED = 0;
-    BUILD_TRIGGER_POLICY_TYPE_MANUAL = 1;
-    BUILD_TRIGGER_POLICY_TYPE_PUSH = 2;
-    BUILD_TRIGGER_POLICY_TYPE_PULL_REQUEST = 3;
-    BUILD_TRIGGER_POLICY_TYPE_SCHEDULE = 4;
+   TYPE_UNSPECIFIED = 0;
+   TYPE_MANUAL = 1;
+   TYPE_PUSH = 2;
+   TYPE_PULL_REQUEST = 3;
+   TYPE_SCHEDULE = 4;
   }
 
   Type type = 1;
@@ -133,12 +133,12 @@ message Param {
 
 message BuildStatus {
   enum Phase {
-    BUILD_PHASE_UNSPECIFIED = 0;
-    BUILD_PHASE_PENDING = 1;
-    BUILD_PHASE_RUNNING = 2;
-    BUILD_PHASE_SUCCEEDED = 3;
-    BUILD_PHASE_FAILED = 4;
-    BUILD_PHASE_CANCELLED = 5;
+    PHASE_UNSPECIFIED = 0;
+    PHASE_PENDING = 1;
+    PHASE_RUNNING = 2;
+    PHASE_SUCCEEDED = 3;
+    PHASE_FAILED = 4;
+    PHASE_CANCELLED = 5;
   }
 
   Phase phase = 1;
