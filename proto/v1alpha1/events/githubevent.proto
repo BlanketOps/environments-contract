@@ -73,9 +73,9 @@ message GitHubEventStatus {
 // -----------------------------------------------------------------------------
 
 enum GitHubEventType {
-  GITHUB_EVENT_TYPE_UNSPECIFIED = 0;
-  PUSH = 1;
-  PULL_REQUEST = 2;
-  RELEASE = 3;
-  MANUAL = 4;
+  GIT_HUB_EVENT_TYPE_UNSPECIFIED = 0;
+  GIT_HUB_EVENT_TYPE_PUSH = 1;
+  GIT_HUB_EVENT_TYPE_PULL_REQUEST = 2;
+  GIT_HUB_EVENT_TYPE_RELEASE = 3;
+  GIT_HUB_EVENT_TYPE_MANUAL = 4;
 }
