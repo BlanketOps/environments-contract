@@ -2,9 +2,17 @@ name: Validate & Generate Contracts
 
 on:
   push:
-    branches: ["main", "develop", "*"]
+    branches:
+      - main
+      - develop
+      - feature/**
+      - release/**
+      - hotfix/**
+      - bugfix/**
   pull_request:
-    branches: ["main", "develop"]
+    branches:
+      - main
+      - develop
 
 jobs:
   buf:
@@ -27,14 +35,14 @@ jobs:
 
       # ------------------------------------------------------------
       # 2. Breaking change detection
-      # v1alpha1 is allowed to change
+      # v1alpha1 / v1beta1 may change
       # v1 must never break
       # ------------------------------------------------------------
       - name: Buf Breaking Check
         run: |
           buf breaking \
             --against '.git#branch=main' \
-            || echo "⚠️ Breaking changes detected (allowed on non-v1)"
+            || echo "⚠️ Breaking changes detected (allowed outside v1)"
 
       # ------------------------------------------------------------
       # 3. Generate outputs (Go, TS, WASM, etc)
