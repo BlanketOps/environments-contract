@@ -1,0 +1,35 @@
+# -------------------------------------------------
+# Generated protobuf code (ALL languages)
+# -------------------------------------------------
+
+# Go
+**/*.pb.go
+**/*_grpc.pb.go
+
+# JS / TS
+**/*.pb.js
+**/*.pb.ts
+**/*_grpc.pb.ts
+
+# Java / Kotlin
+**/*.pb.java
+
+# C# / .NET
+**/*.pb.cs
+
+# Python
+**/*_pb2.py
+**/*_pb2_grpc.py
+
+# Rust
+**/*.pb.rs
+
+# Swift / Dart
+**/*.pb.swift
+**/*.pb.dart
+
+# -------------------------------------------------
+# Buf / generator outputs
+# -------------------------------------------------
+gen/
+buf.gen/
