@@ -1,7 +1,6 @@
 name: Generate Changelog
 
 on:
-    workflow_dispatch:
     push:
         tags:
             - "v*"
@@ -18,19 +17,19 @@ jobs:
 
             - name: Install git-cliff
               run: |
-                  curl -sSL https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-linux-amd64.tar.gz \
-                  | tar xz
-                  sudo mv git-cliff /usr/local/bin/
+                  curl -sSL https://github.com/orhun/git-cliff/releases/latest/download/git-cliff-linux-amd64 \
+                    -o git-cliff
+                  chmod +x git-cliff
+                  sudo mv git-cliff /usr/local/bin/git-cliff
 
             - name: Generate CHANGELOG.md
               run: |
-                  git-cliff --tag $(git describe --tags --abbrev=0 2>/dev/null || echo "") \
-                    -o CHANGELOG.md
+                  git-cliff --latest --output CHANGELOG.md
 
             - name: Commit changelog
               run: |
                   git config user.name "blanketops-bot"
                   git config user.email "bot@blanketops.dev"
                   git add CHANGELOG.md
-                  git commit -m "chore(changelog): update changelog" || echo "No changes"
+                  git commit -m "chore(changelog): update changelog for ${GITHUB_REF_NAME}" || echo "No changes"
                   git push
