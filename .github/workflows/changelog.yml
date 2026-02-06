@@ -28,8 +28,10 @@ jobs:
 
             - name: Commit changelog
               run: |
-                  git config user.name "blanketops-bot"
-                  git config user.email "bot@blanketops.dev"
-                  git add CHANGELOG.md
+                  git config user.name "ntlaletsi70"
+                  git config user.email "ntlaletsi86@gmail.com"
+                  git fetch origin main
+                  git checkout main
+                  git add .github/CHANGELOG.md
                   git commit -m "chore(changelog): update changelog for ${GITHUB_REF_NAME}" || echo "No changes"
-                  git push
+                  git push origin main
