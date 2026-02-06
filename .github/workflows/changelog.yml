@@ -31,8 +31,8 @@ jobs:
 
             - name: Commit changelog to main
               run: |
-                  git config user.name "blanketops-bot"
-                  git config user.email "bot@blanketops.dev"
+                  git config user.name "ntlaletsi70"
+                  git config user.email "ntlaletsi86@gmail.com"
 
                   # Make sure main exists locally and is checked out
                   git fetch origin main
