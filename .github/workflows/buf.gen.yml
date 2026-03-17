@@ -1,5 +1,4 @@
 name: Validate & Generate Contracts
-
 on:
   push:
     branches:
@@ -13,11 +12,9 @@ on:
     branches:
       - main
       - develop
-
 jobs:
   buf:
     runs-on: self-hosted
-
     steps:
       # ------------------------------------------------------------
       # 0. Checkout
@@ -74,3 +71,42 @@ jobs:
       # ------------------------------------------------------------
       - name: Buf Generate
         run: buf generate
+
+      # ------------------------------------------------------------
+      # 7. Collect generated files into artifact folder
+      # ------------------------------------------------------------
+      - name: Collect generated artifacts
+        run: |
+          mkdir -p generated-artifacts
+          find blanketops -name "*.pb.go" -exec cp --parents {} generated-artifacts/ \;
+
+      # ------------------------------------------------------------
+      # 8. Upload generated files as workflow artifact
+      # ------------------------------------------------------------
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-contracts-${{ github.sha }}
+          path: generated-artifacts/
+          retention-days: 7
+
+  # ------------------------------------------------------------
+  # Tag job: runs only on main, marks artifact source
+  # ------------------------------------------------------------
+  tag:
+    runs-on: self-hosted
+    needs: buf
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate contract tag
+        run: |
+          TAG="contracts/$(date +'%Y%m%d%H%M%S')-${GITHUB_SHA::7}"
+          git tag "$TAG"
+          git push origin "$TAG"
