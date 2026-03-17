@@ -16,122 +16,40 @@ jobs:
   buf:
     runs-on: self-hosted
     steps:
-      # ------------------------------------------------------------
-      # 0. Checkout
-      # ------------------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------------
-      # 1. Setup Go (for protoc plugins)
-      # ------------------------------------------------------------
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
           cache: false
 
-      # ------------------------------------------------------------
-      # 2. Install protobuf generators (NOT committed)
-      # ------------------------------------------------------------
       - name: Install Go protobuf plugins
         run: |
           go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
           go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
-      # ------------------------------------------------------------
-      # 3. Setup Buf
-      # ------------------------------------------------------------
       - name: Setup Buf
         uses: bufbuild/buf-setup-action@v1
         with:
           version: latest
 
-      # ------------------------------------------------------------
-      # 4. Lint: schema correctness & style
-      # ------------------------------------------------------------
       - name: Buf Lint
         run: buf lint
 
-      # ------------------------------------------------------------
-      # 5. Breaking change detection
-      #   - v1alpha1 / v1beta1 may change
-      #   - v1 MUST NOT break
-      # ------------------------------------------------------------
       - name: Buf Breaking Check
         run: |
           buf breaking \
             --against '.git#branch=main' \
             || echo "⚠️ Breaking changes detected (allowed outside v1)"
 
-      # ------------------------------------------------------------
-      # 6. Generate outputs (Go, TS, WASM, etc)
-      #   - Output is ephemeral
-      #   - NEVER committed
-      # ------------------------------------------------------------
       - name: Buf Generate
         run: buf generate
 
-      # ------------------------------------------------------------
-      # 7. Collect generated files into artifact folder
-      # ------------------------------------------------------------
-      - name: Collect generated artifacts
-        run: |
-          mkdir -p generated-artifacts
-          find gen/ -type f | xargs -I{} cp --parents {} generated-artifacts/
-
-      # ------------------------------------------------------------
-      # 8. Upload generated files as workflow artifact
-      # ------------------------------------------------------------
-      - name: Upload generated artifacts
+      - name: Upload generated contracts
         uses: actions/upload-artifact@v4
         with:
-          name: generated-contracts-${{ github.run_id }}
-          path: generated-artifacts/
+          name: generated-contracts
+          path: gen/
           retention-days: 7
-
-  # ------------------------------------------------------------
-  # Release job: runs only on main, cuts tag + attaches assets
-  # ------------------------------------------------------------
-  release:
-    runs-on: self-hosted
-    needs: buf
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download generated artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: generated-contracts-${{ github.run_id }}
-          path: generated-artifacts/
-
-      - name: Archive generated artifacts
-        run: |
-          cd generated-artifacts
-          zip -r ../contracts-${{ github.sha }}.zip .
-
-      - name: Generate tag
-        id: tag
-        run: |
-          TAG="contracts/$(date +'%Y%m%d%H%M%S')-${GITHUB_SHA::7}"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          git tag "$TAG"
-          git push origin "$TAG"
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Contracts ${{ steps.tag.outputs.tag }}"
-          body: |
-            Generated protobuf contracts from commit ${{ github.sha }}
-
-            Includes generated outputs for all languages configured in buf.gen.yaml.
-          files: contracts-${{ github.sha }}.zip
-          prerelease: false
