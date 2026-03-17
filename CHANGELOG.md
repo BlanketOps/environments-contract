@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.0] - 2026-03-17
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.0.9
+
+### Bugfix
+
+- *(workflows)* In generate and artifact expose golang protocol buffers, extendible to multiple programming langauges per step
+- *(gomod)* Go mod update
+
 ## [0.0.9] - 2026-03-17
 
 ### 🚀 Features
