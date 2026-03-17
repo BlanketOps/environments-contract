@@ -2,7 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2026-03-17
+
+### Bugfix
+
+- *(workflow)* Add to buf gen download artifacts and place on release on buf gen, on release, on tag?
+
+## [contracts/20260317235856-fcc0c6b] - 2026-03-17
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.1.0
+
 ## [0.1.0] - 2026-03-17
+
+### 🚀 Features
+
+- *(gitignore)* Add gitignore
 
 ### ⚙️ Miscellaneous Tasks
 
