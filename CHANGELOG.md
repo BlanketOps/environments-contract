@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### Bugfix
+
+- *(gen)* Specify gen/go consistent path
+
+## [0.1.3] - 2026-03-17
+
+### 🚀 Features
+
+- *(workflows)* Redo, artifacts pre name, do not dyna gen,
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.1.2
+
 ## [0.1.2] - 2026-03-17
 
 ### ⚙️ Miscellaneous Tasks
