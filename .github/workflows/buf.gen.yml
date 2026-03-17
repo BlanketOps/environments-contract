@@ -16,7 +16,7 @@ on:
 
 jobs:
   buf:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       # ------------------------------------------------------------
@@ -32,6 +32,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "1.22"
+          cache: false
 
       # ------------------------------------------------------------
       # 2. Install protobuf generators (NOT committed)
