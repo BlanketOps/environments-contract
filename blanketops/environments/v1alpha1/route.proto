@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
-
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
 // Route
@@ -15,7 +15,6 @@ message Route {
   RouteSpec spec = 1;
   RouteStatus status = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Spec
@@ -38,7 +37,6 @@ message RouteSpec {
   // (kubernetes ingress, knative, gateway-api, etc.)
   RouteRuntime runtime = 5;
 }
-
 
 // -----------------------------------------------------------------------------
 // Status
@@ -65,7 +63,6 @@ message RouteStatus {
   google.protobuf.Timestamp last_updated_at = 6;
 }
 
-
 // -----------------------------------------------------------------------------
 // Conditions
 // -----------------------------------------------------------------------------
@@ -77,7 +74,6 @@ message RouteCondition {
   string message = 4;
   google.protobuf.Timestamp last_transition_time = 5;
 }
-
 
 // -----------------------------------------------------------------------------
 // Enums
@@ -97,7 +93,6 @@ enum RouteRuntime {
   ROUTE_RUNTIME_KNATIVE_SERVICE = 2;
   ROUTE_RUNTIME_GATEWAY_API = 3;
 }
-
 
 enum TLSStatus {
   TLS_STATUS_UNSPECIFIED = 0;

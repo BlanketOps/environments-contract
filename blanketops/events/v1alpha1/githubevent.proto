@@ -2,11 +2,10 @@ syntax = "proto3";
 
 package blanketops.events.v1alpha1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/events/v1alpha1;v1alpha1";
-
-
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Events.V1Alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/events/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
 // GitHubEvent
@@ -16,7 +15,6 @@ message GitHubEvent {
   GitHubEventSpec spec = 1;
   GitHubEventStatus status = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Spec
@@ -45,7 +43,6 @@ message GitHubEventSpec {
   google.protobuf.Timestamp occurred_at = 7;
 }
 
-
 // -----------------------------------------------------------------------------
 // Status
 // -----------------------------------------------------------------------------
@@ -67,7 +64,6 @@ message GitHubEventStatus {
   // Time the event was processed
   google.protobuf.Timestamp processed_at = 5;
 }
-
 
 // -----------------------------------------------------------------------------
 // Enums
