@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [unreleased]
 
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.1.3
+
+## [0.1.5] - 2026-03-17
+
 ### Bugfix
 
 - *(gen)* Specify gen/go consistent path
