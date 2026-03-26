@@ -7,3 +7,15 @@ plugins:
 - plugin: go-grpc
   out: gen/go
   opt: paths=source_relative
+
+# -----------------------------
+# C# (Models)
+# -----------------------------
+- plugin: csharp
+  out: gen/csharp
+
+# -----------------------------
+# C# gRPC
+# -----------------------------
+- plugin: grpc_csharp
+  out: gen/csharp

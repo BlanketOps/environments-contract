@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
-
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
 // BuildTrigger
@@ -15,7 +15,6 @@ message BuildTrigger {
   BuildTriggerSpec spec = 1;
   BuildTriggerStatus status = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Spec
@@ -47,7 +46,6 @@ message BuildTriggerSpec {
   BuildTriggerBuildRef build = 8;
 }
 
-
 // -----------------------------------------------------------------------------
 // References
 // -----------------------------------------------------------------------------
@@ -55,7 +53,6 @@ message BuildTriggerSpec {
 message BuildTriggerBuildRef {
   string name = 1;
 }
-
 
 // -----------------------------------------------------------------------------
 // Enums (GLOBAL-SAFE)
@@ -74,7 +71,6 @@ enum BuildTriggerType {
   BUILD_TRIGGER_TYPE_PULL_REQUEST = 2;
   BUILD_TRIGGER_TYPE_MANUAL = 3;
 }
-
 
 // -----------------------------------------------------------------------------
 // Status

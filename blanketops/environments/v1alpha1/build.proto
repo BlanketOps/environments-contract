@@ -2,55 +2,47 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
+// -----------------------------------------------------------------------------
+// Metadata
+// -----------------------------------------------------------------------------
 
+message Metadata {
+  string id = 1;
+  string name = 2;
+  map<string, string> labels = 3;
+}
 
 // -----------------------------------------------------------------------------
 // Build
 // -----------------------------------------------------------------------------
 
 message Build {
-  BuildSpec spec = 1;
-  BuildStatus status = 2;
+  Metadata metadata = 1;
+  BuildSpec spec = 2;
+  BuildStatus status = 3;
 }
-
 
 // -----------------------------------------------------------------------------
 // Spec
 // -----------------------------------------------------------------------------
 
 message BuildSpec {
-  // Fully qualified destination image reference
   string image = 1;
-
-  // Strategy used to build the image
   BuildStrategy strategy = 2;
-
-  // Source repository for the build
   GitSource source = 3;
-
-  // Optional execution policy
   BuildPolicy policy = 4;
-
-  // Optional service account identity
   ServiceAccount service_account = 5;
-
-  // Optional strategy parameters
   repeated Param params = 6;
-
-  // Optional timeout for a single execution
   google.protobuf.Duration timeout = 7;
-
-  // Optional image TTL after successful build
   google.protobuf.Duration time_to_live = 8;
-
-  // Optional build time took duration
   google.protobuf.Timestamp duration = 9;
 }
-
 
 // -----------------------------------------------------------------------------
 // Source
@@ -64,7 +56,6 @@ message GitSource {
   bool ssl_verify = 5;
   string clone_secret = 6;
 }
-
 
 // -----------------------------------------------------------------------------
 // Strategy
@@ -81,7 +72,6 @@ message BuildStrategy {
   Kind kind = 2;
 }
 
-
 // -----------------------------------------------------------------------------
 // Policy
 // -----------------------------------------------------------------------------
@@ -93,22 +83,20 @@ message BuildPolicy {
 
 message BuildTriggerPolicy {
   enum Type {
-   TYPE_UNSPECIFIED = 0;
-   TYPE_MANUAL = 1;
-   TYPE_PUSH = 2;
-   TYPE_PULL_REQUEST = 3;
-   TYPE_SCHEDULE = 4;
+    TYPE_UNSPECIFIED = 0;
+    TYPE_MANUAL = 1;
+    TYPE_PUSH = 2;
+    TYPE_PULL_REQUEST = 3;
+    TYPE_SCHEDULE = 4;
   }
 
   Type type = 1;
 }
 
-
 message RetryPolicy {
   bool on_failure = 1;
   uint32 max_attempts = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Identity
@@ -119,7 +107,6 @@ message ServiceAccount {
   string secret = 2;
 }
 
-
 // -----------------------------------------------------------------------------
 // Parameters
 // -----------------------------------------------------------------------------
@@ -128,7 +115,6 @@ message Param {
   string name = 1;
   string value = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Status
@@ -145,17 +131,61 @@ message BuildStatus {
   }
 
   Phase phase = 1;
-
-  // Image produced by the build (if any)
   string image = 2;
-
-  // Reference to the execution that produced this result
   string execution_ref = 3;
-
-  // Free-form status message
   string message = 4;
-
-  // Observability
   google.protobuf.Timestamp start_time = 5;
   google.protobuf.Timestamp completion_time = 6;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message CreateBuildRequest {
+  BuildSpec spec = 1;
+}
+
+message CreateBuildResponse {
+  Build build = 1;
+}
+
+message GetBuildRequest {
+  string id = 1;
+}
+
+message GetBuildResponse {
+  Build build = 1;
+}
+
+message ListBuildsRequest {}
+
+message ListBuildsResponse {
+  repeated Build builds = 1;
+}
+
+message DeleteBuildRequest {
+  string id = 1;
+}
+
+message DeleteBuildResponse {}
+
+message WatchBuildRequest {
+  string id = 1;
+}
+
+message WatchBuildResponse {
+  Build build = 1;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service BuildService {
+  rpc CreateBuild(CreateBuildRequest) returns (CreateBuildResponse);
+  rpc GetBuild(GetBuildRequest) returns (GetBuildResponse);
+  rpc ListBuilds(ListBuildsRequest) returns (ListBuildsResponse);
+  rpc DeleteBuild(DeleteBuildRequest) returns (DeleteBuildResponse);
+  rpc WatchBuild(WatchBuildRequest) returns (stream WatchBuildResponse);
 }

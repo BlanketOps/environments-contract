@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
-
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
 // Package
@@ -15,7 +15,6 @@ message Package {
   PackageSpec spec = 1;
   PackageStatus status = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Spec
@@ -47,7 +46,6 @@ message PackageSpec {
   StateRepository state_repository = 8;
 }
 
-
 // -----------------------------------------------------------------------------
 // Repositories
 // -----------------------------------------------------------------------------
@@ -65,7 +63,6 @@ message StateRepository {
   string path = 5;
 }
 
-
 // -----------------------------------------------------------------------------
 // Maintainers
 // -----------------------------------------------------------------------------
@@ -74,7 +71,6 @@ message Maintainer {
   string name = 1;
   string email = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Status
@@ -99,7 +95,6 @@ message PackageStatus {
   PackageState state = 6;
 }
 
-
 // -----------------------------------------------------------------------------
 // Applied State
 // -----------------------------------------------------------------------------
@@ -108,7 +103,6 @@ message PackageState {
   string repository = 1;
   string revision = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Enums

@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
-
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
 // Environment
@@ -15,7 +15,6 @@ message Environment {
   EnvironmentSpec spec = 1;
   EnvironmentStatus status = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Spec
@@ -59,7 +58,6 @@ message EnvironmentSpec {
   repeated EnvironmentBuildTriggerRef build_triggers = 12;
 }
 
-
 // -----------------------------------------------------------------------------
 // References (composition, not ownership)
 // -----------------------------------------------------------------------------
@@ -88,7 +86,6 @@ message EnvironmentPackageRef {
   string name = 1;
 }
 
-
 // -----------------------------------------------------------------------------
 // Status
 // -----------------------------------------------------------------------------
@@ -104,7 +101,6 @@ message EnvironmentCondition {
   string message = 4;
   google.protobuf.Timestamp last_transition_time = 5;
 }
-
 
 // -----------------------------------------------------------------------------
 // Enums
