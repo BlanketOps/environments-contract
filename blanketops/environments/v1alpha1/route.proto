@@ -2,65 +2,53 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
-// Route
+// Resource
 // -----------------------------------------------------------------------------
 
 message Route {
-  RouteSpec spec = 1;
-  RouteStatus status = 2;
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  RouteSpec spec = 2;
+  RouteStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (INTENT)
 // -----------------------------------------------------------------------------
 
 message RouteSpec {
   // Fully qualified domain name
   string host = 1;
-
   // Whether the route is active
   bool enabled = 2;
-
   // HTTP path to match ("/", "/v1", etc.)
   string path = 3;
-
   // Whether TLS is required
   bool tls_enabled = 4;
-
   // Runtime responsible for materializing this route
-  // (kubernetes ingress, knative, gateway-api, etc.)
   RouteRuntime runtime = 5;
 }
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (SYSTEM STATE)
 // -----------------------------------------------------------------------------
 
 message RouteStatus {
-  // High-level lifecycle phase
   RoutePhase phase = 1;
-
-  // Human-readable message
   string message = 2;
-
-  // Resolved address or endpoint
-  // (e.g. load balancer hostname, URL)
+  // Resolved address or endpoint (LB hostname, URL, etc.)
   string resolved_address = 3;
-
-  // TLS provisioning status
   TLSStatus tls_status = 4;
-
-  // Conditions for UI / automation
   repeated RouteCondition conditions = 5;
-
-  // Last status update
-  google.protobuf.Timestamp last_updated_at = 6;
+  google.protobuf.Timestamp observed_at = 6;
+  int64 observed_generation = 7;
 }
 
 // -----------------------------------------------------------------------------
@@ -100,4 +88,58 @@ enum TLSStatus {
   TLS_STATUS_PROVISIONING = 2;
   TLS_STATUS_ACTIVE = 3;
   TLS_STATUS_FAILED = 4;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message CreateRouteRequest {
+  RouteSpec spec = 1;
+}
+
+message CreateRouteResponse {
+  Route route = 1;
+}
+
+message GetRouteRequest {
+  string name = 1;
+}
+
+message GetRouteResponse {
+  Route route = 1;
+}
+
+message ListRoutesRequest {}
+
+message ListRoutesResponse {
+  repeated Route routes = 1;
+}
+
+message DeleteRouteRequest {
+  string name = 1;
+}
+
+message DeleteRouteResponse {}
+
+message WatchRouteRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchRouteResponse {
+  Route route = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service RouteService {
+  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
+  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
+  rpc ListRoutes(ListRoutesRequest) returns (ListRoutesResponse);
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
+  rpc WatchRoute(WatchRouteRequest) returns (stream WatchRouteResponse);
 }

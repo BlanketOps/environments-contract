@@ -1,5 +1,9 @@
 version: v1
+
 plugins:
+# -----------------------------
+# Go
+# -----------------------------
 - plugin: go
   out: gen/go
   opt: paths=source_relative
@@ -9,13 +13,19 @@ plugins:
   opt: paths=source_relative
 
 # -----------------------------
-# C# (Models)
+# C#
 # -----------------------------
 - plugin: csharp
   out: gen/csharp
 
-# -----------------------------
-# C# gRPC
-# -----------------------------
 - plugin: grpc_csharp
   out: gen/csharp
+
+# -----------------------------
+# Java
+# -----------------------------
+- plugin: java
+  out: gen/java
+
+- plugin: grpc-java
+  out: gen/java

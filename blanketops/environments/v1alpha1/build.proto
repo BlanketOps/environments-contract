@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -9,27 +11,16 @@ option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
-// Metadata
+// Resource
 // -----------------------------------------------------------------------------
-
-message Metadata {
-  string id = 1;
-  string name = 2;
-  map<string, string> labels = 3;
-}
-
-// -----------------------------------------------------------------------------
-// Build
-// -----------------------------------------------------------------------------
-
 message Build {
-  Metadata metadata = 1;
+  blanketops.environments.common.v1.Metadata metadata = 1;
   BuildSpec spec = 2;
   BuildStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message BuildSpec {
@@ -41,7 +32,6 @@ message BuildSpec {
   repeated Param params = 6;
   google.protobuf.Duration timeout = 7;
   google.protobuf.Duration time_to_live = 8;
-  google.protobuf.Timestamp duration = 9;
 }
 
 // -----------------------------------------------------------------------------
@@ -117,7 +107,7 @@ message Param {
 }
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message BuildStatus {
@@ -139,7 +129,7 @@ message BuildStatus {
 }
 
 // -----------------------------------------------------------------------------
-// Requests / Responses
+// Requests / Responses (intent layer)
 // -----------------------------------------------------------------------------
 
 message CreateBuildRequest {
@@ -151,7 +141,7 @@ message CreateBuildResponse {
 }
 
 message GetBuildRequest {
-  string id = 1;
+  string name = 1;
 }
 
 message GetBuildResponse {
@@ -165,17 +155,18 @@ message ListBuildsResponse {
 }
 
 message DeleteBuildRequest {
-  string id = 1;
+  string name = 1;
 }
 
 message DeleteBuildResponse {}
 
 message WatchBuildRequest {
-  string id = 1;
+  string name = 1;
 }
 
 message WatchBuildResponse {
   Build build = 1;
+  blanketops.environments.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

@@ -2,115 +2,127 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
-// Package
+// Resource
 // -----------------------------------------------------------------------------
 
 message Package {
-  PackageSpec spec = 1;
-  PackageStatus status = 2;
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  PackageSpec spec = 2;
+  PackageStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (USER INTENT / ARTIFACT DEFINITION)
 // -----------------------------------------------------------------------------
 
 message PackageSpec {
-  // Whether this package is enabled
-  bool enabled = 1;
-
-  // Logical name of the package
-  string name = 2;
-
-  // Version identifier
-  string version = 3;
-
-  // Package maintainers
-  repeated Maintainer maintainers = 4;
-
-  // Human-readable description
-  string description = 5;
-
-  // Source repository containing package definitions
-  PackageRepository repository = 6;
-
-  // Enable diff preview during reconciliation
-  bool diff_enabled = 7;
-
-  // Repository where rendered/applied state is stored
-  StateRepository state_repository = 8;
+  string version = 1;
+  PackageBuildRef build = 2;
+  string artifact = 3;
+  PackageType type = 4;
+  string promotion_target = 5;
+  map<string, string> metadata = 6;
 }
 
 // -----------------------------------------------------------------------------
-// Repositories
+// References
 // -----------------------------------------------------------------------------
 
-message PackageRepository {
-  string url = 1;
-  string credentials_secret = 2;
-}
-
-message StateRepository {
-  string url = 1;
-  string ref = 2;
-  string clone_secret = 3;
-  string strategy = 4;
-  string path = 5;
-}
-
-// -----------------------------------------------------------------------------
-// Maintainers
-// -----------------------------------------------------------------------------
-
-message Maintainer {
+message PackageBuildRef {
   string name = 1;
-  string email = 2;
 }
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (SYSTEM STATE)
 // -----------------------------------------------------------------------------
 
 message PackageStatus {
   PackagePhase phase = 1;
-
-  // Human-readable status
-  string message = 2;
-
-  // Last reconciliation attempt
-  google.protobuf.Timestamp last_reconciled_at = 3;
-
-  // Indicates whether the last diff resulted in changes
-  bool diff_applied = 4;
-
-  // Raw diff output (for audit/debug)
-  string diff_output = 5;
-
-  // Applied source-of-truth state
-  PackageState state = 6;
-}
-
-// -----------------------------------------------------------------------------
-// Applied State
-// -----------------------------------------------------------------------------
-
-message PackageState {
-  string repository = 1;
-  string revision = 2;
+  string artifact = 2;
+  string digest = 3;
+  string message = 4;
+  google.protobuf.Timestamp observed_at = 5;
+  int64 observed_generation = 6;
 }
 
 // -----------------------------------------------------------------------------
 // Enums
 // -----------------------------------------------------------------------------
 
+enum PackageType {
+  PACKAGE_TYPE_UNSPECIFIED = 0;
+  PACKAGE_TYPE_CONTAINER_IMAGE = 1;
+  PACKAGE_TYPE_HELM_CHART = 2;
+  PACKAGE_TYPE_WASM_MODULE = 3;
+  PACKAGE_TYPE_BINARY = 4;
+}
+
 enum PackagePhase {
   PACKAGE_PHASE_UNSPECIFIED = 0;
   PACKAGE_PHASE_PENDING = 1;
-  PACKAGE_PHASE_READY = 2;
-  PACKAGE_PHASE_FAILED = 3;
+  PACKAGE_PHASE_RESOLVED = 2;
+  PACKAGE_PHASE_READY = 3;
+  PACKAGE_PHASE_FAILED = 4;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message CreatePackageRequest {
+  PackageSpec spec = 1;
+}
+
+message CreatePackageResponse {
+  Package package = 1;
+}
+
+message GetPackageRequest {
+  string name = 1;
+}
+
+message GetPackageResponse {
+  Package package = 1;
+}
+
+message ListPackagesRequest {}
+
+message ListPackagesResponse {
+  repeated Package packages = 1;
+}
+
+message DeletePackageRequest {
+  string name = 1;
+}
+
+message DeletePackageResponse {}
+
+message WatchPackageRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchPackageResponse {
+  Package package = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service PackageService {
+  rpc CreatePackage(CreatePackageRequest) returns (CreatePackageResponse);
+  rpc GetPackage(GetPackageRequest) returns (GetPackageResponse);
+  rpc ListPackages(ListPackagesRequest) returns (ListPackagesResponse);
+  rpc DeletePackage(DeletePackageRequest) returns (DeletePackageResponse);
+  rpc WatchPackage(WatchPackageRequest) returns (stream WatchPackageResponse);
 }
