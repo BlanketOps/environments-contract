@@ -2,47 +2,36 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
-// BuildTrigger
+// Resource
 // -----------------------------------------------------------------------------
 
 message BuildTrigger {
-  BuildTriggerSpec spec = 1;
-  BuildTriggerStatus status = 2;
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  BuildTriggerSpec spec = 2;
+  BuildTriggerStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (EVENT INPUT / INTENT)
 // -----------------------------------------------------------------------------
 
 message BuildTriggerSpec {
-  // Origin of the trigger
   BuildTriggerSource source = 1;
-
-  // Type of event
   BuildTriggerType type = 2;
-
-  // Repository identifier (org/name)
   string repository = 3;
-
-  // Git ref (branch, tag, PR ref)
   string ref = 4;
-
-  // Commit SHA (if applicable)
   string sha = 5;
-
-  // Actor that caused the event
   string actor = 6;
-
-  // External event ID for idempotency
+  // Idempotency key (VERY important for events)
   string event_id = 7;
-
-  // Target build
   BuildTriggerBuildRef build = 8;
 }
 
@@ -55,7 +44,7 @@ message BuildTriggerBuildRef {
 }
 
 // -----------------------------------------------------------------------------
-// Enums (GLOBAL-SAFE)
+// Enums
 // -----------------------------------------------------------------------------
 
 enum BuildTriggerSource {
@@ -73,7 +62,7 @@ enum BuildTriggerType {
 }
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (SYSTEM STATE)
 // -----------------------------------------------------------------------------
 
 message BuildTriggerStatus {
@@ -84,20 +73,66 @@ message BuildTriggerStatus {
     PHASE_REJECTED = 3;
     PHASE_CONSUMED = 4;
   }
+
   Phase phase = 1;
-
-  // Reason for acceptance or rejection
   string reason = 2;
-
-  // Component that accepted the trigger
   string accepted_by = 3;
-
-  // Execution created as a result
   string execution_ref = 4;
-
-  // Human-readable status message
   string message = 5;
-
-  // When the trigger was last processed
   google.protobuf.Timestamp observed_at = 6;
+  int64 observed_generation = 7;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message CreateBuildTriggerRequest {
+  BuildTriggerSpec spec = 1;
+}
+
+message CreateBuildTriggerResponse {
+  BuildTrigger build_trigger = 1;
+}
+
+message GetBuildTriggerRequest {
+  string name = 1;
+}
+
+message GetBuildTriggerResponse {
+  BuildTrigger build_trigger = 1;
+}
+
+message ListBuildTriggersRequest {}
+
+message ListBuildTriggersResponse {
+  repeated BuildTrigger build_triggers = 1;
+}
+
+message DeleteBuildTriggerRequest {
+  string name = 1;
+}
+
+message DeleteBuildTriggerResponse {}
+
+message WatchBuildTriggerRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchBuildTriggerResponse {
+  BuildTrigger build_trigger = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service BuildTriggerService {
+  rpc CreateBuildTrigger(CreateBuildTriggerRequest) returns (CreateBuildTriggerResponse);
+  rpc GetBuildTrigger(GetBuildTriggerRequest) returns (GetBuildTriggerResponse);
+  rpc ListBuildTriggers(ListBuildTriggersRequest) returns (ListBuildTriggersResponse);
+  rpc DeleteBuildTrigger(DeleteBuildTriggerRequest) returns (DeleteBuildTriggerResponse);
+  rpc WatchBuildTrigger(WatchBuildTriggerRequest) returns (stream WatchBuildTriggerResponse);
 }

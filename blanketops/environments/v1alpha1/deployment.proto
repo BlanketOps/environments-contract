@@ -2,38 +2,32 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
-// Deployment
+// Resource
 // -----------------------------------------------------------------------------
 
 message Deployment {
-  DeploymentSpec spec = 1;
-  DeploymentStatus status = 2;
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  DeploymentSpec spec = 2;
+  DeploymentStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (USER INTENT)
 // -----------------------------------------------------------------------------
 
 message DeploymentSpec {
-  // ServiceUnits that make up this deployment
   repeated string service_units = 1;
-
-  // Target runtime backend
   DeploymentRuntime runtime = 2;
-
-  // Enable automatic image updates from build outputs
   bool image_automation = 3;
-
-  // Optional GitOps repository containing manifests
   DeploymentManifestsRepo manifests_repo = 4;
-
-  // Reconciliation strategy
   DeploymentReconciliationStrategy reconciliation_strategy = 5;
 }
 
@@ -42,43 +36,26 @@ message DeploymentSpec {
 // -----------------------------------------------------------------------------
 
 message DeploymentManifestsRepo {
-  // Repository URL
   string url = 1;
-
-  // Git reference (branch / tag / sha)
   string ref = 2;
-
-  // Secret used to authenticate
   string clone_secret = 3;
-
-  // Application strategy (kustomize, helm, etc)
   string strategy = 4;
-
-  // Path inside the repository
   string path = 5;
 }
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (SYSTEM STATE)
 // -----------------------------------------------------------------------------
 
 message DeploymentStatus {
   DeploymentPhase phase = 1;
-
-  // Human-readable summary
   string message = 2;
-
-  // Runtime actually used
   DeploymentRuntime runtime = 3;
-
-  // Strategy applied (rolling, canary, etc)
+  // Applied strategy (may differ from desired)
   DeploymentStrategy strategy = 4;
-
-  // Per-ServiceUnit status
   repeated ServiceUnitDeploymentStatus service_unit_statuses = 5;
-
-  // Last update timestamp
-  google.protobuf.Timestamp last_updated_at = 6;
+  google.protobuf.Timestamp observed_at = 6;
+  int64 observed_generation = 7;
 }
 
 // -----------------------------------------------------------------------------
@@ -87,26 +64,16 @@ message DeploymentStatus {
 
 message ServiceUnitDeploymentStatus {
   string name = 1;
-
   DeploymentServiceUnitPhase phase = 2;
-
-  // Image that was deployed
   string image = 3;
-
-  // Runtime backend used
   DeploymentRuntime runtime = 4;
-
-  // Status message
   string message = 5;
-
-  // Error details if failed
   string error = 6;
-
   google.protobuf.Timestamp last_transition_time = 7;
 }
 
 // -----------------------------------------------------------------------------
-// Enums (GLOBAL-SAFE)
+// Enums
 // -----------------------------------------------------------------------------
 
 enum DeploymentRuntime {
@@ -145,4 +112,58 @@ enum DeploymentServiceUnitPhase {
   DEPLOYMENT_SERVICE_UNIT_PHASE_DEPLOYING = 2;
   DEPLOYMENT_SERVICE_UNIT_PHASE_READY = 3;
   DEPLOYMENT_SERVICE_UNIT_PHASE_FAILED = 4;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message CreateDeploymentRequest {
+  DeploymentSpec spec = 1;
+}
+
+message CreateDeploymentResponse {
+  Deployment deployment = 1;
+}
+
+message GetDeploymentRequest {
+  string name = 1;
+}
+
+message GetDeploymentResponse {
+  Deployment deployment = 1;
+}
+
+message ListDeploymentsRequest {}
+
+message ListDeploymentsResponse {
+  repeated Deployment deployments = 1;
+}
+
+message DeleteDeploymentRequest {
+  string name = 1;
+}
+
+message DeleteDeploymentResponse {}
+
+message WatchDeploymentRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchDeploymentResponse {
+  Deployment deployment = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service DeploymentService {
+  rpc CreateDeployment(CreateDeploymentRequest) returns (CreateDeploymentResponse);
+  rpc GetDeployment(GetDeploymentRequest) returns (GetDeploymentResponse);
+  rpc ListDeployments(ListDeploymentsRequest) returns (ListDeploymentsResponse);
+  rpc DeleteDeployment(DeleteDeploymentRequest) returns (DeleteDeploymentResponse);
+  rpc WatchDeployment(WatchDeploymentRequest) returns (stream WatchDeploymentResponse);
 }

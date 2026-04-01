@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package blanketops.environments.common.v1;
+
+option csharp_namespace = "BlanketOps.Environments.Common.V1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/common/v1;v1";
+
+// -----------------------------------------------------------------------------
+// Event Type (SHARED)
+// -----------------------------------------------------------------------------
+
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  EVENT_TYPE_ADDED = 1;
+  EVENT_TYPE_MODIFIED = 2;
+  EVENT_TYPE_DELETED = 3;
+}

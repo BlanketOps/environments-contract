@@ -4,8 +4,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/magefile/mage/sh"
 	"os"
+	"os/exec"
+
+	"github.com/magefile/mage/sh"
 )
 
 const (
@@ -74,12 +76,58 @@ func Format() error {
 }
 
 func Clean() error {
-	step("Cleaning generated .pb.go files...")
-	if err := sh.RunV("find", "blanketops", "-name", "*.pb.go", "-delete"); err != nil {
-		fail("Clean failed")
-		return err
+	fmt.Println("▶ Cleaning generated artifacts...")
+
+	dirs := []string{
+		"gen",
+		"bin",
+		"dist",
 	}
-	success("Clean complete")
+
+	for _, d := range dirs {
+		if _, err := os.Stat(d); err == nil {
+			fmt.Printf("  - removing %s\n", d)
+			if err := os.RemoveAll(d); err != nil {
+				return err
+			}
+		}
+	}
+
+	fmt.Println("✔ Clean complete")
+	return nil
+}
+
+func GenerateCSharp() error {
+	fmt.Println("▶ Generating C# SDKs per version...")
+
+	targets := []struct {
+		path string
+		out  string
+	}{
+		{"blanketops/environments/v1alpha1", "gen/csharp/v1alpha1"},
+		{"blanketops/environments/v1beta1", "gen/csharp/v1beta1"},
+		{"blanketops/environments/v1", "gen/csharp/v1"},
+	}
+
+	for _, t := range targets {
+		fmt.Println("▶", t.path)
+
+		cmd := exec.Command("buf", "generate", t.path)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+
+		// move output
+		os.RemoveAll(t.out)
+		if err := os.Rename("gen/csharp", t.out); err != nil {
+			return err
+		}
+	}
+
+	fmt.Println("✔ C# generation complete")
 	return nil
 }
 

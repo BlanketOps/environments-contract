@@ -2,135 +2,76 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
 
 // -----------------------------------------------------------------------------
-// ServiceUnit
+// Resource
 // -----------------------------------------------------------------------------
 
 message ServiceUnit {
-  ServiceUnitSpec spec = 1;
-  ServiceUnitStatus status = 2;
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  ServiceUnitSpec spec = 2;
+  ServiceUnitStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (INTENT)
 // -----------------------------------------------------------------------------
 
 message ServiceUnitSpec {
-  // How this service unit is sourced
-  ServiceUnitType type = 1;
-
-  // Reference to a build (when type=BUILD)
-  BuildReference build_ref = 2;
-
-  // Static image reference (when type=STATIC)
-  string image = 3;
-
-  // Port the workload listens on
-  int32 container_port = 4;
-
-  // Desired replica count
-  int32 size = 5;
-
-  // Optional external route
-  RouteReference route = 6;
-
-  // Application category (web, worker, job, etc.)
-  string app_type = 7;
-
-  // Language / stack hint (nodejs, python, wasm, etc.)
-  string stack_type = 8;
+  ServiceUnitPackageRef package = 1;
+  ServiceUnitRuntime runtime = 2;
+  int32 replicas = 3;
+  map<string, string> env = 4;
+  ServiceUnitResources resources = 5;
+  repeated string command = 6;
+  repeated string args = 7;
 }
 
 // -----------------------------------------------------------------------------
-// Status
+// References
+// -----------------------------------------------------------------------------
+
+message ServiceUnitPackageRef {
+  string name = 1;
+}
+
+// -----------------------------------------------------------------------------
+// Resources
+// -----------------------------------------------------------------------------
+
+message ServiceUnitResources {
+  string cpu = 1;
+  string memory = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Status (SYSTEM STATE)
 // -----------------------------------------------------------------------------
 
 message ServiceUnitStatus {
   ServiceUnitPhase phase = 1;
-
   string message = 2;
-
-  int64 observed_generation = 3;
-
-  // Final resolved image used at runtime
-  string resolved_image = 4;
-
-  // Build resolution status (when type=BUILD)
-  BuildResolutionStatus build_status = 5;
-
-  // Runtime used for deployment
-  ServiceUnitRuntime runtime = 6;
-
-  // Reference to the concrete workload created
-  WorkloadReference workload_ref = 7;
-
-  // Lifecycle conditions
-  repeated ServiceUnitCondition conditions = 8;
-
-  google.protobuf.Timestamp last_updated_at = 9;
-}
-
-// -----------------------------------------------------------------------------
-// Build resolution
-// -----------------------------------------------------------------------------
-
-message BuildReference {
-  string name = 1;
-  string namespace = 2;
-}
-
-message BuildResolutionStatus {
-  string name = 1;
-  BuildPhase phase = 2;
-  string image = 3;
-  string error = 4;
-  google.protobuf.Timestamp last_transition_time = 5;
-}
-
-// -----------------------------------------------------------------------------
-// Route reference
-// -----------------------------------------------------------------------------
-
-message RouteReference {
-  string name = 1;
-}
-
-// -----------------------------------------------------------------------------
-// Workload reference (opaque runtime object)
-// -----------------------------------------------------------------------------
-
-message WorkloadReference {
-  string api_version = 1;
-  string kind = 2;
-  string name = 3;
-  string namespace = 4;
-}
-
-// -----------------------------------------------------------------------------
-// Conditions
-// -----------------------------------------------------------------------------
-
-message ServiceUnitCondition {
-  string type = 1;
-  string status = 2;
-  string reason = 3;
-  string message = 4;
-  google.protobuf.Timestamp last_transition_time = 5;
+  int32 available_replicas = 3;
+  ServiceUnitRuntime runtime = 4;
+  google.protobuf.Timestamp observed_at = 5;
+  int64 observed_generation = 6;
 }
 
 // -----------------------------------------------------------------------------
 // Enums
 // -----------------------------------------------------------------------------
 
-enum ServiceUnitType {
-  SERVICE_UNIT_TYPE_UNSPECIFIED = 0;
-  SERVICE_UNIT_TYPE_STATIC = 1;
-  SERVICE_UNIT_TYPE_BUILD = 2;
+enum ServiceUnitRuntime {
+  SERVICE_UNIT_RUNTIME_UNSPECIFIED = 0;
+  SERVICE_UNIT_RUNTIME_KUBERNETES_CONTAINER = 1;
+  SERVICE_UNIT_RUNTIME_KNATIVE_SERVICE = 2;
+  SERVICE_UNIT_RUNTIME_WASM = 3;
 }
 
 enum ServiceUnitPhase {
@@ -138,22 +79,59 @@ enum ServiceUnitPhase {
   SERVICE_UNIT_PHASE_PENDING = 1;
   SERVICE_UNIT_PHASE_DEPLOYING = 2;
   SERVICE_UNIT_PHASE_READY = 3;
-  SERVICE_UNIT_PHASE_DEGRADED = 4;
-  SERVICE_UNIT_PHASE_FAILED = 5;
+  SERVICE_UNIT_PHASE_FAILED = 4;
 }
 
-enum BuildPhase {
-  BUILD_PHASE_UNSPECIFIED = 0;
-  BUILD_PHASE_PENDING = 1;
-  BUILD_PHASE_RUNNING = 2;
-  BUILD_PHASE_SUCCEEDED = 3;
-  BUILD_PHASE_FAILED = 4;
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+message CreateServiceUnitRequest {
+  ServiceUnitSpec spec = 1;
 }
 
-enum ServiceUnitRuntime {
-  SERVICE_UNIT_RUNTIME_UNSPECIFIED = 0;
-  SERVICE_UNIT_RUNTIME_KUBERNETES = 1;
-  SERVICE_UNIT_RUNTIME_KNATIVE = 2;
-  SERVICE_UNIT_RUNTIME_ECS = 3;
-  SERVICE_UNIT_RUNTIME_WASM = 4;
+message CreateServiceUnitResponse {
+  ServiceUnit service_unit = 1;
+}
+
+message GetServiceUnitRequest {
+  string name = 1;
+}
+
+message GetServiceUnitResponse {
+  ServiceUnit service_unit = 1;
+}
+
+message ListServiceUnitsRequest {}
+
+message ListServiceUnitsResponse {
+  repeated ServiceUnit service_units = 1;
+}
+
+message DeleteServiceUnitRequest {
+  string name = 1;
+}
+
+message DeleteServiceUnitResponse {}
+
+message WatchServiceUnitRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchServiceUnitResponse {
+  ServiceUnit service_unit = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service ServiceUnitService {
+  rpc CreateServiceUnit(CreateServiceUnitRequest) returns (CreateServiceUnitResponse);
+  rpc GetServiceUnit(GetServiceUnitRequest) returns (GetServiceUnitResponse);
+  rpc ListServiceUnits(ListServiceUnitsRequest) returns (ListServiceUnitsResponse);
+  rpc DeleteServiceUnit(DeleteServiceUnitRequest) returns (DeleteServiceUnitResponse);
+  rpc WatchServiceUnit(WatchServiceUnitRequest) returns (stream WatchServiceUnitResponse);
 }
