@@ -13,7 +13,6 @@ option java_outer_classname = "GitHubEventProto";
 // -----------------------------------------------------------------------------
 // Resource
 // -----------------------------------------------------------------------------
-
 message GitHubEvent {
   blanketops.environments.common.v1.Metadata metadata = 1;
   GitHubEventSpec spec = 2;
@@ -21,26 +20,24 @@ message GitHubEvent {
 }
 
 // -----------------------------------------------------------------------------
-// Spec (EXTERNAL EVENT)
+// Spec
 // -----------------------------------------------------------------------------
-
 message GitHubEventSpec {
   string repository = 1;
-  GitHubEventType event_type = 2;
+  blanketops.environments.common.v1.GitHubEventType event_type = 2;
   string ref = 3;
   string commit_sha = 4;
   string actor = 5;
-  // Idempotency key (GitHub delivery ID)
   string event_id = 6;
   google.protobuf.Timestamp occurred_at = 7;
+  string webhook_secret_ref = 8;
 }
 
 // -----------------------------------------------------------------------------
-// Status (SYSTEM PROCESSING)
+// Status
 // -----------------------------------------------------------------------------
-
 message GitHubEventStatus {
-  GitHubEventPhase phase = 1;
+  blanketops.environments.common.v1.GitHubEventPhase phase = 1;
   string triggered_ref = 2;
   string reason = 3;
   google.protobuf.Timestamp processed_at = 4;
@@ -48,28 +45,8 @@ message GitHubEventStatus {
 }
 
 // -----------------------------------------------------------------------------
-// Enums
-// -----------------------------------------------------------------------------
-
-enum GitHubEventType {
-  GIT_HUB_EVENT_TYPE_UNSPECIFIED = 0;
-  GIT_HUB_EVENT_TYPE_PUSH = 1;
-  GIT_HUB_EVENT_TYPE_PULL_REQUEST = 2;
-  GIT_HUB_EVENT_TYPE_RELEASE = 3;
-  GIT_HUB_EVENT_TYPE_MANUAL = 4;
-}
-
-enum GitHubEventPhase {
-  GIT_HUB_EVENT_PHASE_UNSPECIFIED = 0;
-  GIT_HUB_EVENT_PHASE_RECEIVED = 1;
-  GIT_HUB_EVENT_PHASE_ACCEPTED = 2;
-  GIT_HUB_EVENT_PHASE_REJECTED = 3;
-  GIT_HUB_EVENT_PHASE_TRIGGERED = 4;
-}
-// -----------------------------------------------------------------------------
 // Requests / Responses
 // -----------------------------------------------------------------------------
-
 message CreateGitHubEventRequest {
   GitHubEventSpec spec = 1;
 }
@@ -111,7 +88,6 @@ message WatchGitHubEventResponse {
 // -----------------------------------------------------------------------------
 // Service
 // -----------------------------------------------------------------------------
-
 service GitHubEventService {
   rpc CreateGitHubEvent(CreateGitHubEventRequest) returns (CreateGitHubEventResponse);
   rpc GetGitHubEvent(GetGitHubEventRequest) returns (GetGitHubEventResponse);

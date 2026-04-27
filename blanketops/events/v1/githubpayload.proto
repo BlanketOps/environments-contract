@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+package blanketops.events.v1;
+
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "BlanketOps.Events.V1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/events/v1;v1";
+option java_outer_classname = "GitHubPayloadProto";
+
+// -----------------------------------------------------------------------------
+// Resource
+// Platform-generated. Never user-declared.
+// Created by the Argo Sensor on every matching webhook hit.
+// Ephemeral — scrubbed after BuildTrigger evaluation.
+// -----------------------------------------------------------------------------
+message GitHubPayload {
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  GitHubPayloadSpec spec = 2;
+  GitHubPayloadStatus status = 3;
+}
+
+// -----------------------------------------------------------------------------
+// Spec
+// -----------------------------------------------------------------------------
+message GitHubPayloadSpec {
+  string repository = 1;
+  blanketops.environments.common.v1.GitHubEventType event_type = 2;
+  string ref = 3;
+  string commit_sha = 4;
+  string actor = 5;
+  string event_id = 6;
+  google.protobuf.Timestamp received_at = 7;
+  string github_event_ref = 8;
+}
+
+// -----------------------------------------------------------------------------
+// Status
+// -----------------------------------------------------------------------------
+message GitHubPayloadStatus {
+  blanketops.environments.common.v1.GitHubPayloadPhase phase = 1;
+  string matched_trigger = 2;
+  string build_ref = 3;
+  string reason = 4;
+  google.protobuf.Timestamp evaluated_at = 5;
+  int64 observed_generation = 6;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+message CreateGitHubPayloadRequest {
+  GitHubPayloadSpec spec = 1;
+}
+
+message CreateGitHubPayloadResponse {
+  GitHubPayload github_payload = 1;
+}
+
+message GetGitHubPayloadRequest {
+  string name = 1;
+}
+
+message GetGitHubPayloadResponse {
+  GitHubPayload github_payload = 1;
+}
+
+message ListGitHubPayloadsRequest {
+  string repository = 1;
+  blanketops.environments.common.v1.GitHubPayloadPhase phase = 2;
+}
+
+message ListGitHubPayloadsResponse {
+  repeated GitHubPayload github_payloads = 1;
+}
+
+message DeleteGitHubPayloadRequest {
+  string name = 1;
+}
+
+message DeleteGitHubPayloadResponse {}
+
+message WatchGitHubPayloadRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchGitHubPayloadResponse {
+  GitHubPayload github_payload = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+service GitHubPayloadService {
+  rpc CreateGitHubPayload(CreateGitHubPayloadRequest) returns (CreateGitHubPayloadResponse);
+  rpc GetGitHubPayload(GetGitHubPayloadRequest) returns (GetGitHubPayloadResponse);
+  rpc ListGitHubPayloads(ListGitHubPayloadsRequest) returns (ListGitHubPayloadsResponse);
+  rpc DeleteGitHubPayload(DeleteGitHubPayloadRequest) returns (DeleteGitHubPayloadResponse);
+  rpc WatchGitHubPayload(WatchGitHubPayloadRequest) returns (stream WatchGitHubPayloadResponse);
+}
