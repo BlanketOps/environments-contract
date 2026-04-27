@@ -8,10 +8,41 @@ option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/bla
 // -----------------------------------------------------------------------------
 // Event Type (SHARED)
 // -----------------------------------------------------------------------------
-
 enum EventType {
   EVENT_TYPE_UNSPECIFIED = 0;
   EVENT_TYPE_ADDED = 1;
   EVENT_TYPE_MODIFIED = 2;
   EVENT_TYPE_DELETED = 3;
+}
+
+// -----------------------------------------------------------------------------
+// GitHub Event Type
+// -----------------------------------------------------------------------------
+enum GitHubEventType {
+  GIT_HUB_EVENT_TYPE_UNSPECIFIED = 0;
+  GIT_HUB_EVENT_TYPE_PUSH = 1;
+  GIT_HUB_EVENT_TYPE_PULL_REQUEST = 2;
+  GIT_HUB_EVENT_TYPE_RELEASE = 3;
+  GIT_HUB_EVENT_TYPE_MANUAL = 4;
+}
+
+// -----------------------------------------------------------------------------
+// GitHub Event Phase (lifecycle of a GitHubEvent CR)
+// -----------------------------------------------------------------------------
+enum GitHubEventPhase {
+  GIT_HUB_EVENT_PHASE_UNSPECIFIED = 0;
+  GIT_HUB_EVENT_PHASE_PENDING = 1; // CR created, Argo stack not yet provisioned
+  GIT_HUB_EVENT_PHASE_READY = 2; // Argo EventSource + Sensor active
+  GIT_HUB_EVENT_PHASE_FAILED = 3; // Provisioning failed
+}
+
+// -----------------------------------------------------------------------------
+// GitHub Payload Phase (lifecycle of a GitHubPayload CR)
+// -----------------------------------------------------------------------------
+enum GitHubPayloadPhase {
+  GIT_HUB_PAYLOAD_PHASE_UNSPECIFIED = 0;
+  GIT_HUB_PAYLOAD_PHASE_RECEIVED = 1; // Created by Sensor, awaiting evaluation
+  GIT_HUB_PAYLOAD_PHASE_MATCHED = 2; // BuildTrigger matched, build fired
+  GIT_HUB_PAYLOAD_PHASE_UNMATCHED = 3; // No BuildTrigger matched, ignored
+  GIT_HUB_PAYLOAD_PHASE_FAILED = 4; // Evaluation error
 }
