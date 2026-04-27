@@ -4,7 +4,6 @@ package blanketops.events.v1beta1;
 
 import "blanketops/environments/common/v1/event.proto";
 import "blanketops/environments/common/v1/metadata.proto";
-import "blanketops/events/v1beta1/githubevent.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Events.V1Beta1";
@@ -25,53 +24,27 @@ message GitHubPayload {
 
 // -----------------------------------------------------------------------------
 // Spec
-// Raw normalized fields extracted directly from the GitHub webhook body
-// and request headers. No user input — fully platform owned.
 // -----------------------------------------------------------------------------
 message GitHubPayloadSpec {
-  // body.repository.full_name → e.g. "ntlaletsi70/for-kaniko-app"
   string repository = 1;
-
-  // headers.X-GitHub-Event → e.g. "push"
-  GitHubEventType event_type = 2;
-
-  // body.ref → e.g. "refs/heads/main"
+  blanketops.environments.common.v1.GitHubEventType event_type = 2;
   string ref = 3;
-
-  // body.after → commit SHA after the push
   string commit_sha = 4;
-
-  // body.pusher.name → GitHub username that triggered the event
   string actor = 5;
-
-  // headers.X-GitHub-Delivery → idempotency key, unique per delivery
   string event_id = 6;
-
-  // Timestamp the webhook was received by the platform
   google.protobuf.Timestamp received_at = 7;
-
-  // The name of the GitHubEvent CR that owns this payload
   string github_event_ref = 8;
 }
 
 // -----------------------------------------------------------------------------
 // Status
-// Set by the BuildTrigger reconciler after evaluation.
 // -----------------------------------------------------------------------------
 message GitHubPayloadStatus {
-  GitHubPayloadPhase phase = 1;
-
-  // Name of the BuildTrigger CR that matched this payload (if any)
+  blanketops.environments.common.v1.GitHubPayloadPhase phase = 1;
   string matched_trigger = 2;
-
-  // Name of the Build CR that was patched (if triggered)
   string build_ref = 3;
-
-  // Human readable reason for the phase transition
   string reason = 4;
-
   google.protobuf.Timestamp evaluated_at = 5;
-
   int64 observed_generation = 6;
 }
 
@@ -95,11 +68,8 @@ message GetGitHubPayloadResponse {
 }
 
 message ListGitHubPayloadsRequest {
-  // Filter by repository e.g. "ntlaletsi70/for-kaniko-app"
   string repository = 1;
-
-  // Filter by phase
-  GitHubPayloadPhase phase = 2;
+  blanketops.environments.common.v1.GitHubPayloadPhase phase = 2;
 }
 
 message ListGitHubPayloadsResponse {

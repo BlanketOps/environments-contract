@@ -4,7 +4,6 @@ package blanketops.events.v1alpha1;
 
 import "blanketops/environments/common/v1/event.proto";
 import "blanketops/environments/common/v1/metadata.proto";
-import "blanketops/events/v1alpha1/githubevent.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Events.V1Alpha1";
@@ -33,7 +32,7 @@ message GitHubPayloadSpec {
   string repository = 1;
 
   // headers.X-GitHub-Event → e.g. "push"
-  GitHubEventType event_type = 2;
+  blanketops.environments.common.v1.GitHubEventType event_type = 2;
 
   // body.ref → e.g. "refs/heads/main"
   string ref = 3;
@@ -59,7 +58,7 @@ message GitHubPayloadSpec {
 // Set by the BuildTrigger reconciler after evaluation.
 // -----------------------------------------------------------------------------
 message GitHubPayloadStatus {
-  GitHubPayloadPhase phase = 1;
+  blanketops.environments.common.v1.GitHubPayloadPhase phase = 1;
 
   // Name of the BuildTrigger CR that matched this payload (if any)
   string matched_trigger = 2;
@@ -99,7 +98,7 @@ message ListGitHubPayloadsRequest {
   string repository = 1;
 
   // Filter by phase
-  GitHubPayloadPhase phase = 2;
+  blanketops.environments.common.v1.GitHubPayloadPhase phase = 2;
 }
 
 message ListGitHubPayloadsResponse {
