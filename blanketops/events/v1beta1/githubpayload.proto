@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+package blanketops.events.v1beta1;
+
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
+import "blanketops/events/v1beta1/githubevent.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "BlanketOps.Events.V1Beta1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/events/v1beta1;v1beta1";
+option java_outer_classname = "GitHubPayloadProto";
+
+// -----------------------------------------------------------------------------
+// Resource
+// Platform-generated. Never user-declared.
+// Created by the Argo Sensor on every matching webhook hit.
+// Ephemeral — scrubbed after BuildTrigger evaluation.
+// -----------------------------------------------------------------------------
+message GitHubPayload {
+  blanketops.environments.common.v1.Metadata metadata = 1;
+  GitHubPayloadSpec spec = 2;
+  GitHubPayloadStatus status = 3;
+}
+
+// -----------------------------------------------------------------------------
+// Spec
+// Raw normalized fields extracted directly from the GitHub webhook body
+// and request headers. No user input — fully platform owned.
+// -----------------------------------------------------------------------------
+message GitHubPayloadSpec {
+  // body.repository.full_name → e.g. "ntlaletsi70/for-kaniko-app"
+  string repository = 1;
+
+  // headers.X-GitHub-Event → e.g. "push"
+  GitHubEventType event_type = 2;
+
+  // body.ref → e.g. "refs/heads/main"
+  string ref = 3;
+
+  // body.after → commit SHA after the push
+  string commit_sha = 4;
+
+  // body.pusher.name → GitHub username that triggered the event
+  string actor = 5;
+
+  // headers.X-GitHub-Delivery → idempotency key, unique per delivery
+  string event_id = 6;
+
+  // Timestamp the webhook was received by the platform
+  google.protobuf.Timestamp received_at = 7;
+
+  // The name of the GitHubEvent CR that owns this payload
+  string github_event_ref = 8;
+}
+
+// -----------------------------------------------------------------------------
+// Status
+// Set by the BuildTrigger reconciler after evaluation.
+// -----------------------------------------------------------------------------
+message GitHubPayloadStatus {
+  GitHubPayloadPhase phase = 1;
+
+  // Name of the BuildTrigger CR that matched this payload (if any)
+  string matched_trigger = 2;
+
+  // Name of the Build CR that was patched (if triggered)
+  string build_ref = 3;
+
+  // Human readable reason for the phase transition
+  string reason = 4;
+
+  google.protobuf.Timestamp evaluated_at = 5;
+
+  int64 observed_generation = 6;
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+enum GitHubPayloadPhase {
+  GIT_HUB_PAYLOAD_PHASE_UNSPECIFIED = 0;
+  GIT_HUB_PAYLOAD_PHASE_RECEIVED = 1; // Created by Sensor, awaiting evaluation
+  GIT_HUB_PAYLOAD_PHASE_MATCHED = 2; // BuildTrigger matched, build fired
+  GIT_HUB_PAYLOAD_PHASE_UNMATCHED = 3; // No BuildTrigger matched, ignored
+  GIT_HUB_PAYLOAD_PHASE_FAILED = 4; // Evaluation error
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+message CreateGitHubPayloadRequest {
+  GitHubPayloadSpec spec = 1;
+}
+
+message CreateGitHubPayloadResponse {
+  GitHubPayload github_payload = 1;
+}
+
+message GetGitHubPayloadRequest {
+  string name = 1;
+}
+
+message GetGitHubPayloadResponse {
+  GitHubPayload github_payload = 1;
+}
+
+message ListGitHubPayloadsRequest {
+  // Filter by repository e.g. "ntlaletsi70/for-kaniko-app"
+  string repository = 1;
+
+  // Filter by phase
+  GitHubPayloadPhase phase = 2;
+}
+
+message ListGitHubPayloadsResponse {
+  repeated GitHubPayload github_payloads = 1;
+}
+
+message DeleteGitHubPayloadRequest {
+  string name = 1;
+}
+
+message DeleteGitHubPayloadResponse {}
+
+message WatchGitHubPayloadRequest {
+  string name = 1;
+  string label_selector = 2;
+}
+
+message WatchGitHubPayloadResponse {
+  GitHubPayload github_payload = 1;
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+service GitHubPayloadService {
+  rpc CreateGitHubPayload(CreateGitHubPayloadRequest) returns (CreateGitHubPayloadResponse);
+  rpc GetGitHubPayload(GetGitHubPayloadRequest) returns (GetGitHubPayloadResponse);
+  rpc ListGitHubPayloads(ListGitHubPayloadsRequest) returns (ListGitHubPayloadsResponse);
+  rpc DeleteGitHubPayload(DeleteGitHubPayloadRequest) returns (DeleteGitHubPayloadResponse);
+  rpc WatchGitHubPayload(WatchGitHubPayloadRequest) returns (stream WatchGitHubPayloadResponse);
+}
