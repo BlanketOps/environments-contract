@@ -8,7 +8,6 @@ option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/bla
 // -----------------------------------------------------------------------------
 // Event Type (SHARED)
 // -----------------------------------------------------------------------------
-
 enum EventType {
   EVENT_TYPE_UNSPECIFIED = 0;
   EVENT_TYPE_ADDED = 1;
@@ -17,9 +16,8 @@ enum EventType {
 }
 
 // -----------------------------------------------------------------------------
-// Enums
+// GitHub Event Type
 // -----------------------------------------------------------------------------
-
 enum GitHubEventType {
   GIT_HUB_EVENT_TYPE_UNSPECIFIED = 0;
   GIT_HUB_EVENT_TYPE_PUSH = 1;
@@ -29,7 +27,17 @@ enum GitHubEventType {
 }
 
 // -----------------------------------------------------------------------------
-// Enums
+// GitHub Event Phase (lifecycle of a GitHubEvent CR)
+// -----------------------------------------------------------------------------
+enum GitHubEventPhase {
+  GIT_HUB_EVENT_PHASE_UNSPECIFIED = 0;
+  GIT_HUB_EVENT_PHASE_PENDING = 1; // CR created, Argo stack not yet provisioned
+  GIT_HUB_EVENT_PHASE_READY = 2; // Argo EventSource + Sensor active
+  GIT_HUB_EVENT_PHASE_FAILED = 3; // Provisioning failed
+}
+
+// -----------------------------------------------------------------------------
+// GitHub Payload Phase (lifecycle of a GitHubPayload CR)
 // -----------------------------------------------------------------------------
 enum GitHubPayloadPhase {
   GIT_HUB_PAYLOAD_PHASE_UNSPECIFIED = 0;
