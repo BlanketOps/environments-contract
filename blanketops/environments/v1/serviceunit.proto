@@ -55,15 +55,6 @@ message ServiceUnit {
 
 message ServiceUnitSpec {
   // How this service unit's image is sourced.
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    // Image pinned directly in spec.image.
-    TYPE_STATIC = 1;
-    // Image resolved from a Build CR's output via spec.build_ref.
-    TYPE_BUILD = 2;
-  }
-
-  // How this service unit's image is sourced.
   Type type = 1;
 
   // Reference to the source Build. Required when type is BUILD.
@@ -130,34 +121,6 @@ message WorkloadReference {
 // -----------------------------------------------------------------------------
 
 message ServiceUnitStatus {
-  // Lifecycle phase of this ServiceUnit.
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    // Awaiting image resolution or dependency readiness.
-    PHASE_PENDING = 1;
-    // Workload is being rolled out.
-    PHASE_DEPLOYING = 2;
-    // Workload is deployed and healthy.
-    PHASE_READY = 3;
-    // Workload is serving but unhealthy.
-    PHASE_DEGRADED = 4;
-    // Workload failed to deploy. Check message and conditions.
-    PHASE_FAILED = 5;
-  }
-
-  // Runtime backend used to materialize the workload.
-  enum Runtime {
-    RUNTIME_UNSPECIFIED = 0;
-    // Native Kubernetes Deployment + Service.
-    RUNTIME_KUBERNETES = 1;
-    // Knative Service, served via Kourier.
-    RUNTIME_KNATIVE = 2;
-    // AWS ECS task (future).
-    RUNTIME_ECS = 3;
-    // WebAssembly workload (future).
-    RUNTIME_WASM = 4;
-  }
-
   // Current lifecycle phase. Set by the controller.
   Phase phase = 1;
 
@@ -191,19 +154,6 @@ message ServiceUnitStatus {
 // -----------------------------------------------------------------------------
 
 message BuildResolutionStatus {
-  // Observed phase of the source Build, mirrored at resolution time.
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    // Source Build is awaiting a trigger.
-    PHASE_PENDING = 1;
-    // Source Build is executing.
-    PHASE_RUNNING = 2;
-    // Source Build succeeded — image is resolvable.
-    PHASE_SUCCEEDED = 3;
-    // Source Build failed — image resolution blocked.
-    PHASE_FAILED = 4;
-  }
-
   // Name of the resolved Build CR.
   string name = 1;
 

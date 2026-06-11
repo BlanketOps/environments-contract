@@ -134,17 +134,6 @@ message Maintainer {
 // -----------------------------------------------------------------------------
 
 message PackageStatus {
-  // Lifecycle phase of this Package.
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    // Waiting for sources to be ready or reconciliation to complete.
-    PHASE_PENDING = 1;
-    // The package is reconciled against the state repository.
-    PHASE_READY = 2;
-    // Reconciliation failed. Check message and diff_output.
-    PHASE_FAILED = 3;
-  }
-
   // Current lifecycle phase. Set by the controller.
   Phase phase = 1;
 

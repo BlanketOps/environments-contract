@@ -59,29 +59,6 @@ message BuildTrigger {
 
 message BuildTriggerSpec {
   // System that originated the trigger event.
-  enum Source {
-    SOURCE_UNSPECIFIED = 0;
-    // GitHub webhook, via the GitHubEvent pipeline.
-    SOURCE_GITHUB = 1;
-    // GitLab webhook (future).
-    SOURCE_GITLAB = 2;
-    // Manual dispatch — operator or CI invoking TriggerBuild.
-    SOURCE_MANUAL = 3;
-  }
-
-  // Kind of event that fired the trigger.
-  // Must be permitted by the target Build's policy.allowed_triggers.
-  enum Type {
-    TYPE_UNSPECIFIED = 0;
-    // Push to the configured revision.
-    TYPE_PUSH = 1;
-    // Pull request opened or updated.
-    TYPE_PULL_REQUEST = 2;
-    // Manual trigger — no originating VCS event.
-    TYPE_MANUAL = 3;
-  }
-
-  // System that originated the trigger event.
   Source source = 1;
 
   // Kind of event that fired the trigger.
@@ -126,21 +103,6 @@ message BuildRef {
 // -----------------------------------------------------------------------------
 
 message BuildTriggerStatus {
-  // Lifecycle phase of this BuildTrigger.
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    // Received, awaiting admission against the Build's trigger policy.
-    PHASE_PENDING = 1;
-    // Admitted — a BuildRun will be emitted.
-    PHASE_ACCEPTED = 2;
-    // Denied by policy or validation.
-    // Check reason and message for details.
-    PHASE_REJECTED = 3;
-    // A BuildRun was emitted for this trigger. Terminal phase.
-    // Check execution_ref for the BuildRun name.
-    PHASE_CONSUMED = 4;
-  }
-
   // Current lifecycle phase. Set by the controller.
   Phase phase = 1;
 

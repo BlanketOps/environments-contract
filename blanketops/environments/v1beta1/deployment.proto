@@ -78,15 +78,6 @@ message Deployment {
 // -----------------------------------------------------------------------------
 
 message DeploymentSpec {
-  // Manifest application strategy when GitOps delivery is used.
-  enum ReconciliationStrategy {
-    RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
-    // Kustomize overlays — standard for BlanketOps-owned manifests.
-    RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
-    // Helm — reserved for upstream third-party charts.
-    RECONCILIATION_STRATEGY_HELM = 2;
-  }
-
   // Names of the ServiceUnit CRs that make up this deployment.
   // Resolved in the same namespace as this Deployment.
   repeated string service_units = 1;

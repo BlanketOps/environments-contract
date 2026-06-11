@@ -15,3 +15,173 @@ message Metadata {
   map<string, string> labels = 3;
   int64 generation = 4;
 }
+
+// Classification of this environment.
+enum Type {
+  TYPE_UNSPECIFIED = 0;
+  // Development — ephemeral, relaxed guardrails.
+  TYPE_DEVELOPMENT = 1;
+  // Staging — production-shaped validation.
+  TYPE_STAGING = 2;
+  // Production — full guardrails.
+  TYPE_PRODUCTION = 3;
+  // Testing — CI-driven, short-lived.
+  TYPE_TESTING = 4;
+  // Image pinned directly in spec.image.
+  TYPE_STATIC = 5;
+  // Image resolved from a Build CR's output via spec.build_ref.
+  TYPE_BUILD = 6;
+}
+
+// // Aggregate lifecycle phase of this Environment.
+// enum Phase {
+//   PHASE_UNSPECIFIED = 0;
+//   // One or more composed resources are not yet ready.
+//   PHASE_PENDING = 1;
+//   // All composed resources are ready.
+//   PHASE_READY = 2;
+//   // The environment is serving but one or more resources are unhealthy.
+//   PHASE_DEGRADED = 3;
+//   // One or more composed resources failed.
+//   // Check conditions for per-resource detail.
+//   PHASE_FAILED = 4;
+// }
+
+// System that originated the trigger event.
+enum Source {
+  SOURCE_UNSPECIFIED = 0;
+  // GitHub webhook, via the GitHubEvent pipeline.
+  SOURCE_GITHUB = 1;
+  // GitLab webhook (future).
+  SOURCE_GITLAB = 2;
+  // Manual dispatch — operator or CI invoking TriggerBuild.
+  SOURCE_MANUAL = 3;
+}
+
+// Kind of event that fired the trigger.
+// Must be permitted by the target Build's policy.allowed_triggers.
+enum Type {
+  TYPE_UNSPECIFIED = 0;
+  // Push to the configured revision.
+  TYPE_PUSH = 1;
+  // Pull request opened or updated.
+  TYPE_PULL_REQUEST = 2;
+  // Manual trigger — no originating VCS event.
+  TYPE_MANUAL = 3;
+}
+
+// Lifecycle phase of this BuildTrigger.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  // Received, awaiting admission against the Build's trigger policy.
+  PHASE_PENDING = 1;
+  // Admitted — a BuildRun will be emitted.
+  PHASE_ACCEPTED = 2;
+  // Denied by policy or validation.
+  // Check reason and message for details.
+  PHASE_REJECTED = 3;
+  // A BuildRun was emitted for this trigger. Terminal phase.
+  // Check execution_ref for the BuildRun name.
+  PHASE_CONSUMED = 4;
+}
+
+// Lifecycle phase of this ServiceUnit.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  // Awaiting image resolution or dependency readiness.
+  PHASE_PENDING = 1;
+  // Workload is being rolled out.
+  PHASE_DEPLOYING = 2;
+  // Workload is deployed and healthy.
+  PHASE_READY = 3;
+  // Workload is serving but unhealthy.
+  PHASE_DEGRADED = 4;
+  // Workload failed to deploy. Check message and conditions.
+  PHASE_FAILED = 5;
+}
+
+// Runtime backend used to materialize the workload.
+enum Runtime {
+  RUNTIME_UNSPECIFIED = 0;
+  // Native Kubernetes Deployment + Service.
+  RUNTIME_KUBERNETES = 1;
+  // Knative Service, served via Kourier.
+  RUNTIME_KNATIVE = 2;
+  // AWS ECS task (future).
+  RUNTIME_ECS = 3;
+  // WebAssembly workload (future).
+  RUNTIME_WASM = 4;
+}
+
+// Whether the strategy is cluster-scoped or namespace-scoped.
+enum Kind {
+  KIND_UNSPECIFIED = 0;
+
+  // ClusterBuildStrategy — available cluster-wide.
+  // Standard for BlanketOps platform strategies.
+  KIND_CLUSTER = 1;
+
+  // BuildStrategy — scoped to a specific namespace.
+  KIND_NAMESPACED = 2;
+}
+
+// Observed phase of the source Build, mirrored at resolution time.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  // Source Build is awaiting a trigger.
+  PHASE_PENDING = 1;
+  // Source Build is executing.
+  PHASE_RUNNING = 2;
+  // Source Build succeeded — image is resolvable.
+  PHASE_SUCCEEDED = 3;
+  // Source Build failed — image resolution blocked.
+  PHASE_FAILED = 4;
+}
+
+// Event type that may trigger this build.
+enum Type {
+  TYPE_UNSPECIFIED = 0;
+
+  // Manual trigger only — no automatic runs.
+  TYPE_MANUAL = 1;
+
+  // Push to the configured revision.
+  TYPE_PUSH = 2;
+
+  // Pull request opened or updated.
+  TYPE_PULL_REQUEST = 3;
+
+  // Scheduled trigger (cron-based, future).
+  TYPE_SCHEDULE = 4;
+}
+
+// Lifecycle phase of this Build.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+
+  // Waiting for a trigger event or dependency to be ready.
+  PHASE_PENDING = 1;
+
+  // A BuildRun is currently executing.
+  PHASE_RUNNING = 2;
+
+  // The most recent BuildRun completed successfully.
+  // Image has been pushed to the registry.
+  PHASE_SUCCEEDED = 3;
+
+  // The most recent BuildRun failed.
+  // Check execution_ref for BuildRun details.
+  PHASE_FAILED = 4;
+
+  // The BuildRun was cancelled before completion.
+  PHASE_CANCELLED = 5;
+}
+
+// Manifest application strategy when GitOps delivery is used.
+enum ReconciliationStrategy {
+  RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
+  // Kustomize overlays — standard for BlanketOps-owned manifests.
+  RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
+  // Helm — reserved for upstream third-party charts.
+  RECONCILIATION_STRATEGY_HELM = 2;
+}
