@@ -1,3 +1,16 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   	http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
@@ -8,84 +21,169 @@ import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
+option java_outer_classname = "PackageProto";
+option java_package = "v1alpha1.blanketops.environments";
+
+// =============================================================================
+// Package
+//
+// Declares a versioned delivery artifact: deployment manifests and runtime
+// configuration sourced from a package repository, reconciled into a state
+// repository (FluxCD stateRepo / manifestsRepo separation). Supports diff
+// preview (kapp) before application.
+// Owned by an Environment CR via ownerReference (cascade delete).
+// =============================================================================
 
 // -----------------------------------------------------------------------------
 // Resource
 // -----------------------------------------------------------------------------
 
 message Package {
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
   blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the operator.
   PackageSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
   PackageStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec (USER INTENT / ARTIFACT DEFINITION)
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message PackageSpec {
-  string version = 1;
-  PackageBuildRef build = 2;
-  string artifact = 3;
-  PackageType type = 4;
-  string promotion_target = 5;
-  map<string, string> metadata = 6;
+  // Whether this package is enabled.
+  // Disabled packages are not reconciled but the CR is retained.
+  bool enabled = 1;
+
+  // Logical name of the package — may differ from metadata.name.
+  // e.g. for-kaniko-app
+  string name = 2;
+
+  // Version identifier of the package contents.
+  // e.g. v1.2.3
+  string version = 3;
+
+  // Package maintainers, for provenance and contact.
+  repeated Maintainer maintainers = 4;
+
+  // Human-readable description of the package contents.
+  string description = 5;
+
+  // Source repository containing the package definitions.
+  PackageRepository repository = 6;
+
+  // Enable diff preview (kapp) during reconciliation.
+  // Diff output is recorded in status for audit.
+  bool diff_enabled = 7;
+
+  // Repository where rendered/applied state is stored.
+  // The FluxCD reconciliation source of truth.
+  StateRepository state_repository = 8;
 }
 
 // -----------------------------------------------------------------------------
-// References
+// Repositories
 // -----------------------------------------------------------------------------
 
-message PackageBuildRef {
+message PackageRepository {
+  // SSH or HTTPS URL of the package repository.
+  // SSH format: git@github.com:<owner>/<repo>.git
+  string url = 1;
+
+  // Name of the Kubernetes Secret containing repository credentials.
+  // Sourced from the environment SecretStore via ExternalSecret.
+  string credentials_secret = 2;
+}
+
+message StateRepository {
+  // SSH or HTTPS URL of the state repository.
+  string url = 1;
+
+  // Git ref to reconcile against — branch, tag, or commit SHA.
+  string ref = 2;
+
+  // Name of the Kubernetes Secret used to authenticate the clone.
+  string clone_secret = 3;
+
+  // Application strategy for the state contents.
+  // e.g. kustomization
+  string strategy = 4;
+
+  // Path inside the repository to reconcile.
+  // e.g. ./clusters/dev
+  string path = 5;
+}
+
+// -----------------------------------------------------------------------------
+// Maintainers
+// -----------------------------------------------------------------------------
+
+message Maintainer {
+  // Maintainer display name.
   string name = 1;
+
+  // Maintainer contact email.
+  string email = 2;
 }
 
 // -----------------------------------------------------------------------------
-// Status (SYSTEM STATE)
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message PackageStatus {
-  PackagePhase phase = 1;
-  string artifact = 2;
-  string digest = 3;
-  string message = 4;
-  google.protobuf.Timestamp observed_at = 5;
-  int64 observed_generation = 6;
+  // Current lifecycle phase. Set by the controller.
+  Phase phase = 1;
+
+  // Human-readable status message. Populated on failure.
+  string message = 2;
+
+  // When reconciliation was last attempted.
+  google.protobuf.Timestamp last_reconciled_at = 3;
+
+  // Whether the last diff resulted in applied changes.
+  bool diff_applied = 4;
+
+  // Raw diff output from the last reconciliation, for audit and debug.
+  string diff_output = 5;
+
+  // Applied source-of-truth state.
+  PackageState state = 6;
 }
 
 // -----------------------------------------------------------------------------
-// Enums
+// Applied state
 // -----------------------------------------------------------------------------
 
-enum PackageType {
-  PACKAGE_TYPE_UNSPECIFIED = 0;
-  PACKAGE_TYPE_CONTAINER_IMAGE = 1;
-  PACKAGE_TYPE_HELM_CHART = 2;
-  PACKAGE_TYPE_WASM_MODULE = 3;
-  PACKAGE_TYPE_BINARY = 4;
-}
+message PackageState {
+  // Repository the applied state was sourced from.
+  string repository = 1;
 
-enum PackagePhase {
-  PACKAGE_PHASE_UNSPECIFIED = 0;
-  PACKAGE_PHASE_PENDING = 1;
-  PACKAGE_PHASE_RESOLVED = 2;
-  PACKAGE_PHASE_READY = 3;
-  PACKAGE_PHASE_FAILED = 4;
+  // Revision (commit SHA) of the applied state.
+  string revision = 2;
 }
 
 // -----------------------------------------------------------------------------
 // Requests / Responses
 // -----------------------------------------------------------------------------
 
+// CreatePackage — declare a new Package.
+// Controller reconciles the package sources on creation.
 message CreatePackageRequest {
+  // Desired spec for the new Package.
   PackageSpec spec = 1;
 }
 
 message CreatePackageResponse {
+  // The created Package including generated metadata and initial status.
   Package package = 1;
 }
 
+// GetPackage — fetch a Package by name.
 message GetPackageRequest {
+  // Name of the Package CR to fetch.
   string name = 1;
 }
 
@@ -93,25 +191,86 @@ message GetPackageResponse {
   Package package = 1;
 }
 
-message ListPackagesRequest {}
+// UpdatePackage — full replace of the Package spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdatePackageRequest {
+  // Full Package object including metadata and desired spec.
+  Package package = 1;
+}
+
+message UpdatePackageResponse {
+  // The updated Package as observed by the controller.
+  Package package = 1;
+}
+
+// PatchPackage — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchPackageRequest {
+  // Name of the Package CR to patch.
+  string name = 1;
+
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"version":"v1.3.0"}}
+  string patch = 2;
+}
+
+message PatchPackageResponse {
+  // The patched Package as observed by the controller.
+  Package package = 1;
+}
+
+// ListPackages — list Package CRs with optional filtering and paging.
+message ListPackagesRequest {
+  // Filter by current lifecycle phase.
+  optional PackageStatus.Phase phase = 1;
+
+  // Filter by enabled state.
+  optional bool enabled = 2;
+
+  // Filter by logical package name.
+  optional string name = 3;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 4;
+
+  // Token from a previous ListPackagesResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 5;
+}
 
 message ListPackagesResponse {
+  // The list of Package CRs matching the request filters.
   repeated Package packages = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
 }
 
+// DeletePackage — delete a Package CR.
+// The controller garbage-collects reconciliation sources owned by
+// this package. State repository contents are not modified.
 message DeletePackageRequest {
+  // Name of the Package CR to delete.
   string name = 1;
 }
 
-message DeletePackageResponse {}
+message DeletePackageResponse {
+  // True if the Package was successfully deleted.
+  bool success = 1;
+}
 
+// WatchPackage — stream phase transitions for a Package CR.
+// Delivers an event for every controller reconciliation loop.
 message WatchPackageRequest {
+  // Name of the Package CR to watch.
   string name = 1;
-  string label_selector = 2;
 }
 
 message WatchPackageResponse {
+  // Current state of the Package at this point in the stream.
   Package package = 1;
+
+  // The type of change that triggered this event.
   blanketops.environments.common.v1.EventType type = 2;
 }
 
@@ -120,9 +279,29 @@ message WatchPackageResponse {
 // -----------------------------------------------------------------------------
 
 service PackageService {
+  // ── CRUD — aligned with BuildService pattern ─────────────────────────────
+
+  // Declare a new Package.
   rpc CreatePackage(CreatePackageRequest) returns (CreatePackageResponse);
+
+  // Fetch a Package CR by name.
   rpc GetPackage(GetPackageRequest) returns (GetPackageResponse);
+
+  // Full replace of a Package spec.
+  rpc UpdatePackage(UpdatePackageRequest) returns (UpdatePackageResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchPackage(PatchPackageRequest) returns (PatchPackageResponse);
+
+  // List Package CRs with optional phase/enabled/name filter and paging.
   rpc ListPackages(ListPackagesRequest) returns (ListPackagesResponse);
+
+  // Delete a Package CR and its owned reconciliation sources.
   rpc DeletePackage(DeletePackageRequest) returns (DeletePackageResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for a Package CR.
+  // Streams indefinitely — packages have no terminal phase; close client-side.
   rpc WatchPackage(WatchPackageRequest) returns (stream WatchPackageResponse);
 }

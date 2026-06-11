@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+package blanketops.common;
+
+option csharp_namespace = "BlanketOps.Common";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";

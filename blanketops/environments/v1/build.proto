@@ -1,3 +1,18 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   	http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
 package blanketops.environments.v1;
@@ -9,8 +24,8 @@ import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1";
-option java_package = "v1.blanketops.environments";
 option java_outer_classname = "BuildProto";
+option java_package = "v1.blanketops.environments";
 
 // =============================================================================
 // Build
@@ -117,10 +132,10 @@ message BuildStrategy {
 
     // ClusterBuildStrategy — available cluster-wide.
     // Standard for BlanketOps platform strategies.
-    KIND_CLUSTER     = 1;
+    KIND_CLUSTER = 1;
 
     // BuildStrategy — scoped to a specific namespace.
-    KIND_NAMESPACED  = 2;
+    KIND_NAMESPACED = 2;
   }
 
   // Name of the Shipwright BuildStrategy.
@@ -147,19 +162,19 @@ message BuildPolicy {
 message BuildTriggerPolicy {
   // Event type that may trigger this build.
   enum Type {
-    TYPE_UNSPECIFIED  = 0;
+    TYPE_UNSPECIFIED = 0;
 
     // Manual trigger only — no automatic runs.
-    TYPE_MANUAL       = 1;
+    TYPE_MANUAL = 1;
 
     // Push to the configured revision.
-    TYPE_PUSH         = 2;
+    TYPE_PUSH = 2;
 
     // Pull request opened or updated.
     TYPE_PULL_REQUEST = 3;
 
     // Scheduled trigger (cron-based, future).
-    TYPE_SCHEDULE     = 4;
+    TYPE_SCHEDULE = 4;
   }
 
   // The event type that permits a BuildRun to be triggered.
@@ -211,21 +226,21 @@ message BuildStatus {
     PHASE_UNSPECIFIED = 0;
 
     // Waiting for a trigger event or dependency to be ready.
-    PHASE_PENDING     = 1;
+    PHASE_PENDING = 1;
 
     // A BuildRun is currently executing.
-    PHASE_RUNNING     = 2;
+    PHASE_RUNNING = 2;
 
     // The most recent BuildRun completed successfully.
     // Image has been pushed to the registry.
-    PHASE_SUCCEEDED   = 3;
+    PHASE_SUCCEEDED = 3;
 
     // The most recent BuildRun failed.
     // Check execution_ref for BuildRun details.
-    PHASE_FAILED      = 4;
+    PHASE_FAILED = 4;
 
     // The BuildRun was cancelled before completion.
-    PHASE_CANCELLED   = 5;
+    PHASE_CANCELLED = 5;
   }
 
   // Current lifecycle phase. Set by the controller.

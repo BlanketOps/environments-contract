@@ -1,108 +1,258 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   	http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
 package blanketops.environments.v1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1";
-option csharp_namespace = "BlanketOps.Environments.V1";
-
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1";
+option java_outer_classname = "BuildTriggerProto";
+option java_package = "v1.blanketops.environments";
+
+// =============================================================================
+// BuildTrigger
+//
+// Records a single trigger event against a Build and its admission verdict.
+// Created by the event runtime when an incoming event (GitHubEvent, manual
+// dispatch) matches a Build's allowed trigger policy. The controller
+// evaluates the trigger and, if accepted, fires a BuildRun.
+//
+// A BuildTrigger is an event record: it transitions PENDING → ACCEPTED or
+// REJECTED, and ACCEPTED → CONSUMED once a BuildRun is emitted. The spec is
+// written once at creation and is not expected to be edited afterwards.
+// Owned by an Environment CR via ownerReference (cascade delete).
+// =============================================================================
 
 // -----------------------------------------------------------------------------
-// BuildTrigger
+// Resource
 // -----------------------------------------------------------------------------
 
 message BuildTrigger {
-  BuildTriggerSpec spec = 1;
-  BuildTriggerStatus status = 2;
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
+  blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the event runtime or operator.
+  BuildTriggerSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
+  BuildTriggerStatus status = 3;
 }
 
-
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message BuildTriggerSpec {
-  // Origin of the trigger
-  BuildTriggerSource source = 1;
+  // System that originated the trigger event.
+  Source source = 1;
 
-  // Type of event
-  BuildTriggerType type = 2;
+  // Kind of event that fired the trigger.
+  Type type = 2;
 
-  // Repository identifier (org/name)
+  // Repository identifier in owner/name form.
+  // e.g. ntlaletsi70/for-kaniko-app
   string repository = 3;
 
-  // Git ref (branch, tag, PR ref)
+  // Git ref the event applies to.
+  // e.g. refs/heads/main, refs/tags/v1.2.3, refs/pull/42/head
   string ref = 4;
 
-  // Commit SHA (if applicable)
+  // Commit SHA carried by the event, if applicable.
+  // Empty for manual triggers without a SHA override.
   string sha = 5;
 
-  // Actor that caused the event
+  // Identity that caused the event.
+  // e.g. GitHub username, CI system identity, or operator name.
   string actor = 6;
 
-  // External event ID for idempotency
+  // External event identifier used for idempotency.
+  // e.g. the GitHub delivery GUID. Duplicate event_ids are rejected.
   string event_id = 7;
 
-  // Target build
-  BuildTriggerBuildRef build = 8;
+  // The Build this trigger targets.
+  BuildRef build = 8;
 }
-
 
 // -----------------------------------------------------------------------------
 // References
 // -----------------------------------------------------------------------------
 
-message BuildTriggerBuildRef {
+message BuildRef {
+  // Name of the target Build CR.
+  // Resolved in the same namespace as this BuildTrigger.
   string name = 1;
 }
 
-
 // -----------------------------------------------------------------------------
-// Enums (GLOBAL-SAFE)
-// -----------------------------------------------------------------------------
-
-enum BuildTriggerSource {
-  BUILD_TRIGGER_SOURCE_UNSPECIFIED = 0;
-  BUILD_TRIGGER_SOURCE_GITHUB = 1;
-  BUILD_TRIGGER_SOURCE_GITLAB = 2;
-  BUILD_TRIGGER_SOURCE_MANUAL = 3;
-}
-
-enum BuildTriggerType {
-  BUILD_TRIGGER_TYPE_UNSPECIFIED = 0;
-  BUILD_TRIGGER_TYPE_PUSH = 1;
-  BUILD_TRIGGER_TYPE_PULL_REQUEST = 2;
-  BUILD_TRIGGER_TYPE_MANUAL = 3;
-}
-
-
-// -----------------------------------------------------------------------------
-// Status
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message BuildTriggerStatus {
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    PHASE_PENDING = 1;
-    PHASE_ACCEPTED = 2;
-    PHASE_REJECTED = 3;
-    PHASE_CONSUMED = 4;
-  }
+  // Current lifecycle phase. Set by the controller.
   Phase phase = 1;
 
-  // Reason for acceptance or rejection
+  // Machine-readable reason for acceptance or rejection.
+  // e.g. PolicyMatched, TriggerTypeNotAllowed, DuplicateEventId
   string reason = 2;
 
-  // Component that accepted the trigger
+  // Component that admitted the trigger.
+  // e.g. trigger-matcher, build-domain
   string accepted_by = 3;
 
-  // Execution created as a result
+  // Name of the Shipwright BuildRun emitted for this trigger.
+  // Populated once phase reaches CONSUMED.
   string execution_ref = 4;
 
-  // Human-readable status message
+  // Human-readable status message. Populated on rejection or failure.
   string message = 5;
 
-  // When the trigger was last processed
+  // When the controller last processed this trigger.
   google.protobuf.Timestamp observed_at = 6;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+// CreateBuildTrigger — record a new trigger event.
+// Normally emitted by the event runtime; manual creation is permitted
+// for operator-driven dispatch.
+message CreateBuildTriggerRequest {
+  // Desired spec for the new BuildTrigger.
+  BuildTriggerSpec spec = 1;
+}
+
+message CreateBuildTriggerResponse {
+  // The created BuildTrigger including generated metadata and initial status.
+  BuildTrigger build_trigger = 1;
+}
+
+// GetBuildTrigger — fetch a BuildTrigger by name.
+message GetBuildTriggerRequest {
+  // Name of the BuildTrigger CR to fetch.
+  string name = 1;
+}
+
+message GetBuildTriggerResponse {
+  BuildTrigger build_trigger = 1;
+}
+
+// UpdateBuildTrigger — full replace of the BuildTrigger spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateBuildTriggerRequest {
+  // Full BuildTrigger object including metadata and desired spec.
+  BuildTrigger build_trigger = 1;
+}
+
+message UpdateBuildTriggerResponse {
+  // The updated BuildTrigger object.
+  BuildTrigger build_trigger = 1;
+}
+
+// ListBuildTriggers — list BuildTrigger CRs with optional filtering and paging.
+message ListBuildTriggersRequest {
+  // Filter by current lifecycle phase.
+  optional BuildTriggerStatus.Phase phase = 1;
+
+  // Filter by originating source.
+  optional BuildTriggerSpec.Source source = 2;
+
+  // Filter by event type.
+  optional BuildTriggerSpec.Type type = 3;
+
+  // Filter by target Build name.
+  optional string build = 4;
+
+  // Filter by repository identifier (owner/name).
+  optional string repository = 5;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 6;
+
+  // Token from a previous ListBuildTriggersResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 7;
+}
+
+message ListBuildTriggersResponse {
+  // The list of BuildTrigger CRs matching the request filters.
+  repeated BuildTrigger build_triggers = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
+}
+
+// DeleteBuildTrigger — delete a BuildTrigger CR.
+// Emitted BuildRuns are not affected; they are owned by the Build.
+message DeleteBuildTriggerRequest {
+  // Name of the BuildTrigger CR to delete.
+  string name = 1;
+}
+
+message DeleteBuildTriggerResponse {
+  // True if the BuildTrigger was successfully deleted.
+  bool success = 1;
+}
+
+// WatchBuildTrigger — stream phase transitions for a BuildTrigger CR.
+// Delivers an event for every controller reconciliation loop.
+message WatchBuildTriggerRequest {
+  // Name of the BuildTrigger CR to watch.
+  string name = 1;
+}
+
+message WatchBuildTriggerResponse {
+  // Current state of the BuildTrigger at this point in the stream.
+  BuildTrigger build_trigger = 1;
+
+  // The type of change that triggered this event.
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service BuildTriggerService {
+  // ── CRUD — aligned with OrganizationService pattern ─────────────────────
+
+  // Declare a new Build intent.
+  // Controller emits Shipwright Build + BuildRun on first trigger.
+  rpc CreateBuildTrigger(CreateBuildTriggerRequest) returns (CreateBuildTriggerResponse);
+
+  // Fetch a Build CR by name.
+  rpc GetBuildTrigger(GetBuildTriggerRequest) returns (GetBuildTriggerResponse);
+
+  // Full replace of a BuildTrigger spec.
+  rpc UpdateBuildTrigger(UpdateBuildTriggerRequest) returns (UpdateBuildTriggerResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchBuildTrigger(PatchBuildTriggerRequest) returns (PatchBuildTriggerResponse);
+
+  // List BuildTrigger CRs with optional phase/strategy filter and paging.
+  rpc ListBuildTriggers(ListBuildTriggersRequest) returns (ListBuildTriggersResponse);
+
+  // Delete a BuildTrigger CR and its owned Shipwright resources.
+  rpc DeleteBuildTrigger(DeleteBuildTriggerRequest) returns (DeleteBuildTriggerResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for a BuildTrigger CR.
+  // Closes when the build reaches a terminal phase (SUCCEEDED, FAILED, CANCELLED).
+  rpc WatchBuildTrigger(WatchBuildTriggerRequest) returns (stream WatchBuildTriggerResponse);
 }

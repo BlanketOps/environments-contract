@@ -1,167 +1,331 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   	http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
 package blanketops.environments.v1beta1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1beta1;v1beta1";
-option csharp_namespace = "BlanketOps.Environments.V1Beta1";
-
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1beta1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1beta1;v1beta1";
+option java_outer_classname = "ServiceUnitProto";
+option java_package = "v1beta1.blanketops.environments";
+
+// =============================================================================
+// ServiceUnit
+//
+// Declares a single deployable workload. Type-discriminated source:
+// a STATIC unit pins an image reference directly; a BUILD unit resolves
+// its image from a Build CR's output. Materialized onto a runtime by a
+// Deployment CR.
+// Owned by an Environment CR via ownerReference (cascade delete).
+// =============================================================================
 
 // -----------------------------------------------------------------------------
-// ServiceUnit
+// Resource
 // -----------------------------------------------------------------------------
 
 message ServiceUnit {
-  ServiceUnitSpec spec = 1;
-  ServiceUnitStatus status = 2;
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
+  blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the operator.
+  ServiceUnitSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
+  ServiceUnitStatus status = 3;
 }
 
-
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message ServiceUnitSpec {
-  // How this service unit is sourced
-  ServiceUnitType type = 1;
+  // How this service unit's image is sourced.
+  Type type = 1;
 
-  // Reference to a build (when type=BUILD)
+  // Reference to the source Build. Required when type is BUILD.
   BuildReference build_ref = 2;
 
-  // Static image reference (when type=STATIC)
+  // Fully qualified static image reference. Required when type is STATIC.
+  // e.g. docker.io/nkanyezisolutions/api:v1.2.3
   string image = 3;
 
-  // Port the workload listens on
+  // Port the workload listens on.
   int32 container_port = 4;
 
-  // Desired replica count
+  // Desired replica count.
   int32 size = 5;
 
-  // Optional external route
+  // External route for this unit. Optional.
   RouteReference route = 6;
 
-  // Application category (web, worker, job, etc.)
+  // Application category hint.
+  // e.g. web, worker, job
   string app_type = 7;
 
-  // Language / stack hint (nodejs, python, wasm, etc.)
+  // Language or stack hint.
+  // e.g. nodejs, python, wasm
   string stack_type = 8;
 }
 
+// -----------------------------------------------------------------------------
+// References
+// -----------------------------------------------------------------------------
+
+message BuildReference {
+  // Name of the source Build CR.
+  string name = 1;
+
+  // Namespace of the source Build CR.
+  // Defaults to the ServiceUnit's namespace if empty.
+  string namespace = 2;
+}
+
+message RouteReference {
+  // Name of the Route CR. Resolved in the same namespace.
+  string name = 1;
+}
+
+// Reference to the concrete workload materialized at runtime.
+// Opaque to the contract — identifies any runtime object.
+message WorkloadReference {
+  // API version of the workload object. e.g. apps/v1, serving.knative.dev/v1
+  string api_version = 1;
+
+  // Kind of the workload object. e.g. Deployment, Service
+  string kind = 2;
+
+  // Name of the workload object.
+  string name = 3;
+
+  // Namespace of the workload object.
+  string namespace = 4;
+}
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message ServiceUnitStatus {
-  ServiceUnitPhase phase = 1;
+  // Current lifecycle phase. Set by the controller.
+  Phase phase = 1;
 
+  // Human-readable status message. Populated on failure.
   string message = 2;
 
+  // Generation of the spec this status reflects.
   int64 observed_generation = 3;
 
-  // Final resolved image used at runtime
+  // Final resolved image used at runtime, including digest when known.
   string resolved_image = 4;
 
-  // Build resolution status (when type=BUILD)
+  // Build resolution status. Populated when spec.type is BUILD.
   BuildResolutionStatus build_status = 5;
 
-  // Runtime used for deployment
-  ServiceUnitRuntime runtime = 6;
+  // Runtime backend used to materialize the workload.
+  Runtime runtime = 6;
 
-  // Reference to the concrete workload created
+  // Reference to the concrete workload created.
   WorkloadReference workload_ref = 7;
 
-  // Lifecycle conditions
+  // Lifecycle conditions for UI and automation consumers.
   repeated ServiceUnitCondition conditions = 8;
 
+  // When the controller last updated this status.
   google.protobuf.Timestamp last_updated_at = 9;
 }
-
 
 // -----------------------------------------------------------------------------
 // Build resolution
 // -----------------------------------------------------------------------------
 
-message BuildReference {
-  string name = 1;
-  string namespace = 2;
-}
-
 message BuildResolutionStatus {
+  // Name of the resolved Build CR.
   string name = 1;
-  BuildPhase phase = 2;
+
+  // Observed phase of the source Build.
+  Phase phase = 2;
+
+  // Image produced by the source Build, including digest.
   string image = 3;
+
+  // Error detail when resolution failed.
   string error = 4;
+
+  // When the resolution last changed.
   google.protobuf.Timestamp last_transition_time = 5;
 }
-
-
-// -----------------------------------------------------------------------------
-// Route reference
-// -----------------------------------------------------------------------------
-
-message RouteReference {
-  string name = 1;
-}
-
-
-// -----------------------------------------------------------------------------
-// Workload reference (opaque runtime object)
-// -----------------------------------------------------------------------------
-
-message WorkloadReference {
-  string api_version = 1;
-  string kind = 2;
-  string name = 3;
-  string namespace = 4;
-}
-
 
 // -----------------------------------------------------------------------------
 // Conditions
 // -----------------------------------------------------------------------------
 
 message ServiceUnitCondition {
+  // Condition type. e.g. ImageResolved, WorkloadReady, RouteBound
   string type = 1;
+
+  // Condition status: True, False, or Unknown.
   string status = 2;
+
+  // Machine-readable reason for the last transition.
   string reason = 3;
+
+  // Human-readable detail for the last transition.
   string message = 4;
+
+  // When the condition last changed status.
   google.protobuf.Timestamp last_transition_time = 5;
 }
 
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+// CreateServiceUnit — declare a new ServiceUnit.
+message CreateServiceUnitRequest {
+  // Desired spec for the new ServiceUnit.
+  ServiceUnitSpec spec = 1;
+}
+
+message CreateServiceUnitResponse {
+  // The created ServiceUnit including generated metadata and initial status.
+  ServiceUnit service_unit = 1;
+}
+
+// GetServiceUnit — fetch a ServiceUnit by name.
+message GetServiceUnitRequest {
+  // Name of the ServiceUnit CR to fetch.
+  string name = 1;
+}
+
+message GetServiceUnitResponse {
+  ServiceUnit service_unit = 1;
+}
+
+// UpdateServiceUnit — full replace of the ServiceUnit spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateServiceUnitRequest {
+  // Full ServiceUnit object including metadata and desired spec.
+  ServiceUnit service_unit = 1;
+}
+
+message UpdateServiceUnitResponse {
+  // The updated ServiceUnit as observed by the controller.
+  ServiceUnit service_unit = 1;
+}
+
+// PatchServiceUnit — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchServiceUnitRequest {
+  // Name of the ServiceUnit CR to patch.
+  string name = 1;
+
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"size":3}}
+  string patch = 2;
+}
+
+message PatchServiceUnitResponse {
+  // The patched ServiceUnit as observed by the controller.
+  ServiceUnit service_unit = 1;
+}
+
+// ListServiceUnits — list ServiceUnit CRs with optional filtering and paging.
+message ListServiceUnitsRequest {
+  // Filter by current lifecycle phase.
+  optional ServiceUnitStatus.Phase phase = 1;
+
+  // Filter by source type.
+  optional ServiceUnitSpec.Type type = 2;
+
+  // Filter by application category.
+  optional string app_type = 3;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 4;
+
+  // Token from a previous ListServiceUnitsResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 5;
+}
+
+message ListServiceUnitsResponse {
+  // The list of ServiceUnit CRs matching the request filters.
+  repeated ServiceUnit service_units = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
+}
+
+// DeleteServiceUnit — delete a ServiceUnit CR.
+// The controller garbage-collects the materialized workload.
+message DeleteServiceUnitRequest {
+  // Name of the ServiceUnit CR to delete.
+  string name = 1;
+}
+
+message DeleteServiceUnitResponse {
+  // True if the ServiceUnit was successfully deleted.
+  bool success = 1;
+}
+
+// WatchServiceUnit — stream phase transitions for a ServiceUnit CR.
+// Delivers an event for every controller reconciliation loop.
+message WatchServiceUnitRequest {
+  // Name of the ServiceUnit CR to watch.
+  string name = 1;
+}
+
+message WatchServiceUnitResponse {
+  // Current state of the ServiceUnit at this point in the stream.
+  ServiceUnit service_unit = 1;
+
+  // The type of change that triggered this event.
+  blanketops.environments.common.v1.EventType type = 2;
+}
 
 // -----------------------------------------------------------------------------
-// Enums
+// Service
 // -----------------------------------------------------------------------------
 
-enum ServiceUnitType {
-  SERVICE_UNIT_TYPE_UNSPECIFIED = 0;
-  SERVICE_UNIT_TYPE_STATIC = 1;
-  SERVICE_UNIT_TYPE_BUILD = 2;
-}
+service ServiceUnitService {
+  // ── CRUD — aligned with BuildService pattern ─────────────────────────────
 
-enum ServiceUnitPhase {
-  SERVICE_UNIT_PHASE_UNSPECIFIED = 0;
-  SERVICE_UNIT_PHASE_PENDING = 1;
-  SERVICE_UNIT_PHASE_DEPLOYING = 2;
-  SERVICE_UNIT_PHASE_READY = 3;
-  SERVICE_UNIT_PHASE_DEGRADED = 4;
-  SERVICE_UNIT_PHASE_FAILED = 5;
-}
+  // Declare a new ServiceUnit.
+  rpc CreateServiceUnit(CreateServiceUnitRequest) returns (CreateServiceUnitResponse);
 
-enum BuildPhase {
-  BUILD_PHASE_UNSPECIFIED = 0;
-  BUILD_PHASE_PENDING = 1;
-  BUILD_PHASE_RUNNING = 2;
-  BUILD_PHASE_SUCCEEDED = 3;
-  BUILD_PHASE_FAILED = 4;
-}
+  // Fetch a ServiceUnit CR by name.
+  rpc GetServiceUnit(GetServiceUnitRequest) returns (GetServiceUnitResponse);
 
-enum ServiceUnitRuntime {
-  SERVICE_UNIT_RUNTIME_UNSPECIFIED = 0;
-  SERVICE_UNIT_RUNTIME_KUBERNETES = 1;
-  SERVICE_UNIT_RUNTIME_KNATIVE = 2;
-  SERVICE_UNIT_RUNTIME_ECS = 3;
-  SERVICE_UNIT_RUNTIME_WASM = 4;
+  // Full replace of a ServiceUnit spec.
+  rpc UpdateServiceUnit(UpdateServiceUnitRequest) returns (UpdateServiceUnitResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchServiceUnit(PatchServiceUnitRequest) returns (PatchServiceUnitResponse);
+
+  // List ServiceUnit CRs with optional phase/type/app filter and paging.
+  rpc ListServiceUnits(ListServiceUnitsRequest) returns (ListServiceUnitsResponse);
+
+  // Delete a ServiceUnit CR and its materialized workload.
+  rpc DeleteServiceUnit(DeleteServiceUnitRequest) returns (DeleteServiceUnitResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for a ServiceUnit CR.
+  // Streams indefinitely — service units have no terminal phase; close client-side.
+  rpc WatchServiceUnit(WatchServiceUnitRequest) returns (stream WatchServiceUnitResponse);
 }

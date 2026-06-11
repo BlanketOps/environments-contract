@@ -1,16 +1,31 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+   	http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
-package blanketops.environments.vbeta1;
+package blanketops.environments.v1beta1;
 
 import "blanketops/environments/common/v1/event.proto";
 import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
-option csharp_namespace = "BlanketOps.Environments.V1Beta1";
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/vbeta1;vbeta1";
-option java_package = "vbeta1.blanketops.environments";
+option csharp_namespace = "BlanketOps.Environments.V1beta1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1beta1;v1beta1";
 option java_outer_classname = "BuildProto";
+option java_package = "v1beta1.blanketops.environments";
 
 // =============================================================================
 // Build
@@ -111,18 +126,6 @@ message GitSource {
 // -----------------------------------------------------------------------------
 
 message BuildStrategy {
-  // Whether the strategy is cluster-scoped or namespace-scoped.
-  enum Kind {
-    KIND_UNSPECIFIED = 0;
-
-    // ClusterBuildStrategy — available cluster-wide.
-    // Standard for BlanketOps platform strategies.
-    KIND_CLUSTER     = 1;
-
-    // BuildStrategy — scoped to a specific namespace.
-    KIND_NAMESPACED  = 2;
-  }
-
   // Name of the Shipwright BuildStrategy.
   // Known values: kaniko | buildah-shipwright-managed-push | buildpacks-v3
   string name = 1;
@@ -145,23 +148,6 @@ message BuildPolicy {
 }
 
 message BuildTriggerPolicy {
-  // Event type that may trigger this build.
-  enum Type {
-    TYPE_UNSPECIFIED  = 0;
-
-    // Manual trigger only — no automatic runs.
-    TYPE_MANUAL       = 1;
-
-    // Push to the configured revision.
-    TYPE_PUSH         = 2;
-
-    // Pull request opened or updated.
-    TYPE_PULL_REQUEST = 3;
-
-    // Scheduled trigger (cron-based, future).
-    TYPE_SCHEDULE     = 4;
-  }
-
   // The event type that permits a BuildRun to be triggered.
   Type type = 1;
 }
@@ -206,28 +192,6 @@ message Param {
 // -----------------------------------------------------------------------------
 
 message BuildStatus {
-  // Lifecycle phase of this Build.
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-
-    // Waiting for a trigger event or dependency to be ready.
-    PHASE_PENDING     = 1;
-
-    // A BuildRun is currently executing.
-    PHASE_RUNNING     = 2;
-
-    // The most recent BuildRun completed successfully.
-    // Image has been pushed to the registry.
-    PHASE_SUCCEEDED   = 3;
-
-    // The most recent BuildRun failed.
-    // Check execution_ref for BuildRun details.
-    PHASE_FAILED      = 4;
-
-    // The BuildRun was cancelled before completion.
-    PHASE_CANCELLED   = 5;
-  }
-
   // Current lifecycle phase. Set by the controller.
   Phase phase = 1;
 

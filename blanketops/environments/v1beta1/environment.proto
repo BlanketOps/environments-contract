@@ -1,120 +1,297 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   	http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
 package blanketops.environments.v1beta1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1beta1;v1beta1";
-option csharp_namespace = "BlanketOps.Environments.V1Beta1";
-
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1beta1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1beta1;v1beta1";
+option java_outer_classname = "EnvironmentProto";
+option java_package = "v1beta1.blanketops.environments";
+
+// =============================================================================
+// Environment
+//
+// The envelope of the delivery chain: a versioned, isolated execution
+// context where applications run (ESP-0001). Composes the CRs that make
+// up an application's delivery — builds, triggers, packages, service
+// units, deployment, and routing — by reference, and owns them via
+// ownerReference (cascade delete).
+// =============================================================================
 
 // -----------------------------------------------------------------------------
-// Environment
+// Resource
 // -----------------------------------------------------------------------------
 
 message Environment {
-  EnvironmentSpec spec = 1;
-  EnvironmentStatus status = 2;
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
+  blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the operator.
+  EnvironmentSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
+  EnvironmentStatus status = 3;
 }
 
-
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message EnvironmentSpec {
-  // Human-readable application identifier
+  // Human-readable application identifier.
+  // e.g. for-kaniko-app
   string application_name = 1;
 
-  // Git branch associated with this environment
+  // Git branch associated with this environment.
+  // e.g. main, feature/checkout
   string branch = 2;
 
-  // Owning Git org / user
+  // Owning Git organisation or user.
+  // e.g. ntlaletsi70
   string git_owner = 3;
 
-  // Environment classification (dev, staging, prod, etc.)
-  EnvironmentType environment_type = 4;
+  // Environment classification.
+  Type environment_type = 4;
 
-  // Application version (semantic or otherwise)
+  // Application version — semantic or otherwise.
+  // e.g. v1.2.3
   string version = 5;
 
-  // Optional description
+  // Human-readable description. Optional.
   string description = 6;
 
-  // ServiceUnits that make up this environment
-  repeated EnvironmentServiceUnitRef service_units = 7;
+  // ServiceUnits composed into this environment.
+  repeated ObjectRef service_units = 7;
 
-  // Deployment intent (how service units are materialized)
-  EnvironmentDeploymentRef deployment = 8;
+  // Deployment intent — how service units are materialized.
+  ObjectRef deployment = 8;
 
-  // Optional external routing
-  EnvironmentRouteRef route = 9;
+  // External routing. Optional.
+  ObjectRef route = 9;
 
-  // Optional packaging / release artifact
-  EnvironmentPackageRef package = 10;
+  // Packaging / release artifact. Optional.
+  ObjectRef package = 10;
 
-  // Build configuration
-  EnvironmentBuildRef build = 11;
+  // Build configuration.
+  ObjectRef build = 11;
 
-  // Build triggers
-  repeated EnvironmentBuildTriggerRef build_triggers = 12;
+  // Build triggers permitted for this environment.
+  repeated ObjectRef build_triggers = 12;
 }
-
 
 // -----------------------------------------------------------------------------
 // References (composition, not ownership)
 // -----------------------------------------------------------------------------
 
-message EnvironmentBuildRef {
+// Reference to a CR composed into this environment.
+// Resolved in the same namespace as the Environment.
+message ObjectRef {
+  // Name of the referenced CR.
   string name = 1;
 }
-
-message EnvironmentBuildTriggerRef {
-  string name = 1;
-}
-
-message EnvironmentServiceUnitRef {
-  string name = 1;
-}
-
-message EnvironmentDeploymentRef {
-  string name = 1;
-}
-
-message EnvironmentRouteRef {
-  string name = 1;
-}
-
-message EnvironmentPackageRef {
-  string name = 1;
-}
-
 
 // -----------------------------------------------------------------------------
-// Status
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message EnvironmentStatus {
-  repeated EnvironmentCondition conditions = 1;
+  // Aggregate lifecycle phase of this Environment.
+  enum Phase {
+    PHASE_UNSPECIFIED = 0;
+    // One or more composed resources are not yet ready.
+    PHASE_PENDING = 1;
+    // All composed resources are ready.
+    PHASE_READY = 2;
+    // The environment is serving but one or more resources are unhealthy.
+    PHASE_DEGRADED = 3;
+    // One or more composed resources failed.
+    // Check conditions for per-resource detail.
+    PHASE_FAILED = 4;
+  }
+
+  // Current aggregate phase. Set by the controller.
+  Phase phase = 1;
+
+  // Human-readable status summary. Populated on failure.
+  string message = 2;
+
+  // Per-resource readiness conditions for UI and automation consumers.
+  // e.g. BuildReady, DeploymentReady, RouteReady
+  repeated EnvironmentCondition conditions = 3;
+
+  // When the controller last updated this status.
+  google.protobuf.Timestamp last_updated_at = 4;
 }
 
 message EnvironmentCondition {
+  // Condition type. e.g. BuildReady, DeploymentReady, RouteReady
   string type = 1;
+
+  // Condition status: True, False, or Unknown.
   string status = 2;
+
+  // Machine-readable reason for the last transition.
   string reason = 3;
+
+  // Human-readable detail for the last transition.
   string message = 4;
+
+  // When the condition last changed status.
   google.protobuf.Timestamp last_transition_time = 5;
 }
 
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+// CreateEnvironment — declare a new Environment.
+// Controller reconciles composed resources on creation.
+message CreateEnvironmentRequest {
+  // Desired spec for the new Environment.
+  EnvironmentSpec spec = 1;
+}
+
+message CreateEnvironmentResponse {
+  // The created Environment including generated metadata and initial status.
+  Environment environment = 1;
+}
+
+// GetEnvironment — fetch an Environment by name.
+message GetEnvironmentRequest {
+  // Name of the Environment CR to fetch.
+  string name = 1;
+}
+
+message GetEnvironmentResponse {
+  Environment environment = 1;
+}
+
+// UpdateEnvironment — full replace of the Environment spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateEnvironmentRequest {
+  // Full Environment object including metadata and desired spec.
+  Environment environment = 1;
+}
+
+message UpdateEnvironmentResponse {
+  // The updated Environment as observed by the controller.
+  Environment environment = 1;
+}
+
+// PatchEnvironment — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchEnvironmentRequest {
+  // Name of the Environment CR to patch.
+  string name = 1;
+
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"version":"v1.3.0"}}
+  string patch = 2;
+}
+
+message PatchEnvironmentResponse {
+  // The patched Environment as observed by the controller.
+  Environment environment = 1;
+}
+
+// ListEnvironments — list Environment CRs with optional filtering and paging.
+message ListEnvironmentsRequest {
+  // Filter by current aggregate phase.
+  optional EnvironmentStatus.Phase phase = 1;
+
+  // Filter by environment classification.
+  optional EnvironmentSpec.Type environment_type = 2;
+
+  // Filter by application name.
+  optional string application_name = 3;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 4;
+
+  // Token from a previous ListEnvironmentsResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 5;
+}
+
+message ListEnvironmentsResponse {
+  // The list of Environment CRs matching the request filters.
+  repeated Environment environments = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
+}
+
+// DeleteEnvironment — delete an Environment CR.
+// All owned resources are cascade-deleted via ownerReference.
+message DeleteEnvironmentRequest {
+  // Name of the Environment CR to delete.
+  string name = 1;
+}
+
+message DeleteEnvironmentResponse {
+  // True if the Environment was successfully deleted.
+  bool success = 1;
+}
+
+// WatchEnvironment — stream phase transitions for an Environment CR.
+// Delivers an event for every controller reconciliation loop.
+message WatchEnvironmentRequest {
+  // Name of the Environment CR to watch.
+  string name = 1;
+}
+
+message WatchEnvironmentResponse {
+  // Current state of the Environment at this point in the stream.
+  Environment environment = 1;
+
+  // The type of change that triggered this event.
+  blanketops.environments.common.v1.EventType type = 2;
+}
 
 // -----------------------------------------------------------------------------
-// Enums
+// Service
 // -----------------------------------------------------------------------------
 
-enum EnvironmentType {
-  ENVIRONMENT_TYPE_UNSPECIFIED = 0;
-  ENVIRONMENT_TYPE_DEVELOPMENT = 1;
-  ENVIRONMENT_TYPE_STAGING = 2;
-  ENVIRONMENT_TYPE_PRODUCTION = 3;
-  ENVIRONMENT_TYPE_TESTING = 4;
+service EnvironmentService {
+  // ── CRUD — aligned with BuildService pattern ─────────────────────────────
+
+  // Declare a new Environment.
+  rpc CreateEnvironment(CreateEnvironmentRequest) returns (CreateEnvironmentResponse);
+
+  // Fetch an Environment CR by name.
+  rpc GetEnvironment(GetEnvironmentRequest) returns (GetEnvironmentResponse);
+
+  // Full replace of an Environment spec.
+  rpc UpdateEnvironment(UpdateEnvironmentRequest) returns (UpdateEnvironmentResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchEnvironment(PatchEnvironmentRequest) returns (PatchEnvironmentResponse);
+
+  // List Environment CRs with optional phase/type/application filter and paging.
+  rpc ListEnvironments(ListEnvironmentsRequest) returns (ListEnvironmentsResponse);
+
+  // Delete an Environment CR and cascade-delete owned resources.
+  rpc DeleteEnvironment(DeleteEnvironmentRequest) returns (DeleteEnvironmentResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for an Environment CR.
+  // Streams indefinitely — environments have no terminal phase; close client-side.
+  rpc WatchEnvironment(WatchEnvironmentRequest) returns (stream WatchEnvironmentResponse);
 }

@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package blanketops.common;
+
+option csharp_namespace = "BlanketOps.Common";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";
+// -----------------------------------------------------------------------------
+// Metadata (SHARED)
+// -----------------------------------------------------------------------------
+
+message Metadata {
+  string id = 1;
+  string name = 2;
+  map<string, string> labels = 3;
+  int64 generation = 4;
+}
+
+// Classification of this environment.
+enum Type {
+  TYPE_UNSPECIFIED = 0;
+  // Development — ephemeral, relaxed guardrails.
+  TYPE_DEVELOPMENT = 1;
+  // Staging — production-shaped validation.
+  TYPE_STAGING = 2;
+  // Production — full guardrails.
+  TYPE_PRODUCTION = 3;
+  // Testing — CI-driven, short-lived.
+  TYPE_TESTING = 4;
+  // Image pinned directly in spec.image.
+  TYPE_STATIC = 5;
+  // Image resolved from a Build CR's output via spec.build_ref.
+  TYPE_BUILD = 6;
+}
+
+// Runtime backend used to materialize the workload.
+enum Runtime {
+  RUNTIME_UNSPECIFIED = 0;
+  // Native Kubernetes Deployment + Service.
+  RUNTIME_KUBERNETES = 1;
+  // Knative Service, served via Kourier.
+  RUNTIME_KNATIVE = 2;
+  // AWS ECS task (future).
+  RUNTIME_ECS = 3;
+  // WebAssembly workload (future).
+  RUNTIME_WASM = 4;
+}
+
+// Whether the strategy is cluster-scoped or namespace-scoped.
+enum Kind {
+  KIND_UNSPECIFIED = 0;
+
+  // ClusterBuildStrategy — available cluster-wide.
+  // Standard for BlanketOps platform strategies.
+  KIND_CLUSTER = 1;
+
+  // BuildStrategy — scoped to a specific namespace.
+  KIND_NAMESPACED = 2;
+}

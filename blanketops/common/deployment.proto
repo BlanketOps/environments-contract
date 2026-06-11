@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package blanketops.common;
+
+option csharp_namespace = "BlanketOps.Common";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";
+
+// -----------------------------------------------------------------------------
+// Shared enums
+// -----------------------------------------------------------------------------
+
+// Target runtime backend. Top-level by design: referenced from
+// DeploymentSpec, DeploymentStatus, and ServiceUnitDeploymentStatus.
+enum DeploymentRuntime {
+  DEPLOYMENT_RUNTIME_UNSPECIFIED = 0;
+  // Native Kubernetes Deployment + Service.
+  DEPLOYMENT_RUNTIME_KUBERNETES_CONTAINER = 1;
+  // Knative Service, served via Kourier.
+  DEPLOYMENT_RUNTIME_KNATIVE_SERVICE = 2;
+  // WebAssembly workload (future).
+  DEPLOYMENT_RUNTIME_WASM = 3;
+  // AWS ECS task (future).
+  DEPLOYMENT_RUNTIME_AWS_ECS = 4;
+  // Azure Container Instance (future).
+  DEPLOYMENT_RUNTIME_AZURE_CONTAINER = 5;
+}
+
+// Manifest application strategy when GitOps delivery is used.
+enum ReconciliationStrategy {
+  RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
+  // Kustomize overlays — standard for BlanketOps-owned manifests.
+  RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
+  // Helm — reserved for upstream third-party charts.
+  RECONCILIATION_STRATEGY_HELM = 2;
+}
+
+// Lifecycle phase of this Deployment.
+enum Phase {
+  PHASE_UNSPECIFIED = 0;
+  // Waiting for service units or GitOps sources to be ready.
+  PHASE_PENDING = 1;
+  // Workloads are being rolled out.
+  PHASE_DEPLOYING = 2;
+  // All service units are deployed and healthy.
+  PHASE_READY = 3;
+  // One or more service units failed to deploy.
+  // Check service_unit_statuses for per-unit detail.
+  PHASE_FAILED = 4;
+}
+
+// Rollout strategy applied by the runtime.
+enum Strategy {
+  STRATEGY_UNSPECIFIED = 0;
+  // Rolling update — default.
+  STRATEGY_ROLLING = 1;
+  // Canary rollout (future).
+  STRATEGY_CANARY = 2;
+  // Blue/green rollout (future).
+  STRATEGY_BLUE_GREEN = 3;
+}

@@ -1,3 +1,16 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   	http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
 syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
@@ -8,125 +21,224 @@ import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1alpha1;v1alpha1";
+option java_outer_classname = "DeploymentProto";
+option java_package = "v1alpha1.blanketops.environments";
+
+// =============================================================================
+// Deployment
+//
+// Declares the intent to materialize a set of ServiceUnits onto a runtime.
+// The controller renders workloads per ServiceUnit, optionally decorated
+// with GitOps delivery (FluxCD) when a manifests repository is declared.
+// Owned by an Environment CR via ownerReference (cascade delete).
+//
+// Supported runtimes:
+//   kubernetes-container — native Deployments/Services
+//   knative-service      — Knative Services via Kourier
+//   wasm | aws-ecs | azure-container — future targets
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Shared enums
+// -----------------------------------------------------------------------------
+
+// Target runtime backend. Top-level by design: referenced from
+// DeploymentSpec, DeploymentStatus, and ServiceUnitDeploymentStatus.
+enum DeploymentRuntime {
+  DEPLOYMENT_RUNTIME_UNSPECIFIED = 0;
+  // Native Kubernetes Deployment + Service.
+  DEPLOYMENT_RUNTIME_KUBERNETES_CONTAINER = 1;
+  // Knative Service, served via Kourier.
+  DEPLOYMENT_RUNTIME_KNATIVE_SERVICE = 2;
+  // WebAssembly workload (future).
+  DEPLOYMENT_RUNTIME_WASM = 3;
+  // AWS ECS task (future).
+  DEPLOYMENT_RUNTIME_AWS_ECS = 4;
+  // Azure Container Instance (future).
+  DEPLOYMENT_RUNTIME_AZURE_CONTAINER = 5;
+}
 
 // -----------------------------------------------------------------------------
 // Resource
 // -----------------------------------------------------------------------------
 
 message Deployment {
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
   blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the operator.
   DeploymentSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
   DeploymentStatus status = 3;
 }
 
 // -----------------------------------------------------------------------------
-// Spec (USER INTENT)
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message DeploymentSpec {
+  // Manifest application strategy when GitOps delivery is used.
+  enum ReconciliationStrategy {
+    RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
+    // Kustomize overlays — standard for BlanketOps-owned manifests.
+    RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
+    // Helm — reserved for upstream third-party charts.
+    RECONCILIATION_STRATEGY_HELM = 2;
+  }
+
+  // Names of the ServiceUnit CRs that make up this deployment.
+  // Resolved in the same namespace as this Deployment.
   repeated string service_units = 1;
+
+  // Target runtime backend for all service units.
   DeploymentRuntime runtime = 2;
+
+  // Enable automatic image updates from Build outputs.
+  // Materialized as FluxCD ImageUpdateAutomation when GitOps is active.
   bool image_automation = 3;
-  DeploymentManifestsRepo manifests_repo = 4;
-  DeploymentReconciliationStrategy reconciliation_strategy = 5;
+
+  // GitOps repository containing rendered manifests. Optional —
+  // when unset, the controller applies workloads directly.
+  ManifestsRepo manifests_repo = 4;
+
+  // Manifest application strategy. Required when manifests_repo is set.
+  ReconciliationStrategy reconciliation_strategy = 5;
 }
 
 // -----------------------------------------------------------------------------
 // GitOps
 // -----------------------------------------------------------------------------
 
-message DeploymentManifestsRepo {
+message ManifestsRepo {
+  // SSH or HTTPS URL of the manifests repository.
+  // SSH format: git@github.com:<owner>/<repo>.git
   string url = 1;
+
+  // Git ref to reconcile from — branch, tag, or commit SHA.
   string ref = 2;
+
+  // Name of the Kubernetes Secret used to authenticate the clone.
+  // Sourced from the environment SecretStore via ExternalSecret.
   string clone_secret = 3;
+
+  // Application strategy hint for the repository contents.
+  // e.g. kustomize, helm
   string strategy = 4;
+
+  // Path inside the repository to reconcile.
+  // e.g. ./clusters/dev
   string path = 5;
 }
 
 // -----------------------------------------------------------------------------
-// Status (SYSTEM STATE)
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message DeploymentStatus {
-  DeploymentPhase phase = 1;
+  // Lifecycle phase of this Deployment.
+  enum Phase {
+    PHASE_UNSPECIFIED = 0;
+    // Waiting for service units or GitOps sources to be ready.
+    PHASE_PENDING = 1;
+    // Workloads are being rolled out.
+    PHASE_DEPLOYING = 2;
+    // All service units are deployed and healthy.
+    PHASE_READY = 3;
+    // One or more service units failed to deploy.
+    // Check service_unit_statuses for per-unit detail.
+    PHASE_FAILED = 4;
+  }
+
+  // Rollout strategy applied by the runtime.
+  enum Strategy {
+    STRATEGY_UNSPECIFIED = 0;
+    // Rolling update — default.
+    STRATEGY_ROLLING = 1;
+    // Canary rollout (future).
+    STRATEGY_CANARY = 2;
+    // Blue/green rollout (future).
+    STRATEGY_BLUE_GREEN = 3;
+  }
+
+  // Current lifecycle phase. Set by the controller.
+  Phase phase = 1;
+
+  // Human-readable status summary. Populated on failure.
   string message = 2;
+
+  // Runtime actually used to materialize workloads.
   DeploymentRuntime runtime = 3;
-  // Applied strategy (may differ from desired)
-  DeploymentStrategy strategy = 4;
+
+  // Rollout strategy applied by the runtime.
+  Strategy strategy = 4;
+
+  // Per-ServiceUnit deployment status.
   repeated ServiceUnitDeploymentStatus service_unit_statuses = 5;
-  google.protobuf.Timestamp observed_at = 6;
-  int64 observed_generation = 7;
+
+  // When the controller last updated this status.
+  google.protobuf.Timestamp last_updated_at = 6;
 }
 
 // -----------------------------------------------------------------------------
-// ServiceUnit Status
+// Per-unit status
 // -----------------------------------------------------------------------------
 
 message ServiceUnitDeploymentStatus {
+  // Deployment phase of this individual service unit.
+  enum Phase {
+    PHASE_UNSPECIFIED = 0;
+    // Awaiting image resolution or dependency readiness.
+    PHASE_PENDING = 1;
+    // Workload is being rolled out.
+    PHASE_DEPLOYING = 2;
+    // Workload is deployed and healthy.
+    PHASE_READY = 3;
+    // Workload failed to deploy. Check error for details.
+    PHASE_FAILED = 4;
+  }
+
+  // Name of the ServiceUnit CR.
   string name = 1;
-  DeploymentServiceUnitPhase phase = 2;
+
+  // Current deployment phase for this unit.
+  Phase phase = 2;
+
+  // Fully qualified image that was deployed, including digest when known.
   string image = 3;
+
+  // Runtime backend used for this unit.
   DeploymentRuntime runtime = 4;
+
+  // Human-readable status message.
   string message = 5;
+
+  // Error detail when phase is FAILED.
   string error = 6;
+
+  // When this unit last changed phase.
   google.protobuf.Timestamp last_transition_time = 7;
-}
-
-// -----------------------------------------------------------------------------
-// Enums
-// -----------------------------------------------------------------------------
-
-enum DeploymentRuntime {
-  DEPLOYMENT_RUNTIME_UNSPECIFIED = 0;
-  DEPLOYMENT_RUNTIME_KUBERNETES_CONTAINER = 1;
-  DEPLOYMENT_RUNTIME_KNATIVE_SERVICE = 2;
-  DEPLOYMENT_RUNTIME_WASM = 3;
-  DEPLOYMENT_RUNTIME_AWS_ECS = 4;
-  DEPLOYMENT_RUNTIME_AZURE_CONTAINER = 5;
-}
-
-enum DeploymentReconciliationStrategy {
-  DEPLOYMENT_RECONCILIATION_STRATEGY_UNSPECIFIED = 0;
-  DEPLOYMENT_RECONCILIATION_STRATEGY_KUSTOMIZE = 1;
-  DEPLOYMENT_RECONCILIATION_STRATEGY_HELM = 2;
-}
-
-enum DeploymentPhase {
-  DEPLOYMENT_PHASE_UNSPECIFIED = 0;
-  DEPLOYMENT_PHASE_PENDING = 1;
-  DEPLOYMENT_PHASE_DEPLOYING = 2;
-  DEPLOYMENT_PHASE_READY = 3;
-  DEPLOYMENT_PHASE_FAILED = 4;
-}
-
-enum DeploymentStrategy {
-  DEPLOYMENT_STRATEGY_UNSPECIFIED = 0;
-  DEPLOYMENT_STRATEGY_ROLLING = 1;
-  DEPLOYMENT_STRATEGY_CANARY = 2;
-  DEPLOYMENT_STRATEGY_BLUE_GREEN = 3;
-}
-
-enum DeploymentServiceUnitPhase {
-  DEPLOYMENT_SERVICE_UNIT_PHASE_UNSPECIFIED = 0;
-  DEPLOYMENT_SERVICE_UNIT_PHASE_PENDING = 1;
-  DEPLOYMENT_SERVICE_UNIT_PHASE_DEPLOYING = 2;
-  DEPLOYMENT_SERVICE_UNIT_PHASE_READY = 3;
-  DEPLOYMENT_SERVICE_UNIT_PHASE_FAILED = 4;
 }
 
 // -----------------------------------------------------------------------------
 // Requests / Responses
 // -----------------------------------------------------------------------------
 
+// CreateDeployment — declare a new Deployment intent.
+// Controller materializes workloads on reconciliation.
 message CreateDeploymentRequest {
+  // Desired spec for the new Deployment.
   DeploymentSpec spec = 1;
 }
 
 message CreateDeploymentResponse {
+  // The created Deployment including generated metadata and initial status.
   Deployment deployment = 1;
 }
 
+// GetDeployment — fetch a Deployment by name.
 message GetDeploymentRequest {
+  // Name of the Deployment CR to fetch.
   string name = 1;
 }
 
@@ -134,25 +246,83 @@ message GetDeploymentResponse {
   Deployment deployment = 1;
 }
 
-message ListDeploymentsRequest {}
+// UpdateDeployment — full replace of the Deployment spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateDeploymentRequest {
+  // Full Deployment object including metadata and desired spec.
+  Deployment deployment = 1;
+}
+
+message UpdateDeploymentResponse {
+  // The updated Deployment as observed by the controller.
+  Deployment deployment = 1;
+}
+
+// PatchDeployment — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchDeploymentRequest {
+  // Name of the Deployment CR to patch.
+  string name = 1;
+
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"image_automation":true}}
+  string patch = 2;
+}
+
+message PatchDeploymentResponse {
+  // The patched Deployment as observed by the controller.
+  Deployment deployment = 1;
+}
+
+// ListDeployments — list Deployment CRs with optional filtering and paging.
+message ListDeploymentsRequest {
+  // Filter by current lifecycle phase.
+  optional DeploymentStatus.Phase phase = 1;
+
+  // Filter by target runtime.
+  optional DeploymentRuntime runtime = 2;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 3;
+
+  // Token from a previous ListDeploymentsResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 4;
+}
 
 message ListDeploymentsResponse {
+  // The list of Deployment CRs matching the request filters.
   repeated Deployment deployments = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
 }
 
+// DeleteDeployment — delete a Deployment CR.
+// The controller garbage-collects materialized workloads and any
+// GitOps sources owned by this deployment.
 message DeleteDeploymentRequest {
+  // Name of the Deployment CR to delete.
   string name = 1;
 }
 
-message DeleteDeploymentResponse {}
+message DeleteDeploymentResponse {
+  // True if the Deployment was successfully deleted.
+  bool success = 1;
+}
 
+// WatchDeployment — stream phase transitions for a Deployment CR.
+// Delivers an event for every controller reconciliation loop.
 message WatchDeploymentRequest {
+  // Name of the Deployment CR to watch.
   string name = 1;
-  string label_selector = 2;
 }
 
 message WatchDeploymentResponse {
+  // Current state of the Deployment at this point in the stream.
   Deployment deployment = 1;
+
+  // The type of change that triggered this event.
   blanketops.environments.common.v1.EventType type = 2;
 }
 
@@ -161,9 +331,29 @@ message WatchDeploymentResponse {
 // -----------------------------------------------------------------------------
 
 service DeploymentService {
+  // ── CRUD — aligned with BuildService pattern ─────────────────────────────
+
+  // Declare a new Deployment intent.
   rpc CreateDeployment(CreateDeploymentRequest) returns (CreateDeploymentResponse);
+
+  // Fetch a Deployment CR by name.
   rpc GetDeployment(GetDeploymentRequest) returns (GetDeploymentResponse);
+
+  // Full replace of a Deployment spec.
+  rpc UpdateDeployment(UpdateDeploymentRequest) returns (UpdateDeploymentResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchDeployment(PatchDeploymentRequest) returns (PatchDeploymentResponse);
+
+  // List Deployment CRs with optional phase/runtime filter and paging.
   rpc ListDeployments(ListDeploymentsRequest) returns (ListDeploymentsResponse);
+
+  // Delete a Deployment CR and its materialized workloads.
   rpc DeleteDeployment(DeleteDeploymentRequest) returns (DeleteDeploymentResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for a Deployment CR.
+  // Streams indefinitely — deployments have no terminal phase; close client-side.
   rpc WatchDeployment(WatchDeploymentRequest) returns (stream WatchDeploymentResponse);
 }

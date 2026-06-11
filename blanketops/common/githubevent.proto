@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package blanketops.environments.common.v1;
+package blanketops.common;
 
-option csharp_namespace = "BlanketOps.Environments.Common.V1";
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/common/v1;v1";
+option csharp_namespace = "BlanketOps.Common";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";
 
 // -----------------------------------------------------------------------------
 // Event Type (SHARED)

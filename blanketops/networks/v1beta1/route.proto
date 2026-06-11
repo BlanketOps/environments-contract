@@ -1,0 +1,294 @@
+syntax = "proto3";
+
+package blanketops.environments.networking.v1beta;
+
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "BlanketOps.Environments.Networking.V1Beta";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/networking/v1beta;v1beta";
+option java_outer_classname = "RouteProto";
+option java_package = "v1beta1.networking.blanketops.environments";
+
+// =============================================================================
+// Route
+//
+// Declares the intent to expose a workload at a host and path.
+// The controller materializes the route through the selected runtime
+// (Kubernetes Ingress, Knative DomainMapping, or Gateway API HTTPRoute).
+// Owned by an Environment CR via ownerReference (cascade delete).
+//
+// Supported runtimes:
+//   kubernetes-container — standard Ingress resource
+//   knative-service      — Knative DomainMapping via Kourier
+//   gateway-api          — HTTPRoute (future)
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Resource
+// -----------------------------------------------------------------------------
+
+message Route {
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
+  blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the operator.
+  RouteSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
+  RouteStatus status = 3;
+}
+
+// -----------------------------------------------------------------------------
+// Spec (intent)
+// -----------------------------------------------------------------------------
+
+message RouteSpec {
+  // Runtime responsible for materializing this route.
+  enum Runtime {
+    RUNTIME_UNSPECIFIED = 0;
+    // Standard Kubernetes Ingress.
+    RUNTIME_KUBERNETES_CONTAINER = 1;
+    // Knative DomainMapping, served via Kourier.
+    RUNTIME_KNATIVE_SERVICE = 2;
+    // Gateway API HTTPRoute (future).
+    RUNTIME_GATEWAY_API = 3;
+  }
+
+  // Fully qualified domain name to serve.
+  // e.g. app.dev.blanketops.online
+  string host = 1;
+
+  // Whether the route is active.
+  // Disabled routes are removed from the runtime but the CR is retained.
+  bool enabled = 2;
+
+  // HTTP path prefix to match.
+  // e.g. /, /v1, /api
+  string path = 3;
+
+  // Whether TLS is required for this route.
+  // Certificate provisioning is delegated to cert-manager via the
+  // platform issuer (DNS01 wildcard or namespaced HTTP01).
+  bool tls_enabled = 4;
+
+  // Runtime responsible for materializing this route.
+  Runtime runtime = 5;
+}
+
+// -----------------------------------------------------------------------------
+// Status (observed state)
+// -----------------------------------------------------------------------------
+
+message RouteStatus {
+  // Lifecycle phase of this Route.
+  enum Phase {
+    PHASE_UNSPECIFIED = 0;
+    // Waiting for the runtime resource or TLS to become ready.
+    PHASE_PENDING = 1;
+    // The route is materialized and serving traffic.
+    PHASE_READY = 2;
+    // The route is serving but unhealthy (e.g. TLS expiring, backend flapping).
+    PHASE_DEGRADED = 3;
+    // The route could not be materialized.
+    // Check message and conditions for details.
+    PHASE_FAILED = 4;
+  }
+
+  // TLS provisioning state for this route.
+  enum TLSStatus {
+    TLS_STATUS_UNSPECIFIED = 0;
+    // TLS not requested in spec.
+    TLS_STATUS_DISABLED = 1;
+    // Certificate request in flight (ACME challenge pending).
+    TLS_STATUS_PROVISIONING = 2;
+    // Certificate issued and serving.
+    TLS_STATUS_ACTIVE = 3;
+    // Certificate issuance failed.
+    // Check conditions for the cert-manager failure reason.
+    TLS_STATUS_FAILED = 4;
+  }
+
+  // Current lifecycle phase. Set by the controller.
+  Phase phase = 1;
+
+  // Human-readable status message. Populated on failure.
+  string message = 2;
+
+  // Resolved address or endpoint once materialized.
+  // e.g. load balancer hostname or serving URL.
+  string resolved_address = 3;
+
+  // TLS provisioning status. Set by the controller.
+  TLSStatus tls_status = 4;
+
+  // Conditions for UI and automation consumers.
+  repeated RouteCondition conditions = 5;
+
+  // When the controller last updated this status.
+  google.protobuf.Timestamp last_updated_at = 6;
+}
+
+// -----------------------------------------------------------------------------
+// Conditions
+// -----------------------------------------------------------------------------
+
+message RouteCondition {
+  // Condition type. e.g. RouteResolved, TLSReady, RuntimeReady
+  string type = 1;
+
+  // Condition status: True, False, or Unknown.
+  string status = 2;
+
+  // Machine-readable reason for the last transition.
+  string reason = 3;
+
+  // Human-readable detail for the last transition.
+  string message = 4;
+
+  // When the condition last changed status.
+  google.protobuf.Timestamp last_transition_time = 5;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+// CreateRoute — declare a new Route intent.
+// Controller materializes the runtime resource on reconciliation.
+message CreateRouteRequest {
+  // Desired spec for the new Route.
+  RouteSpec spec = 1;
+}
+
+message CreateRouteResponse {
+  // The created Route including generated metadata and initial status.
+  Route route = 1;
+}
+
+// GetRoute — fetch a Route by name.
+message GetRouteRequest {
+  // Name of the Route CR to fetch.
+  string name = 1;
+}
+
+message GetRouteResponse {
+  Route route = 1;
+}
+
+// UpdateRoute — full replace of the Route spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateRouteRequest {
+  // Full Route object including metadata and desired spec.
+  Route route = 1;
+}
+
+message UpdateRouteResponse {
+  // The updated Route as observed by the controller.
+  Route route = 1;
+}
+
+// PatchRoute — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchRouteRequest {
+  // Name of the Route CR to patch.
+  string name = 1;
+
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"enabled":false}}
+  string patch = 2;
+}
+
+message PatchRouteResponse {
+  // The patched Route as observed by the controller.
+  Route route = 1;
+}
+
+// ListRoutes — list Route CRs with optional filtering and paging.
+message ListRoutesRequest {
+  // Filter by current lifecycle phase.
+  optional RouteStatus.Phase phase = 1;
+
+  // Filter by materializing runtime.
+  optional RouteSpec.Runtime runtime = 2;
+
+  // Filter by host FQDN.
+  optional string host = 3;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 4;
+
+  // Token from a previous ListRoutesResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 5;
+}
+
+message ListRoutesResponse {
+  // The list of Route CRs matching the request filters.
+  repeated Route routes = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
+}
+
+// DeleteRoute — delete a Route CR.
+// The controller garbage-collects the materialized runtime resource
+// and any TLS certificates owned by this route.
+message DeleteRouteRequest {
+  // Name of the Route CR to delete.
+  string name = 1;
+}
+
+message DeleteRouteResponse {
+  // True if the Route was successfully deleted.
+  bool success = 1;
+}
+
+// WatchRoute — stream phase transitions for a Route CR.
+// Delivers an event for every controller reconciliation loop.
+message WatchRouteRequest {
+  // Name of the Route CR to watch.
+  string name = 1;
+}
+
+message WatchRouteResponse {
+  // Current state of the Route at this point in the stream.
+  Route route = 1;
+
+  // The type of change that triggered this event.
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service RouteService {
+  // ── CRUD — aligned with BuildService pattern ─────────────────────────────
+
+  // Declare a new Route intent.
+  // Controller materializes the runtime resource on reconciliation.
+  rpc CreateRoute(CreateRouteRequest) returns (CreateRouteResponse);
+
+  // Fetch a Route CR by name.
+  rpc GetRoute(GetRouteRequest) returns (GetRouteResponse);
+
+  // Full replace of a Route spec.
+  rpc UpdateRoute(UpdateRouteRequest) returns (UpdateRouteResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchRoute(PatchRouteRequest) returns (PatchRouteResponse);
+
+  // List Route CRs with optional phase/runtime/host filter and paging.
+  rpc ListRoutes(ListRoutesRequest) returns (ListRoutesResponse);
+
+  // Delete a Route CR and its materialized runtime resources.
+  rpc DeleteRoute(DeleteRouteRequest) returns (DeleteRouteResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for a Route CR.
+  // Streams indefinitely — routes have no terminal phase; close client-side.
+  rpc WatchRoute(WatchRouteRequest) returns (stream WatchRouteResponse);
+}
