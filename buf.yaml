@@ -1,0 +1,8 @@
+version: v1
+name: buf.build/ntlaletsi70/blanketops-environments-contract
+lint:
+  use:
+    - DEFAULT
+breaking:
+  use:
+    - FILE

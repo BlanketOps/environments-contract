@@ -3,6 +3,7 @@ syntax = "proto3";
 package blanketops.environments.v1;
 
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1;v1";
+option csharp_namespace = "BlanketOps.Environments.V1";
 
 import "google/protobuf/timestamp.proto";
 

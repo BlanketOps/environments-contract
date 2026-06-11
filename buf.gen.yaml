@@ -1,31 +1,64 @@
-version: v1
+version: v2
+inputs:
+  - directory: blanketops
 
 plugins:
-# -----------------------------
-# Go
-# -----------------------------
-- plugin: go
-  out: gen/go
-  opt: paths=source_relative
+  # ---------------------------------------------------------------------------
+  # Go — source_relative handles versioned namespacing
+  # ---------------------------------------------------------------------------
+  - plugin: buf.build/protocolbuffers/go
+    out: gen/go
+    opt:
+      - paths=source_relative
 
-- plugin: go-grpc
-  out: gen/go
-  opt: paths=source_relative
+  - plugin: buf.build/grpc/go
+    out: gen/go
+    opt:
+      - paths=source_relative
 
-# -----------------------------
-# C#
-# -----------------------------
-- plugin: csharp
-  out: gen/csharp
+  # ---------------------------------------------------------------------------
+  # C# — source_relative avoids Build.cs collisions across versions
+  # ---------------------------------------------------------------------------
+  - plugin: buf.build/protocolbuffers/csharp
+    out: gen/csharp
 
-- plugin: grpc_csharp
-  out: gen/csharp
+  - plugin: buf.build/grpc/csharp
+    out: gen/csharp
 
-# -----------------------------
-# Java
-# -----------------------------
-- plugin: java
-  out: gen/java
+  # ---------------------------------------------------------------------------
+  # Java — source_relative avoids Build.java collisions across versions
+  # ---------------------------------------------------------------------------
+  - plugin: buf.build/protocolbuffers/java
+    out: gen/java
+    opt:
+      - paths=source_relative
 
-- plugin: grpc-java
-  out: gen/java
+  - plugin: buf.build/grpc/java
+    out: gen/java
+    opt:
+      - paths=source_relative
+
+  # ---------------------------------------------------------------------------
+  # TypeScript — protobuf-es generates idiomatic TS types
+  # WASM compatible — used by the React/TypeScript UI and future WASM targets
+  #
+  # Output: gen/ts
+  # Import in React: import { Build, BuildSpec } from '../gen/ts/...'
+  #
+  # Install in UI project:
+  #   npm install @bufbuild/protobuf @bufbuild/connect-web
+  # ---------------------------------------------------------------------------
+  - plugin: buf.build/bufbuild/es
+    out: gen/ts
+    opt:
+      - target=ts
+      - import_extension=none
+
+  # gRPC-web transport for the TypeScript client
+  # Enables the React UI to call BuildService, EnvironmentService etc directly
+  # without a REST translation layer
+  - plugin: buf.build/bufbuild/connect-es
+    out: gen/ts
+    opt:
+      - target=ts
+      - import_extension=none

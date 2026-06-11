@@ -1,161 +1,416 @@
 syntax = "proto3";
 
-package blanketops.environments.v1beta1;
+package blanketops.environments.vbeta1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/v1beta1;v1beta1";
-
-import "google/protobuf/timestamp.proto";
+import "blanketops/environments/common/v1/event.proto";
+import "blanketops/environments/common/v1/metadata.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Environments.V1Beta1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/vbeta1;vbeta1";
+option java_package = "vbeta1.blanketops.environments";
+option java_outer_classname = "BuildProto";
+
+// =============================================================================
+// Build
+//
+// Declares the intent to build a container image from source.
+// The controller emits a Shipwright Build + BuildRun on reconciliation.
+// Owned by an Environment CR via ownerReference (cascade delete).
+//
+// Supported strategies:
+//   kaniko                        — dockerfile build, contextDir required
+//   buildah-shipwright-managed-push — managed push via Shipwright
+//   buildpacks-v3                 — auto-detect stack, no dockerfile needed
+// =============================================================================
 
 // -----------------------------------------------------------------------------
-// Build
+// Resource
 // -----------------------------------------------------------------------------
 
 message Build {
-  BuildSpec spec = 1;
-  BuildStatus status = 2;
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
+  blanketops.environments.common.v1.Metadata metadata = 1;
+
+  // Desired state declared by the operator.
+  BuildSpec spec = 2;
+
+  // Observed state set by the controller. Never manually edited.
+  BuildStatus status = 3;
 }
 
-
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (intent)
 // -----------------------------------------------------------------------------
 
 message BuildSpec {
-  // Fully qualified destination image reference
+  // Fully qualified target image — registry/repo/app:tag.
+  // Tag strategy: git-sha, semver, or literal.
+  // e.g. docker.io/nkanyezisolutions/for-kaniko-app:main
   string image = 1;
 
-  // Strategy used to build the image
+  // Shipwright ClusterBuildStrategy or namespaced BuildStrategy to use.
   BuildStrategy strategy = 2;
 
-  // Source repository for the build
+  // Git source configuration — where to clone from.
   GitSource source = 3;
 
-  // Optional execution policy
+  // Trigger and retry policy for this build.
   BuildPolicy policy = 4;
 
-  // Optional service account identity
+  // Kubernetes ServiceAccount used by the build pod.
+  // Must have push access to the image registry.
   ServiceAccount service_account = 5;
 
-  // Optional strategy parameters
+  // Additional parameters passed to the Shipwright BuildStrategy.
+  // Merged with strategy defaults — these take precedence.
   repeated Param params = 6;
 
-  // Optional timeout for a single execution
+  // Maximum duration a BuildRun may run before being cancelled.
+  // Defaults to the strategy default if unset.
   google.protobuf.Duration timeout = 7;
 
-  // Optional image TTL after successful build
+  // How long a completed BuildRun is retained before garbage collection.
   google.protobuf.Duration time_to_live = 8;
-
-  // Optional build time took duration
-  google.protobuf.Timestamp duration = 9;
 }
-
 
 // -----------------------------------------------------------------------------
 // Source
 // -----------------------------------------------------------------------------
 
 message GitSource {
+  // SSH or HTTPS URL of the Git repository.
+  // SSH format: git@github.com:<owner>/<repo>.git
   string url = 1;
+
+  // Branch, tag, or commit SHA to build from.
+  // e.g. main, refs/heads/main, abc1234
   string revision = 2;
+
+  // Path within the repository to use as the build context.
+  // Required for kaniko strategy. Defaults to repository root.
   string context_dir = 3;
+
+  // Clone depth — 0 means full history.
+  // Set to 1 for faster CI builds when history is not needed.
   uint32 depth = 4;
+
+  // Whether to verify the Git server TLS certificate.
+  // Set to false only for internal Git servers with self-signed certs.
   bool ssl_verify = 5;
+
+  // Name of the Kubernetes Secret containing SSH private key.
+  // Sourced from the environment SecretStore via ExternalSecret.
+  // Key: ssh-privatekey
   string clone_secret = 6;
 }
-
 
 // -----------------------------------------------------------------------------
 // Strategy
 // -----------------------------------------------------------------------------
 
 message BuildStrategy {
+  // Whether the strategy is cluster-scoped or namespace-scoped.
   enum Kind {
     KIND_UNSPECIFIED = 0;
-    KIND_CLUSTER = 1;
-    KIND_NAMESPACED = 2;
+
+    // ClusterBuildStrategy — available cluster-wide.
+    // Standard for BlanketOps platform strategies.
+    KIND_CLUSTER     = 1;
+
+    // BuildStrategy — scoped to a specific namespace.
+    KIND_NAMESPACED  = 2;
   }
 
+  // Name of the Shipwright BuildStrategy.
+  // Known values: kaniko | buildah-shipwright-managed-push | buildpacks-v3
   string name = 1;
+
+  // Scope of the strategy resource.
   Kind kind = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Policy
 // -----------------------------------------------------------------------------
 
 message BuildPolicy {
+  // Events that are permitted to trigger a BuildRun.
+  // At least one trigger must be specified.
   repeated BuildTriggerPolicy allowed_triggers = 1;
+
+  // Retry behaviour on BuildRun failure.
   RetryPolicy retry = 2;
 }
 
 message BuildTriggerPolicy {
+  // Event type that may trigger this build.
   enum Type {
-   TYPE_UNSPECIFIED = 0;
-   TYPE_MANUAL = 1;
-   TYPE_PUSH = 2;
-   TYPE_PULL_REQUEST = 3;
-   TYPE_SCHEDULE = 4;
+    TYPE_UNSPECIFIED  = 0;
+
+    // Manual trigger only — no automatic runs.
+    TYPE_MANUAL       = 1;
+
+    // Push to the configured revision.
+    TYPE_PUSH         = 2;
+
+    // Pull request opened or updated.
+    TYPE_PULL_REQUEST = 3;
+
+    // Scheduled trigger (cron-based, future).
+    TYPE_SCHEDULE     = 4;
   }
 
+  // The event type that permits a BuildRun to be triggered.
   Type type = 1;
 }
 
-
 message RetryPolicy {
+  // Whether to automatically retry a failed BuildRun.
   bool on_failure = 1;
+
+  // Maximum number of retry attempts before marking the Build failed.
   uint32 max_attempts = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Identity
 // -----------------------------------------------------------------------------
 
 message ServiceAccount {
+  // Name of the Kubernetes ServiceAccount.
+  // auto-generated as build-bot if not specified.
   string name = 1;
+
+  // Name of the Kubernetes Secret containing registry credentials.
+  // Sourced from the environment SecretStore via ExternalSecret.
+  // Must be of type kubernetes.io/dockerconfigjson.
   string secret = 2;
 }
-
 
 // -----------------------------------------------------------------------------
 // Parameters
 // -----------------------------------------------------------------------------
 
 message Param {
+  // Parameter name — must match a param declared in the BuildStrategy.
   string name = 1;
+
+  // Parameter value — overrides strategy defaults.
   string value = 2;
 }
 
-
 // -----------------------------------------------------------------------------
-// Status
+// Status (observed state)
 // -----------------------------------------------------------------------------
 
 message BuildStatus {
+  // Lifecycle phase of this Build.
   enum Phase {
     PHASE_UNSPECIFIED = 0;
-    PHASE_PENDING = 1;
-    PHASE_RUNNING = 2;
-    PHASE_SUCCEEDED = 3;
-    PHASE_FAILED = 4;
-    PHASE_CANCELLED = 5;
+
+    // Waiting for a trigger event or dependency to be ready.
+    PHASE_PENDING     = 1;
+
+    // A BuildRun is currently executing.
+    PHASE_RUNNING     = 2;
+
+    // The most recent BuildRun completed successfully.
+    // Image has been pushed to the registry.
+    PHASE_SUCCEEDED   = 3;
+
+    // The most recent BuildRun failed.
+    // Check execution_ref for BuildRun details.
+    PHASE_FAILED      = 4;
+
+    // The BuildRun was cancelled before completion.
+    PHASE_CANCELLED   = 5;
   }
 
+  // Current lifecycle phase. Set by the controller.
   Phase phase = 1;
 
-  // Image produced by the build (if any)
+  // Fully qualified image reference including digest, once pushed.
+  // e.g. docker.io/nkanyezisolutions/for-kaniko-app@sha256:abc...
   string image = 2;
 
-  // Reference to the execution that produced this result
+  // Name of the Shipwright BuildRun that last executed this Build.
+  // Use this to fetch full build logs and step details.
   string execution_ref = 3;
 
-  // Free-form status message
+  // Human-readable status message. Populated on failure.
   string message = 4;
 
-  // Observability
+  // When the most recent BuildRun started.
   google.protobuf.Timestamp start_time = 5;
+
+  // When the most recent BuildRun completed (success or failure).
   google.protobuf.Timestamp completion_time = 6;
+}
+
+// -----------------------------------------------------------------------------
+// Requests / Responses
+// -----------------------------------------------------------------------------
+
+// CreateBuild — declare a new Build intent.
+// Controller emits a Shipwright Build on reconciliation.
+message CreateBuildRequest {
+  // Desired spec for the new Build.
+  BuildSpec spec = 1;
+}
+
+message CreateBuildResponse {
+  // The created Build including generated metadata and initial status.
+  Build build = 1;
+}
+
+// GetBuild — fetch a Build by name.
+message GetBuildRequest {
+  // Name of the Build CR to fetch.
+  string name = 1;
+}
+
+message GetBuildResponse {
+  Build build = 1;
+}
+
+// UpdateBuild — full replace of the Build spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateBuildRequest {
+  // Full Build object including metadata and desired spec.
+  Build build = 1;
+}
+
+message UpdateBuildResponse {
+  // The updated Build as observed by the controller.
+  Build build = 1;
+}
+
+// PatchBuild — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchBuildRequest {
+  // Name of the Build CR to patch.
+  string name = 1;
+
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"policy":{"retry":{"max_attempts":5}}}}
+  string patch = 2;
+}
+
+message PatchBuildResponse {
+  // The patched Build as observed by the controller.
+  Build build = 1;
+}
+
+// ListBuilds — list Build CRs with optional filtering and paging.
+message ListBuildsRequest {
+  // Filter by current lifecycle phase.
+  optional BuildStatus.Phase phase = 1;
+
+  // Filter by strategy name.
+  // e.g. kaniko | buildah-shipwright-managed-push | buildpacks-v3
+  optional string strategy = 2;
+
+  // Maximum number of results to return. Server may return fewer.
+  optional int32 page_size = 3;
+
+  // Token from a previous ListBuildsResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 4;
+}
+
+message ListBuildsResponse {
+  // The list of Build CRs matching the request filters.
+  repeated Build builds = 1;
+
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
+}
+
+// DeleteBuild — delete a Build CR.
+// The controller garbage-collects the Shipwright Build and all BuildRuns.
+message DeleteBuildRequest {
+  // Name of the Build CR to delete.
+  string name = 1;
+}
+
+message DeleteBuildResponse {
+  // True if the Build was successfully deleted.
+  bool success = 1;
+}
+
+// TriggerBuild — fire a BuildRun against an existing Build CR.
+// Build-specific RPC — no equivalent in OrganizationService.
+// Useful for manual reruns or CI webhook dispatch.
+message TriggerBuildRequest {
+  // Name of the Build CR to trigger a run against.
+  string name = 1;
+
+  // Per-run param overrides. Applied on top of spec.params.
+  // Useful for SHA overrides on manual triggers.
+  repeated Param params = 2;
+}
+
+message TriggerBuildResponse {
+  // Name of the emitted Shipwright BuildRun.
+  // Use GetBuild or WatchBuild to track progress.
+  string execution_ref = 1;
+
+  // The Build CR after the trigger was applied.
+  Build build = 2;
+}
+
+// WatchBuild — stream phase transitions for a Build CR.
+// Delivers an event for every controller reconciliation loop.
+message WatchBuildRequest {
+  // Name of the Build CR to watch.
+  string name = 1;
+}
+
+message WatchBuildResponse {
+  // Current state of the Build at this point in the stream.
+  Build build = 1;
+
+  // The type of change that triggered this event.
+  blanketops.environments.common.v1.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+
+service BuildService {
+  // ── CRUD — aligned with OrganizationService pattern ─────────────────────
+
+  // Declare a new Build intent.
+  // Controller emits Shipwright Build + BuildRun on first trigger.
+  rpc CreateBuild(CreateBuildRequest) returns (CreateBuildResponse);
+
+  // Fetch a Build CR by name.
+  rpc GetBuild(GetBuildRequest) returns (GetBuildResponse);
+
+  // Full replace of a Build spec.
+  rpc UpdateBuild(UpdateBuildRequest) returns (UpdateBuildResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchBuild(PatchBuildRequest) returns (PatchBuildResponse);
+
+  // List Build CRs with optional phase/strategy filter and paging.
+  rpc ListBuilds(ListBuildsRequest) returns (ListBuildsResponse);
+
+  // Delete a Build CR and its owned Shipwright resources.
+  rpc DeleteBuild(DeleteBuildRequest) returns (DeleteBuildResponse);
+
+  // ── Build-specific ───────────────────────────────────────────────────────
+
+  // Fire a BuildRun against an existing Build CR.
+  // Useful for manual reruns and CI webhook dispatch.
+  rpc TriggerBuild(TriggerBuildRequest) returns (TriggerBuildResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream phase transitions for a Build CR.
+  // Closes when the build reaches a terminal phase (SUCCEEDED, FAILED, CANCELLED).
+  rpc WatchBuild(WatchBuildRequest) returns (stream WatchBuildResponse);
 }
