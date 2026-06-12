@@ -7,6 +7,7 @@ permissions:
     contents: read
     packages: write
 jobs:
+<<<<<<< Updated upstream
     publish:
         runs-on: self-hosted
         steps:
@@ -42,6 +43,35 @@ jobs:
                   [ "${{ steps.publish.outcome }}" = "success" ] || status="❌ failed"
                   cat >> $GITHUB_STEP_SUMMARY <<EOF
                   # 📜 Proto Contract Package
+=======
+  publish:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish contract bundle
+        id: publish
+        run: mage -v publish
+
+      - name: Publish Summary
+        if: always()
+        run: |
+          ref="ghcr.io/${{ github.repository_owner }}/environments-contract:${{ github.ref_name }}"
+          status="✅ published"
+          [ "${{ steps.publish.outcome }}" = "success" ] || status="❌ failed"
+          cat >> $GITHUB_STEP_SUMMARY <<EOF
+          # 📜 Proto Contract Package
+>>>>>>> Stashed changes
 
                   **Status:** $status
                   **Version:** \`${{ github.ref_name }}\`
