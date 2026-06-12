@@ -17,3 +17,36 @@ package blanketops.common;
 
 option csharp_namespace = "BlanketOps.Common.";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+message GitProvider {
+  // Source provider hosting the repository.
+  enum GitProvider {
+    GIT_PROVIDER_UNSPECIFIED = 0;
+    // GitHub — webhook registration via GitHub App.
+    GIT_PROVIDER_GITHUB = 1;
+    // GitLab — webhook registration via project hooks.
+    GIT_PROVIDER_GITLAB = 2;
+    // Bitbucket — webhook registration via repository hooks.
+    GIT_PROVIDER_BITBUCKET = 3;
+    // Generic Git server — poll-only, no webhook registration.
+    GIT_PROVIDER_GENERIC_GIT = 4;
+  }
+}
+
+message GitEventType {
+  // Provider events the platform may subscribe to.
+  enum GitEventType {
+    GIT_EVENT_TYPE_UNSPECIFIED = 0;
+    // A commit was pushed to a branch.
+    GIT_EVENT_TYPE_PUSH = 1;
+    // A pull request was opened, updated, or merged.
+    GIT_EVENT_TYPE_PULL_REQUEST = 2;
+    // A release was published.
+    GIT_EVENT_TYPE_RELEASE = 3;
+    // A tag was created.
+    GIT_EVENT_TYPE_TAG = 4;
+  }
+}

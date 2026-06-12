@@ -1,83 +1,252 @@
+/*
+   Copyright 2026 The BlanketOps Authors.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   	http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 syntax = "proto3";
-
 package blanketops.sources.v1beta1;
 
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/sources/v1beta1;v1beta1";
-option csharp_namespace = "BlanketOps.Sources.V1Beta1";
-
+import "blanketops/common/event.proto";
+import "blanketops/common/gitrepository.proto";
+import "blanketops/common/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
+option csharp_namespace = "BlanketOps.Sources.V1beta1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/sources/v1beta1;v1beta1";
+option java_outer_classname = "GitRepositoryProto";
+option java_package = "v1beta1.blanketops.sources";
 
-// -----------------------------------------------------------------------------
+// =============================================================================
 // GitRepository
+//
+// Declares a source repository the platform is permitted to observe.
+// The controller registers provider webhooks on reconciliation and emits
+// GitHubPayload resources for matching events.
+// Head of the pipeline chain:
+//   GitRepository → GitHubEvent → Build → SupplyChain → Package → Deployment
+//
+// Supported providers:
+//   github      — webhook registration via GitHub App
+//   gitlab      — webhook registration via project hooks
+//   bitbucket   — webhook registration via repository hooks
+//   generic-git — poll-only, no webhook registration
+// =============================================================================
 // -----------------------------------------------------------------------------
-
+// Resource
+// -----------------------------------------------------------------------------
 message GitRepository {
-  GitRepositorySpec spec = 1;
-  GitRepositoryStatus status = 2;
+  // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
+  blanketops.common.Metadata metadata = 1;
+  // Desired state declared by the operator.
+  GitRepositorySpec spec = 2;
+  // Observed state set by the controller. Never manually edited.
+  GitRepositoryStatus status = 3;
 }
 
-
 // -----------------------------------------------------------------------------
-// Spec
+// Spec (intent)
 // -----------------------------------------------------------------------------
-
 message GitRepositorySpec {
-  // Source provider (github, gitlab, bitbucket, etc.)
-  GitProvider provider = 1;
+  // Source provider hosting the repository.
+  blanketops.common.GitProvider provider = 1;
 
-  // Repository identity
+  // Repository identity — owner and name on the provider.
   GitRepositoryRef repository = 2;
 
-  // Events this repository is allowed to emit
+  // Webhook subscriptions — events this repository is allowed to emit
+  // into the platform. At least one webhook must be specified.
   repeated GitRepositoryWebhook webhooks = 3;
+
+  // Name of the Kubernetes Secret containing provider credentials
+  // used for webhook registration.
+  // Sourced from the environment SecretStore via ExternalSecret.
+  string credentials_secret = 4;
 }
 
-
+// -----------------------------------------------------------------------------
+// Repository identity
+// -----------------------------------------------------------------------------
 message GitRepositoryRef {
+  // Repository owner — user or organization on the provider.
+  // e.g. ntlaletsi70
   string owner = 1;
+  // Repository name without the owner prefix.
+  // e.g. blanketops-environments-contract
   string name = 2;
 }
 
-
+// -----------------------------------------------------------------------------
+// Webhooks
+// -----------------------------------------------------------------------------
 message GitRepositoryWebhook {
-  // Events to subscribe to (push, pull_request, release, etc.)
-  repeated GitEventType events = 1;
+  // Events to subscribe to on the provider.
+  // e.g. push, pull_request, release, tag
+  repeated blanketops.common.GitEventType events = 1;
 }
 
-
 // -----------------------------------------------------------------------------
-// Status
+// Status (observed state)
 // -----------------------------------------------------------------------------
-
 message GitRepositoryStatus {
-  // Indicates whether the repository is ready for use
+  // Whether the repository is registered and ready to emit events.
   bool ready = 1;
-
-  // Human-readable reason if not ready
+  // Human-readable reason if not ready. Populated on failure.
   string reason = 2;
-
-  // Last time the repository status changed
+  // Last time the repository status changed.
   google.protobuf.Timestamp last_updated_at = 3;
 }
 
-
 // -----------------------------------------------------------------------------
-// Enums
+// Requests / Responses
 // -----------------------------------------------------------------------------
-
-enum GitProvider {
-  GIT_PROVIDER_UNSPECIFIED = 0;
-  GIT_PROVIDER_GITHUB = 1;
-  GIT_PROVIDER_GITLAB = 2;
-  GIT_PROVIDER_BITBUCKET = 3;
-  GIT_PROVIDER_GENERIC_GIT = 4;
+// CreateGitRepository — declare a new GitRepository intent.
+// Controller registers provider webhooks on reconciliation.
+message CreateGitRepositoryRequest {
+  // Desired spec for the new GitRepository.
+  GitRepositorySpec spec = 1;
+}
+message CreateGitRepositoryResponse {
+  // The created GitRepository including generated metadata and initial status.
+  GitRepository git_repository = 1;
 }
 
-enum GitEventType {
-  GIT_EVENT_TYPE_UNSPECIFIED = 0;
-  GIT_EVENT_TYPE_PUSH = 1;
-  GIT_EVENT_TYPE_PULL_REQUEST = 2;
-  GIT_EVENT_TYPE_RELEASE = 3;
-  GIT_EVENT_TYPE_TAG = 4;
+// GetGitRepository — fetch a GitRepository by name.
+message GetGitRepositoryRequest {
+  // Name of the GitRepository CR to fetch.
+  string name = 1;
+}
+message GetGitRepositoryResponse {
+  GitRepository git_repository = 1;
+}
+
+// UpdateGitRepository — full replace of the GitRepository spec.
+// Equivalent to kubectl apply — all fields replaced.
+message UpdateGitRepositoryRequest {
+  // Full GitRepository object including metadata and desired spec.
+  GitRepository git_repository = 1;
+}
+message UpdateGitRepositoryResponse {
+  // The updated GitRepository as observed by the controller.
+  GitRepository git_repository = 1;
+}
+
+// PatchGitRepository — partial update using JSON merge patch RFC 7396.
+// Only specified fields are updated — others left unchanged.
+message PatchGitRepositoryRequest {
+  // Name of the GitRepository CR to patch.
+  string name = 1;
+  // JSON merge patch document — RFC 7396.
+  // e.g. {"spec":{"webhooks":[{"events":["GIT_EVENT_TYPE_PUSH"]}]}}
+  string patch = 2;
+}
+message PatchGitRepositoryResponse {
+  // The patched GitRepository as observed by the controller.
+  GitRepository git_repository = 1;
+}
+
+// ListGitRepositories — list GitRepository CRs with optional filtering and paging.
+message ListGitRepositoriesRequest {
+  // Filter by source provider.
+  optional blanketops.common.GitProvider provider = 1;
+
+  // Filter by repository owner.
+  optional string owner = 2;
+
+  // Filter by readiness.
+  optional bool ready = 3;
+
+  // Maximum number of results to return. Server may return fewer.
+
+  optional int32 page_size = 4;
+  // Token from a previous ListGitRepositoriesResponse.next_page_token.
+  // Omit for the first request.
+  optional string page_token = 5;
+}
+message ListGitRepositoriesResponse {
+  // The list of GitRepository CRs matching the request filters.
+  repeated GitRepository git_repositories = 1;
+  // Token to retrieve the next page. Empty if no more results.
+  optional string next_page_token = 2;
+}
+
+// DeleteGitRepository — delete a GitRepository CR.
+// The controller deregisters provider webhooks before removal.
+message DeleteGitRepositoryRequest {
+  // Name of the GitRepository CR to delete.
+  string name = 1;
+}
+message DeleteGitRepositoryResponse {
+  // True if the GitRepository was successfully deleted.
+  bool success = 1;
+}
+
+// SyncGitRepository — force webhook re-registration against the provider.
+// Source-specific RPC — no equivalent in OrganizationService.
+// Useful after provider-side hook deletion or credential rotation.
+message SyncGitRepositoryRequest {
+  // Name of the GitRepository CR to sync.
+  string name = 1;
+}
+message SyncGitRepositoryResponse {
+  // The GitRepository CR after the sync was applied.
+  GitRepository git_repository = 1;
+}
+
+// WatchGitRepository — stream state transitions for a GitRepository CR.
+// Delivers an event for every controller reconciliation loop.
+message WatchGitRepositoryRequest {
+  // Name of the GitRepository CR to watch.
+  string name = 1;
+}
+message WatchGitRepositoryResponse {
+  // Current state of the GitRepository at this point in the stream.
+  GitRepository git_repository = 1;
+  // The type of change that triggered this event.
+  blanketops.common.EventType type = 2;
+}
+
+// -----------------------------------------------------------------------------
+// Service
+// -----------------------------------------------------------------------------
+service GitRepositoryService {
+  // ── CRUD — aligned with OrganizationService pattern ─────────────────────
+
+  // Declare a new GitRepository intent.
+  // Controller registers provider webhooks on reconciliation.
+  rpc CreateGitRepository(CreateGitRepositoryRequest) returns (CreateGitRepositoryResponse);
+
+  // Fetch a GitRepository CR by name.
+  rpc GetGitRepository(GetGitRepositoryRequest) returns (GetGitRepositoryResponse);
+
+  // Full replace of a GitRepository spec.
+  rpc UpdateGitRepository(UpdateGitRepositoryRequest) returns (UpdateGitRepositoryResponse);
+
+  // Partial update via JSON merge patch RFC 7396.
+  rpc PatchGitRepository(PatchGitRepositoryRequest) returns (PatchGitRepositoryResponse);
+
+  // List GitRepository CRs with optional provider/owner/ready filter and paging.
+  rpc ListGitRepositories(ListGitRepositoriesRequest) returns (ListGitRepositoriesResponse);
+
+  // Delete a GitRepository CR and deregister its provider webhooks.
+  rpc DeleteGitRepository(DeleteGitRepositoryRequest) returns (DeleteGitRepositoryResponse);
+
+  // ── Source-specific ──────────────────────────────────────────────────────
+
+  // Force webhook re-registration against the provider.
+  // Useful after provider-side hook deletion or credential rotation.
+  rpc SyncGitRepository(SyncGitRepositoryRequest) returns (SyncGitRepositoryResponse);
+
+  // ── Streaming ────────────────────────────────────────────────────────────
+
+  // Stream state transitions for a GitRepository CR.
+  // Closes when the git repository reaches a terminal phase (SUCCEEDED, FAILED, CANCELLED).
+
+  rpc WatchGitRepository(WatchGitRepositoryRequest) returns (stream WatchGitRepositoryResponse);
 }
