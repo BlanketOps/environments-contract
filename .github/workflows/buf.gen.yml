@@ -18,38 +18,85 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
-          cache: false
-
-      - name: Install Go protobuf plugins
-        run: |
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
+          fetch-depth: 0
       - name: Setup Buf
         uses: bufbuild/buf-setup-action@v1
         with:
           version: latest
-
       - name: Buf Lint
+        id: lint
         run: buf lint
-
       - name: Buf Breaking Check
-        run: |
-          buf breaking \
-            --against '.git#branch=main' \
-            || echo "⚠️ Breaking changes detected (allowed outside v1)"
-
+        id: breaking
+        # PR-only — pushing to main would compare main against itself.
+        # Allowed to fail pre-v1; surfaced in the summary instead of the job status.
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: buf breaking --against ".git#branch=origin/${{ github.base_ref }}"
       - name: Buf Generate
+        id: generate
         run: buf generate
-
       - name: Upload generated contracts
+        id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: generated-contracts
+          name: generated-contracts-${{ github.sha }}
           path: gen/
           retention-days: 7
+      - name: CI Summary
+        if: always()
+        run: |
+          # ── outcomes ────────────────────────────────────────────────────
+          lint="${{ steps.lint.outcome }}"
+          breaking="${{ steps.breaking.outcome }}"
+          generate="${{ steps.generate.outcome }}"
+          icon() {
+            case "$1" in
+              success) echo "✅ passed" ;;
+              failure) echo "❌ failed" ;;
+              skipped) echo "⏭️ skipped" ;;
+              *)       echo "⚪ $1" ;;
+            esac
+          }
+          # pre-v1: breaking failures are informational
+          breaking_label="$(icon "$breaking")"
+          if [ "$breaking" = "failure" ]; then
+            breaking_label="⚠️ breaking changes detected (allowed pre-v1)"
+          fi
+          # ── generated file counts ───────────────────────────────────────
+          count() { find "$1" -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
+          go_n=$(count gen/go '*.go')
+          cs_n=$(count gen/csharp '*.cs')
+          java_n=$(count gen/java '*.java')
+          ts_n=$(count gen/ts '*.ts')
+          proto_n=$(count blanketops '*.proto')
+          svc_n=$(grep -rh "^service " blanketops --include='*.proto' 2>/dev/null | wc -l | tr -d ' ')
+          # ── summary ─────────────────────────────────────────────────────
+          cat >> "$GITHUB_STEP_SUMMARY" <<EOF
+          # 📜 Contract Validation & Generation
+
+          **Ref:** \`${{ github.ref_name }}\` · **Commit:** [\`$(echo "${{ github.sha }}" | cut -c1-7)\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+
+          ## Checks
+          | Check | Result |
+          | --- | --- |
+          | \`buf lint\` | $(icon "$lint") |
+          | \`buf breaking\` | $breaking_label |
+          | \`buf generate\` | $(icon "$generate") |
+
+          ## Generated
+          | Target | Files |
+          | --- | --- |
+          | Go (\`gen/go\`) | $go_n |
+          | C# (\`gen/csharp\`) | $cs_n |
+          | Java (\`gen/java\`) | $java_n |
+          | TypeScript (\`gen/ts\`) | $ts_n |
+
+          *$proto_n proto files · $svc_n services compiled*
+
+          ## Artifacts
+          📦 [generated-contracts-$(echo "${{ github.sha }}" | cut -c1-7)…](${{ steps.upload.outputs.artifact-url }}) — retained 7 days
+
+          🔗 [Full run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
