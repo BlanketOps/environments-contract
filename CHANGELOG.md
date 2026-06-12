@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.2] - 2026-06-12
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.2.1
+- *(release)* Update changelog for v0.2.1
+
+### Bugfix
+
+- *(ci)* Magefile update, docker.yml remove, publish-proto-contract package on release
+- *(ci)* Add support template docs stubs
+- *(ci)* Add support templates
+
+### Release
+
+- Merge release/v0.2.2 into main
+
 ## [0.2.1] - 2026-06-12
 
 ### ⚙️ Miscellaneous Tasks
