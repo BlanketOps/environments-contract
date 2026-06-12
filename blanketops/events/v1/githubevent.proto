@@ -13,9 +13,9 @@
 syntax = "proto3";
 package blanketops.events.v1;
 
-import "blanketops/common/event.proto";
-import "blanketops/common/githubevent.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/githubevent.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Events.V1";
@@ -38,7 +38,7 @@ option java_package = "v1.blanketops.events";
 // -----------------------------------------------------------------------------
 message GitHubEvent {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
   // The observed event. Immutable once accepted.
   GitHubEventSpec spec = 2;
   // Observed state set by the controller. Never manually edited.
@@ -53,7 +53,7 @@ message GitHubEventSpec {
   // e.g. ntlaletsi70/blanketops-environments-contract
   string repository = 1;
   // The provider event type.
-  blanketops.common.GitHubEventType event_type = 2;
+  blanketops.common.v1.GitHubEventType event_type = 2;
   // Git ref the event applies to.
   // e.g. refs/heads/main, refs/tags/v0.1.0
   string ref = 3;
@@ -117,7 +117,7 @@ message ListGitHubEventsRequest {
   // Filter by source repository — owner/name.
   optional string repository = 1;
   // Filter by provider event type.
-  optional blanketops.common.GitHubEventType event_type = 2;
+  optional blanketops.common.v1.GitHubEventType event_type = 2;
   // Filter by whether the event fired a trigger.
   optional bool triggered = 3;
   // Maximum number of results to return. Server may return fewer.
@@ -158,7 +158,7 @@ message WatchGitHubEventResponse {
   // Current state of the GitHubEvent at this point in the stream.
   GitHubEvent github_event = 1;
   // The type of change that triggered this stream event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

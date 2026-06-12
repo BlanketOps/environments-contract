@@ -13,19 +13,17 @@
 
 syntax = "proto3";
 
-package blanketops.common;
+package blanketops.common.v1;
 
-option csharp_namespace = "BlanketOps.Common.";
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";
+option csharp_namespace = "BlanketOps.Common.v1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
-message PackagePhase {
-  enum PackagePhase {
-    PACKAGE_PHASE_UNSPECIFIED = 0;
-    // Waiting for sources to be ready or reconciliation to complete.
-    PACKAGE_PHASE_PENDING = 1;
-    // The package is reconciled against the state repository.
-    PACKAGE_PHASE_READY = 2;
-    // Reconciliation failed. Check message and diff_output.
-    PACKAGE_PHASE_FAILED = 3;
-  }
+// -----------------------------------------------------------------------------
+// Event Type (SHARED)
+// -----------------------------------------------------------------------------
+enum EventType {
+  EVENT_TYPE_UNSPECIFIED = 0;
+  EVENT_TYPE_ADDED = 1;
+  EVENT_TYPE_MODIFIED = 2;
+  EVENT_TYPE_DELETED = 3;
 }

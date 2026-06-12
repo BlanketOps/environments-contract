@@ -15,9 +15,9 @@ syntax = "proto3";
 
 package blanketops.environments.v1beta1;
 
-import "blanketops/common/environment.proto";
-import "blanketops/common/event.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/environment.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Beta1";
@@ -41,7 +41,7 @@ option java_package = "v1beta1.blanketops.environments";
 
 message Environment {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
 
   // Desired state declared by the operator.
   EnvironmentSpec spec = 2;
@@ -68,7 +68,7 @@ message EnvironmentSpec {
   string git_owner = 3;
 
   // Environment classification.
-  blanketops.common.EnvironmentType environment_type = 4;
+  blanketops.common.v1.EnvironmentType environment_type = 4;
 
   // Application version — semantic or otherwise.
   // e.g. v1.2.3
@@ -113,7 +113,7 @@ message ObjectRef {
 
 message EnvironmentStatus {
   // Current aggregate phase. Set by the controller.
-  blanketops.common.EnvironmentPhase phase = 1;
+  blanketops.common.v1.EnvironmentPhase phase = 1;
 
   // Human-readable status summary. Populated on failure.
   string message = 2;
@@ -200,10 +200,10 @@ message PatchEnvironmentResponse {
 // ListEnvironments — list Environment CRs with optional filtering and paging.
 message ListEnvironmentsRequest {
   // Filter by current aggregate phase.
-  optional blanketops.common.EnvironmentPhase phase = 1;
+  optional blanketops.common.v1.EnvironmentPhase phase = 1;
 
   // Filter by environment classification.
-  optional blanketops.common.EnvironmentType environment_type = 2;
+  optional blanketops.common.v1.EnvironmentType environment_type = 2;
 
   // Filter by application name.
   optional string application_name = 3;
@@ -248,7 +248,7 @@ message WatchEnvironmentResponse {
   Environment environment = 1;
 
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

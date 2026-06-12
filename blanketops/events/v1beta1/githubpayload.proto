@@ -13,9 +13,9 @@
 syntax = "proto3";
 package blanketops.events.v1beta1;
 
-import "blanketops/common/event.proto";
-import "blanketops/common/githubevent.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/githubevent.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Events.V1Beta1";
@@ -39,7 +39,7 @@ option java_package = "v1beta1.blanketops.events";
 // -----------------------------------------------------------------------------
 message GitHubPayload {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
   // The received delivery. Immutable once created.
   GitHubPayloadSpec spec = 2;
   // Observed state set by the BuildTrigger controller. Never manually edited.
@@ -54,7 +54,7 @@ message GitHubPayloadSpec {
   // e.g. ntlaletsi70/blanketops-environments-contract
   string repository = 1;
   // The provider event type. Defined in githubevent.proto, same package.
-  blanketops.common.GitHubEventType event_type = 2;
+  blanketops.common.v1.GitHubEventType event_type = 2;
   // Git ref the delivery applies to.
   // e.g. refs/heads/main, refs/tags/v0.1.0
   string ref = 3;
@@ -76,7 +76,7 @@ message GitHubPayloadSpec {
 // -----------------------------------------------------------------------------
 message GitHubPayloadStatus {
   // Current lifecycle phase. Set by the BuildTrigger controller.
-  blanketops.common.GitHubPayloadPhase phase = 1;
+  blanketops.common.v1.GitHubPayloadPhase phase = 1;
   // Name of the BuildTrigger that matched this payload, if any.
   string matched_trigger = 2;
   // Name of the Build CR patched by the matched trigger, if any.
@@ -117,9 +117,9 @@ message ListGitHubPayloadsRequest {
   // Filter by source repository — owner/name.
   optional string repository = 1;
   // Filter by current lifecycle phase.
-  optional blanketops.common.GitHubPayloadPhase phase = 2;
+  optional blanketops.common.v1.GitHubPayloadPhase phase = 2;
   // Filter by provider event type.
-  optional blanketops.common.GitHubEventType event_type = 3;
+  optional blanketops.common.v1.GitHubEventType event_type = 3;
   // Maximum number of results to return. Server may return fewer.
   optional int32 page_size = 4;
   // Token from a previous ListGitHubPayloadsResponse.next_page_token.
@@ -160,7 +160,7 @@ message WatchGitHubPayloadResponse {
   // Current state of the GitHubPayload at this point in the stream.
   GitHubPayload github_payload = 1;
   // The type of change that triggered this stream event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

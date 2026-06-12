@@ -13,17 +13,17 @@
 
 syntax = "proto3";
 
-package blanketops.common;
+package blanketops.common.v1;
 
-option csharp_namespace = "BlanketOps.Common.";
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common;common";
+option csharp_namespace = "BlanketOps.Common.v1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
+// -----------------------------------------------------------------------------
+// Metadata (SHARED)
+// -----------------------------------------------------------------------------
 
-// -----------------------------------------------------------------------------
-// Event Type (SHARED)
-// -----------------------------------------------------------------------------
-enum EventType {
-  EVENT_TYPE_UNSPECIFIED = 0;
-  EVENT_TYPE_ADDED = 1;
-  EVENT_TYPE_MODIFIED = 2;
-  EVENT_TYPE_DELETED = 3;
+message Metadata {
+  string id = 1;
+  string name = 2;
+  map<string, string> labels = 3;
+  int64 generation = 4;
 }

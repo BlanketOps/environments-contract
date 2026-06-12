@@ -17,10 +17,10 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
-import "blanketops/common/build.proto";
-import "blanketops/common/buildtrigger.proto";
-import "blanketops/common/event.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/build.proto";
+import "blanketops/common/v1/buildtrigger.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -48,7 +48,7 @@ option java_package = "v1alpha1.blanketops.environments";
 
 message Build {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
 
   // Desired state declared by the operator.
   BuildSpec spec = 2;
@@ -133,7 +133,7 @@ message BuildStrategy {
   string name = 1;
 
   // Scope of the strategy resource.
-  blanketops.common.BuildStrategyKind kind = 2;
+  blanketops.common.v1.BuildStrategyKind kind = 2;
 }
 
 // -----------------------------------------------------------------------------
@@ -151,7 +151,7 @@ message BuildPolicy {
 
 message BuildTriggerPolicy {
   // The event type that permits a BuildRun to be triggered.
-  blanketops.common.BuildTriggerType type = 1;
+  blanketops.common.v1.BuildTriggerType type = 1;
 }
 
 message RetryPolicy {
@@ -195,7 +195,7 @@ message Param {
 
 message BuildStatus {
   // Current lifecycle phase. Set by the controller.
-  blanketops.common.BuildStatusPhase phase = 1;
+  blanketops.common.v1.BuildStatusPhase phase = 1;
 
   // Fully qualified image reference including digest, once pushed.
   // e.g. docker.io/nkanyezisolutions/for-kaniko-app@sha256:abc...
@@ -272,7 +272,7 @@ message PatchBuildResponse {
 // ListBuilds — list Build CRs with optional filtering and paging.
 message ListBuildsRequest {
   // Filter by current lifecycle phase.
-  optional blanketops.common.BuildStatusPhase phase = 1;
+  optional blanketops.common.v1.BuildStatusPhase phase = 1;
 
   // Filter by strategy name.
   // e.g. kaniko | buildah-shipwright-managed-push | buildpacks-v3
@@ -339,7 +339,7 @@ message WatchBuildResponse {
   Build build = 1;
 
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

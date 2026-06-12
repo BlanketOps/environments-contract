@@ -1,16 +1,16 @@
 syntax = "proto3";
 
-package blanketops.environments.networking.v1alpha1;
+package blanketops.networks.v1alpha1;
 
-import "blanketops/common/event.proto";
-import "blanketops/common/metadata.proto";
-import "blanketops/common/route.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/metadata.proto";
+import "blanketops/common/v1/route.proto";
 import "google/protobuf/timestamp.proto";
 
-option csharp_namespace = "BlanketOps.Environments.Networking.V1Alpha1";
-option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/networking/v1alpha1;v1alpha1";
+option csharp_namespace = "BlanketOps.Networks.v1Alpha1";
+option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/networks/v1alpha1;v1alpha1";
 option java_outer_classname = "RouteProto";
-option java_package = "v1alpha1.networking.blanketops.environments";
+option java_package = "v1alpha1.networks.blanketops";
 
 // =============================================================================
 // Route
@@ -32,7 +32,7 @@ option java_package = "v1alpha1.networking.blanketops.environments";
 
 message Route {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
 
   // Desired state declared by the operator.
   RouteSpec spec = 2;
@@ -64,7 +64,7 @@ message RouteSpec {
   bool tls_enabled = 4;
 
   // Runtime responsible for materializing this route.
-  blanketops.common.RouteRuntime runtime = 5;
+  blanketops.common.v1.RouteRuntime runtime = 5;
 }
 
 // -----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ message RouteSpec {
 
 message RouteStatus {
   // Current lifecycle phase. Set by the controller.
-  blanketops.common.RoutePhase phase = 1;
+  blanketops.common.v1.RoutePhase phase = 1;
 
   // Human-readable status message. Populated on failure.
   string message = 2;
@@ -83,7 +83,7 @@ message RouteStatus {
   string resolved_address = 3;
 
   // TLS provisioning status. Set by the controller.
-  blanketops.common.RouteTLSStatus tls_status = 4;
+  blanketops.common.v1.RouteTLSStatus tls_status = 4;
 
   // Conditions for UI and automation consumers.
   repeated RouteCondition conditions = 5;
@@ -170,10 +170,10 @@ message PatchRouteResponse {
 // ListRoutes — list Route CRs with optional filtering and paging.
 message ListRoutesRequest {
   // Filter by current lifecycle phase.
-  optional blanketops.common.RoutePhase phase = 1;
+  optional blanketops.common.v1.RoutePhase phase = 1;
 
   // Filter by materializing runtime.
-  optional blanketops.common.RouteRuntime runtime = 2;
+  optional blanketops.common.v1.RouteRuntime runtime = 2;
 
   // Filter by host FQDN.
   optional string host = 3;
@@ -219,7 +219,7 @@ message WatchRouteResponse {
   Route route = 1;
 
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

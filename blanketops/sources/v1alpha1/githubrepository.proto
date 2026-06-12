@@ -13,9 +13,9 @@
 syntax = "proto3";
 package blanketops.sources.v1alpha1;
 
-import "blanketops/common/event.proto";
-import "blanketops/common/gitrepository.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/gitrepository.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Sources.V1alpha1";
@@ -43,7 +43,7 @@ option java_package = "v1alpha1.blanketops.sources";
 // -----------------------------------------------------------------------------
 message GitRepository {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
   // Desired state declared by the operator.
   GitRepositorySpec spec = 2;
   // Observed state set by the controller. Never manually edited.
@@ -55,7 +55,7 @@ message GitRepository {
 // -----------------------------------------------------------------------------
 message GitRepositorySpec {
   // Source provider hosting the repository.
-  blanketops.common.GitProvider provider = 1;
+  blanketops.common.v1.GitProvider provider = 1;
 
   // Repository identity — owner and name on the provider.
   GitRepositoryRef repository = 2;
@@ -88,7 +88,7 @@ message GitRepositoryRef {
 message GitRepositoryWebhook {
   // Events to subscribe to on the provider.
   // e.g. push, pull_request, release, tag
-  repeated blanketops.common.GitEventType events = 1;
+  repeated blanketops.common.v1.GitEventType events = 1;
 }
 
 // -----------------------------------------------------------------------------
@@ -154,7 +154,7 @@ message PatchGitRepositoryResponse {
 // ListGitRepositories — list GitRepository CRs with optional filtering and paging.
 message ListGitRepositoriesRequest {
   // Filter by source provider.
-  optional blanketops.common.GitProvider provider = 1;
+  optional blanketops.common.v1.GitProvider provider = 1;
 
   // Filter by repository owner.
   optional string owner = 2;
@@ -209,7 +209,7 @@ message WatchGitRepositoryResponse {
   // Current state of the GitRepository at this point in the stream.
   GitRepository git_repository = 1;
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

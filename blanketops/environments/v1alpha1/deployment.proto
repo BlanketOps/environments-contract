@@ -15,9 +15,9 @@ syntax = "proto3";
 
 package blanketops.environments.v1alpha1;
 
-import "blanketops/common/deployment.proto";
-import "blanketops/common/event.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/deployment.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1Alpha1";
@@ -45,7 +45,7 @@ option java_package = "v1alpha1.blanketops.environments";
 
 message Deployment {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
 
   // Desired state declared by the operator.
   DeploymentSpec spec = 2;
@@ -64,7 +64,7 @@ message DeploymentSpec {
   repeated string service_units = 1;
 
   // Target runtime backend for all service units.
-  blanketops.common.DeploymentRuntime runtime = 2;
+  blanketops.common.v1.DeploymentRuntime runtime = 2;
 
   // Enable automatic image updates from Build outputs.
   // Materialized as FluxCD ImageUpdateAutomation when GitOps is active.
@@ -75,7 +75,7 @@ message DeploymentSpec {
   ManifestsRepo manifests_repo = 4;
 
   // Manifest application strategy. Required when manifests_repo is set.
-  blanketops.common.ReconciliationStrategy reconciliation_strategy = 5;
+  blanketops.common.v1.ReconciliationStrategy reconciliation_strategy = 5;
 }
 
 // -----------------------------------------------------------------------------
@@ -109,16 +109,16 @@ message ManifestsRepo {
 
 message DeploymentStatus {
   // Current lifecycle phase. Set by the controller.
-  blanketops.common.DeploymentPhase phase = 1;
+  blanketops.common.v1.DeploymentPhase phase = 1;
 
   // Human-readable status summary. Populated on failure.
   string message = 2;
 
   // Runtime actually used to materialize workloads.
-  blanketops.common.DeploymentRuntime runtime = 3;
+  blanketops.common.v1.DeploymentRuntime runtime = 3;
 
   // Rollout strategy applied by the runtime.
-  blanketops.common.DeploymentStrategy strategy = 4;
+  blanketops.common.v1.DeploymentStrategy strategy = 4;
 
   // Per-ServiceUnit deployment status.
   repeated ServiceUnitDeploymentStatus service_unit_statuses = 5;
@@ -136,13 +136,13 @@ message ServiceUnitDeploymentStatus {
   string name = 1;
 
   // Current deployment phase for this unit.
-  blanketops.common.DeploymentPhase phase = 2;
+  blanketops.common.v1.DeploymentPhase phase = 2;
 
   // Fully qualified image that was deployed, including digest when known.
   string image = 3;
 
   // Runtime backend used for this unit.
-  blanketops.common.DeploymentRuntime runtime = 4;
+  blanketops.common.v1.DeploymentRuntime runtime = 4;
 
   // Human-readable status message.
   string message = 5;
@@ -211,10 +211,10 @@ message PatchDeploymentResponse {
 // ListDeployments — list Deployment CRs with optional filtering and paging.
 message ListDeploymentsRequest {
   // Filter by current lifecycle phase.
-  optional blanketops.common.DeploymentPhase phase = 1;
+  optional blanketops.common.v1.DeploymentPhase phase = 1;
 
   // Filter by target runtime.
-  optional blanketops.common.DeploymentRuntime runtime = 2;
+  optional blanketops.common.v1.DeploymentRuntime runtime = 2;
 
   // Maximum number of results to return. Server may return fewer.
   optional int32 page_size = 3;
@@ -257,7 +257,7 @@ message WatchDeploymentResponse {
   Deployment deployment = 1;
 
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

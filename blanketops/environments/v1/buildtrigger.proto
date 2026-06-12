@@ -15,9 +15,9 @@ syntax = "proto3";
 
 package blanketops.environments.v1;
 
-import "blanketops/common/buildtrigger.proto";
-import "blanketops/common/event.proto";
-import "blanketops/common/metadata.proto";
+import "blanketops/common/v1/buildtrigger.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1";
@@ -45,7 +45,7 @@ option java_package = "v1.blanketops.environments";
 
 message BuildTrigger {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
 
   // Desired state declared by the event runtime or operator.
   BuildTriggerSpec spec = 2;
@@ -60,10 +60,10 @@ message BuildTrigger {
 
 message BuildTriggerSpec {
   // System that originated the trigger event.
-  blanketops.common.BuildTriggerSource source = 1;
+  blanketops.common.v1.BuildTriggerSource source = 1;
 
   // Kind of event that fired the trigger.
-  blanketops.common.BuildTriggerType type = 2;
+  blanketops.common.v1.BuildTriggerType type = 2;
 
   // Repository identifier in owner/name form.
   // e.g. ntlaletsi70/for-kaniko-app
@@ -105,7 +105,7 @@ message BuildRef {
 
 message BuildTriggerStatus {
   // Current lifecycle phase. Set by the controller.
-  blanketops.common.BuildTriggerStatus phase = 1;
+  blanketops.common.v1.BuildTriggerStatus phase = 1;
 
   // Machine-readable reason for acceptance or rejection.
   // e.g. PolicyMatched, TriggerTypeNotAllowed, DuplicateEventId
@@ -184,13 +184,13 @@ message PatchBuildTriggerResponse {
 // ListBuildTriggers — list BuildTrigger CRs with optional filtering and paging.
 message ListBuildTriggersRequest {
   // Filter by current lifecycle phase.
-  optional blanketops.common.BuildTriggerStatus phase = 1;
+  optional blanketops.common.v1.BuildTriggerStatus phase = 1;
 
   // Filter by originating source.
-  optional blanketops.common.BuildTriggerSource source = 2;
+  optional blanketops.common.v1.BuildTriggerSource source = 2;
 
   // Filter by event type.
-  optional blanketops.common.BuildTriggerType type = 3;
+  optional blanketops.common.v1.BuildTriggerType type = 3;
 
   // Filter by target Build name.
   optional string build = 4;
@@ -238,7 +238,7 @@ message WatchBuildTriggerResponse {
   BuildTrigger build_trigger = 1;
 
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------

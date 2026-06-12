@@ -15,9 +15,9 @@ syntax = "proto3";
 
 package blanketops.environments.v1;
 
-import "blanketops/common/event.proto";
-import "blanketops/common/metadata.proto";
-import "blanketops/common/serviceunit.proto";
+import "blanketops/common/v1/event.proto";
+import "blanketops/common/v1/metadata.proto";
+import "blanketops/common/v1/serviceunit.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1";
@@ -41,7 +41,7 @@ option java_package = "v1.blanketops.environments";
 
 message ServiceUnit {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.Metadata metadata = 1;
+  blanketops.common.v1.Metadata metadata = 1;
 
   // Desired state declared by the operator.
   ServiceUnitSpec spec = 2;
@@ -56,7 +56,7 @@ message ServiceUnit {
 
 message ServiceUnitSpec {
   // How this service unit's image is sourced.
-  blanketops.common.ServiceUnitType type = 1;
+  blanketops.common.v1.ServiceUnitType type = 1;
 
   // Reference to the source Build. Required when type is BUILD.
   BuildReference build_ref = 2;
@@ -123,7 +123,7 @@ message WorkloadReference {
 
 message ServiceUnitStatus {
   // Current lifecycle phase. Set by the controller.
-  blanketops.common.ServiceUnitDeploymentPhase phase = 1;
+  blanketops.common.v1.ServiceUnitDeploymentPhase phase = 1;
 
   // Human-readable status message. Populated on failure.
   string message = 2;
@@ -138,7 +138,7 @@ message ServiceUnitStatus {
   BuildResolutionStatus build_status = 5;
 
   // Runtime backend used to materialize the workload.
-  blanketops.common.ServiceUnitRuntime runtime = 6;
+  blanketops.common.v1.ServiceUnitRuntime runtime = 6;
 
   // Reference to the concrete workload created.
   WorkloadReference workload_ref = 7;
@@ -159,7 +159,7 @@ message BuildResolutionStatus {
   string name = 1;
 
   // Observed phase of the source Build.
-  blanketops.common.ServiceUnitDeploymentPhase phase = 2;
+  blanketops.common.v1.ServiceUnitDeploymentPhase phase = 2;
 
   // Image produced by the source Build, including digest.
   string image = 3;
@@ -248,10 +248,10 @@ message PatchServiceUnitResponse {
 // ListServiceUnits — list ServiceUnit CRs with optional filtering and paging.
 message ListServiceUnitsRequest {
   // Filter by current lifecycle phase.
-  optional blanketops.common.ServiceUnitDeploymentPhase phase = 1;
+  optional blanketops.common.v1.ServiceUnitDeploymentPhase phase = 1;
 
   // Filter by source type.
-  optional blanketops.common.ServiceUnitType type = 2;
+  optional blanketops.common.v1.ServiceUnitType type = 2;
 
   // Filter by application category.
   optional string app_type = 3;
@@ -296,7 +296,7 @@ message WatchServiceUnitResponse {
   ServiceUnit service_unit = 1;
 
   // The type of change that triggered this event.
-  blanketops.common.EventType type = 2;
+  blanketops.common.v1.EventType type = 2;
 }
 
 // -----------------------------------------------------------------------------
