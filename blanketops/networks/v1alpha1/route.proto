@@ -1,12 +1,13 @@
 syntax = "proto3";
 
-package blanketops.environments.networking.v1;
+package blanketops.environments.networking.v1alpha1;
 
-import "blanketops/environments/common/v1/event.proto";
-import "blanketops/environments/common/v1/metadata.proto";
+import "blanketops/common/event.proto";
+import "blanketops/common/metadata.proto";
+import "blanketops/common/route.proto";
 import "google/protobuf/timestamp.proto";
 
-option csharp_namespace = "BlanketOps.Environments.Networking.V1alpha1";
+option csharp_namespace = "BlanketOps.Environments.Networking.V1Alpha1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/environments/networking/v1alpha1;v1alpha1";
 option java_outer_classname = "RouteProto";
 option java_package = "v1alpha1.networking.blanketops.environments";
@@ -31,7 +32,7 @@ option java_package = "v1alpha1.networking.blanketops.environments";
 
 message Route {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
-  blanketops.common.v1.Metadata metadata = 1;
+  blanketops.common.Metadata metadata = 1;
 
   // Desired state declared by the operator.
   RouteSpec spec = 2;
@@ -45,17 +46,6 @@ message Route {
 // -----------------------------------------------------------------------------
 
 message RouteSpec {
-  // Runtime responsible for materializing this route.
-  enum Runtime {
-    RUNTIME_UNSPECIFIED = 0;
-    // Standard Kubernetes Ingress.
-    RUNTIME_KUBERNETES_CONTAINER = 1;
-    // Knative DomainMapping, served via Kourier.
-    RUNTIME_KNATIVE_SERVICE = 2;
-    // Gateway API HTTPRoute (future).
-    RUNTIME_GATEWAY_API = 3;
-  }
-
   // Fully qualified domain name to serve.
   // e.g. app.dev.blanketops.online
   string host = 1;
@@ -74,7 +64,7 @@ message RouteSpec {
   bool tls_enabled = 4;
 
   // Runtime responsible for materializing this route.
-  Runtime runtime = 5;
+  blanketops.common.RouteRuntime runtime = 5;
 }
 
 // -----------------------------------------------------------------------------
@@ -82,36 +72,8 @@ message RouteSpec {
 // -----------------------------------------------------------------------------
 
 message RouteStatus {
-  // Lifecycle phase of this Route.
-  enum Phase {
-    PHASE_UNSPECIFIED = 0;
-    // Waiting for the runtime resource or TLS to become ready.
-    PHASE_PENDING = 1;
-    // The route is materialized and serving traffic.
-    PHASE_READY = 2;
-    // The route is serving but unhealthy (e.g. TLS expiring, backend flapping).
-    PHASE_DEGRADED = 3;
-    // The route could not be materialized.
-    // Check message and conditions for details.
-    PHASE_FAILED = 4;
-  }
-
-  // TLS provisioning state for this route.
-  enum TLSStatus {
-    TLS_STATUS_UNSPECIFIED = 0;
-    // TLS not requested in spec.
-    TLS_STATUS_DISABLED = 1;
-    // Certificate request in flight (ACME challenge pending).
-    TLS_STATUS_PROVISIONING = 2;
-    // Certificate issued and serving.
-    TLS_STATUS_ACTIVE = 3;
-    // Certificate issuance failed.
-    // Check conditions for the cert-manager failure reason.
-    TLS_STATUS_FAILED = 4;
-  }
-
   // Current lifecycle phase. Set by the controller.
-  Phase phase = 1;
+  blanketops.common.RoutePhase phase = 1;
 
   // Human-readable status message. Populated on failure.
   string message = 2;
@@ -121,7 +83,7 @@ message RouteStatus {
   string resolved_address = 3;
 
   // TLS provisioning status. Set by the controller.
-  TLSStatus tls_status = 4;
+  blanketops.common.RouteTLSStatus tls_status = 4;
 
   // Conditions for UI and automation consumers.
   repeated RouteCondition conditions = 5;
@@ -208,10 +170,10 @@ message PatchRouteResponse {
 // ListRoutes — list Route CRs with optional filtering and paging.
 message ListRoutesRequest {
   // Filter by current lifecycle phase.
-  optional RouteStatus.Phase phase = 1;
+  optional blanketops.common.RoutePhase phase = 1;
 
   // Filter by materializing runtime.
-  optional RouteSpec.Runtime runtime = 2;
+  optional blanketops.common.RouteRuntime runtime = 2;
 
   // Filter by host FQDN.
   optional string host = 3;
