@@ -2,11 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.4] - 2026-06-12
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.2.3
+- *(release)* Update changelog for v0.2.3
 
 ### Bugfix
 
 - *(mis)* Add license, duplicate step setup buf
+
+### Release
+
+- Merge release/v0.2.4 into main
 
 ## [0.2.3] - 2026-06-12
 
