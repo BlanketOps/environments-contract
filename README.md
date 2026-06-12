@@ -1,6 +1,6 @@
 # Blanketops Environments Contract
 
-## Overview
+## Overview.
 
 `Blanketops Environments Contract` defines the canonical contracts for BlanketOps Environments.
 
