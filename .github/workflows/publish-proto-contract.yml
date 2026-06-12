@@ -7,6 +7,41 @@ permissions:
   contents: read
   packages: write
 jobs:
+    publish:
+        runs-on: self-hosted
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - name: Setup Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version-file: go.mod
+                  cache: false
+            - name: Setup Buf
+              uses: bufbuild/buf-setup-action@v1
+              with:
+                  version: latest
+            - name: Install ORAS
+              uses: oras-project/setup-oras@v1
+            - name: Login to GHCR
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Publish contract bundle
+              id: publish
+              run: go run github.com/magefile/mage@v1.15.0 -v publish
+            - name: Publish Summary
+              if: always()
+              run: |
+                  ref="ghcr.io/${{ github.repository_owner }}/environments-contract:${{ github.ref_name }}"
+                  status="✅ published"
+                  [ "${{ steps.publish.outcome }}" = "success" ] || status="❌ failed"
+                  cat >> $GITHUB_STEP_SUMMARY <<EOF
+                  # 📜 Proto Contract Package
   publish:
     runs-on: self-hosted
     steps:
@@ -14,17 +49,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Install ORAS
-        uses: oras-project/setup-oras@v1
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish contract bundle
         id: publish
-        run: go run github.com/magefile/mage@v1.15.0 -v publish
+        run: mage -v publish
+
       - name: Publish Summary
         if: always()
         run: |
