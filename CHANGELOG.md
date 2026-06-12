@@ -2,18 +2,76 @@
 
 All notable changes to this project will be documented in this file.
 
-## [ls] - 2026-03-26
+## [0.2.0] - 2026-06-12
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.1.9
+
+### Bugfix
+
+- *(types)* Update and align route types, update buf gen csharp gen
+- *(ci)* Update all workflows to include summary
+
+### Release
+
+- Merge release/v0.2.0 into main
+
+## [0.1.9] - 2026-06-12
+
+### 🚀 Features
+
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+- *(proto)* Update types to follow single pattern
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.1.9
+
+### Bugfix
+
+- *(proto)* Fix types, align group environment, fix buf gen reletive
+- *(proto)* Fix types, align group environment, fix buf gen reletive
+- *(types)* Group events alignment and enhance
+- *(types)* Update and align route types, update buf gen csharp gen
+
+### Release
+
+- Merge release/v0.1.8 into main
+- Merge release/v0.1.9 into main
+- Merge release/v0.1.9 into main
+
+## [0.1.8] - 2026-04-27
+
+### 🚀 Features
+
+- *(typeS)* Add githubpayload
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.1.7
+
+### Bugfix
+
+- *(workflows)* Add release and finalize
+- *(events)* Upate event types, keep tight init attempt
+- *(events)* Update and align events group types
+
+## [0.1.7] - 2026-04-01
 
 ### 🚀 Features
 
 - *(build)* To grpc stub types, preparation for sdk, update buf gen add c# models
 - *(types)* Namespaces for dotnet gen types, init
-
-### Bugfix
-
-- *(workflow)* , left release, force update
-
-## [0.1.6] - 2026-03-26
+- *(types)* Metadata and event to common, csharpo gen mess, java out and inner, apiversioning policy doc
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -23,6 +81,7 @@ All notable changes to this project will be documented in this file.
 ### Bugfix
 
 - *(workflow)* Update go version setup
+- *(workflow)* , left release, force update
 
 ## [0.1.5] - 2026-03-17
 
