@@ -1,19 +1,15 @@
 name: Finalize Release
-
 on:
   workflow_dispatch:
     inputs:
       version:
         description: "Release version to finalize (e.g. v0.0.9)"
         required: true
-
 permissions:
   contents: write
-
 jobs:
   finalize:
     runs-on: self-hosted
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,8 +26,16 @@ jobs:
         run: |
           git checkout main
           git pull origin main
-          git merge --no-ff origin/release/${{ github.event.inputs.version }} \
-            -m "release: merge release/${{ github.event.inputs.version }} into main"
+          git merge --no-ff origin/release/${{ github.event.inputs.version }} -m "release: merge release/${{ github.event.inputs.version }} into main"
+          git push origin main
+
+      - name: Generate contracts (Go + TypeScript)
+        run: mage gen
+
+      - name: Commit generated contracts
+        run: |
+          git add -f blanketops/
+          git commit -m "chore(release): regenerate Go and TypeScript contracts for ${{ github.event.inputs.version }} [skip ci]" || echo "No changes"
           git push origin main
 
       - name: Tag release
@@ -50,18 +54,23 @@ jobs:
       - name: Delete release branch
         run: |
           git push origin --delete release/${{ github.event.inputs.version }}
+
       - name: Release Summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY <<EOF
-          # 🎉 Release Finalized **Version:** \`${{ github.event.inputs.version }}\` 
-          ## Completed 
-          - Merged \`release/${{ github.event.inputs.version }}\` into \`main\` 
-          - Created Git tag \`${{ github.event.inputs.version }}\` 
+          # 🎉 Release Finalized
+          **Version:** \`${{ github.event.inputs.version }}\`
+          ## Completed
+          - Merged \`release/${{ github.event.inputs.version }}\` into \`main\`
+          - Generated Go and TypeScript contracts via \`mage gen\`
+          - Committed generated contracts to main
+          - Created Git tag \`${{ github.event.inputs.version }}\`
           - Synced \`main\` back into \`develop\`
-          - Deleted release branch 
-          ## Branch Flow 
-          -  release/${{ github.event.inputs.version }} ↓ main ↓ develop 
-          ## Release Tag \`${{ github.event.inputs.version }}\` 
+          - Deleted release branch
+          ## Branch Flow
+          \`release/${{ github.event.inputs.version }}\` → \`main\` → \`develop\`
+          ## Release Tag
+          \`${{ github.event.inputs.version }}\`
           ## Next Steps
-          - Pushing the tag triggers the **Release** workflow which generates the changelog and GitHub Release. 
+          - Pushing the tag triggers the **Release** workflow which generates the changelog and GitHub Release.
           EOF
