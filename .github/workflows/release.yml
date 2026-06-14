@@ -18,17 +18,6 @@ jobs:
         run: |
           git checkout main
           git pull origin main
-          
-      - name: Generate contracts (Go + TypeScript)
-        run: mage gen
-
-      - name: Commit generated contracts
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add -f blanketops/
-          git commit -m "chore(release): regenerate Go and TypeScript contracts for ${{ github.ref_name }} [skip ci]" || echo "No changes"
-          git push origin main
 
       - name: Generate CHANGELOG.md
         run: git-cliff --config .cliff.toml --output CHANGELOG.md
