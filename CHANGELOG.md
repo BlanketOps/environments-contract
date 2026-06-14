@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2026-06-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.3.1
+
+### Bugfix
+
+- *(ci)* Update release workflow not auto kicking off
+
+### Release
+
+- Merge release/v0.3.2 into main
+
+## [0.3.1] - 2026-06-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.3.0
+- *(release)* Regenerate Go and TypeScript contracts for v0.3.1 [skip ci]
+
+## [0.3.0] - 2026-06-14
+
+### 🚀 Features
+
+- *(buf)* Force buf gen to use local toolchain"
+- *(types)* Update enums to carry over
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.2.9
+- *(release)* Update changelog for v0.2.9
+- *(release)* Regenerate Go and TypeScript contracts for v0.3.0 [skip ci]
+
+### Release
+
+- Merge release/v0.3.0 into main
+- Merge release/v0.3.0 into main
+
+### Support
+
+- *(housekeping)* Mage clean before 0.3.0
+
 ## [0.2.9] - 2026-06-14
 
 ### ⚙️ Miscellaneous Tasks
