@@ -2,11 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
-## [unreleased]
+## [0.2.9] - 2026-06-14
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.2.8
+- *(release)* Regenerate Go and TypeScript contracts for v0.2.9 [skip ci]
+- Sync develop with main after release/v0.2.9
+
+### Bugfix
+
+- *(ci)* Update buf gen ci summary
+- *(ci)* Update buf gen ci summary, do not install mage here
+
+### Release
+
+- Merge release/v0.2.9 into main
+- Merge release/v0.2.9 into main
+- Merge release/v0.2.9 into main
+
+## [0.2.8] - 2026-06-14
 
 ### ⚙️ Miscellaneous Tasks
 
 - *(release)* Regenerate Go and TypeScript contracts for v0.2.7 [skip ci]
+- *(release)* Update changelog for v0.2.7
+
+### Bugfix
+
+- *(ci)* Redress
+
+### Release
+
+- Merge release/v0.2.8 into main
 
 ## [0.2.7] - 2026-06-14
 
