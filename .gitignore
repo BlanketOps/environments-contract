@@ -13,6 +13,7 @@ gen/
 *.dylib
 *.test
 *.out
+*.ts
 /vendor/
 /dist/
 

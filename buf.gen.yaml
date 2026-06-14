@@ -4,34 +4,23 @@ inputs:
     paths:
       - blanketops
 plugins:
-  # Go
+  # Go — generated into blanketops/ alongside protos so import paths
+  # resolve as github.com/.../blanketops-environments-contract/blanketops/...
+  # This matches the go_package option declared in every proto file and
+  # keeps the module path stable across releases.
   - remote: buf.build/protocolbuffers/go:v1.36.6
-    out: gen/go
+    out: .
     opt:
       - paths=source_relative
   - remote: buf.build/grpc/go:v1.5.1
-    out: gen/go
+    out: .
     opt:
       - paths=source_relative
-  # C#
- # C# — base_namespace derives output dirs from csharp_namespace,
-  # avoiding flat-file collisions across versions
-  - remote: buf.build/protocolbuffers/csharp:v29.3
-    out: gen/csharp
-    opt:
-      - base_namespace=
-  - remote: buf.build/grpc/csharp:v1.69.0
-    out: gen/csharp
-    opt:
-      - base_namespace=
-  # Java — no paths opt, java_package in protos handles namespacing
-  - remote: buf.build/protocolbuffers/java:v29.3
-    out: gen/java
-  - remote: buf.build/grpc/java:v1.69.0
-    out: gen/java
-  # TypeScript — protobuf-es v2, messages + service descriptors
+
+  # TypeScript — protobuf-es v2, messages + service descriptors.
+  # Generated alongside protos for consistent import resolution.
   - remote: buf.build/bufbuild/es:v2.2.5
-    out: gen/ts
+    out: .
     opt:
       - target=ts
       - import_extension=none
