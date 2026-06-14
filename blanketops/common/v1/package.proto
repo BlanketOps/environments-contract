@@ -10,22 +10,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
 message PackagePhase {
   enum PackagePhase {
     PACKAGE_PHASE_UNSPECIFIED = 0;
-    // Waiting for sources to be ready or reconciliation to complete.
     PACKAGE_PHASE_PENDING = 1;
-    // The package is reconciled against the state repository.
     PACKAGE_PHASE_READY = 2;
-    // Reconciliation failed. Check message and diff_output.
     PACKAGE_PHASE_FAILED = 3;
   }
+  PackagePhase phase = 1;
 }

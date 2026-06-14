@@ -10,15 +10,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
-// // Aggregate lifecycle phase of this Environment.
 message EnvironmentPhase {
   enum EnvironmentPhase {
     ENVIRONMENT_PHASE_UNSPECIFIED = 0;
@@ -29,10 +25,11 @@ message EnvironmentPhase {
     // The environment is serving but one or more resources are unhealthy.
     ENVIRONMENT_PHASE_DEGRADED = 3;
     // One or more composed resources failed.
-    // Check conditions for per-resource detail.
     ENVIRONMENT_PHASE_FAILED = 4;
   }
+  EnvironmentPhase phase = 1;
 }
+
 message EnvironmentType {
   enum EnvironmentType {
     ENVIRONMENT_TYPE_UNSPECIFIED = 0;
@@ -45,4 +42,5 @@ message EnvironmentType {
     // Testing — CI-driven, short-lived.
     ENVIRONMENT_TYPE_TESTING = 4;
   }
+  EnvironmentType type = 1;
 }

@@ -11,9 +11,7 @@
    limitations under the License.
 */
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
@@ -27,6 +25,7 @@ message BuildTriggerSource {
     // Manual dispatch — operator or CI invoking TriggerBuild.
     BUILD_TRIGGER_SOURCE_MANUAL = 3;
   }
+  BuildTriggerSource source = 1;
 }
 
 message BuildTriggerType {
@@ -39,6 +38,7 @@ message BuildTriggerType {
     // A manual trigger, e.g. via kubectl or CI.
     BUILD_TRIGGER_TYPE_MANUAL = 3;
   }
+  BuildTriggerType type = 1;
 }
 
 message BuildTriggerStatus {
@@ -53,4 +53,5 @@ message BuildTriggerStatus {
     // BuildRun has completed; trigger is consumed and awaiting deletion.
     BUILD_TRIGGER_STATUS_CONSUMED = 4;
   }
+  BuildTriggerStatus status = 1;
 }

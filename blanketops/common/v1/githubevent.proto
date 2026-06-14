@@ -10,17 +10,11 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
-// -----------------------------------------------------------------------------
-// GitHub Event Type
-// -----------------------------------------------------------------------------
 message GitHubEventType {
   enum GitHubEventType {
     GIT_HUB_EVENT_TYPE_UNSPECIFIED = 0;
@@ -29,29 +23,26 @@ message GitHubEventType {
     GIT_HUB_EVENT_TYPE_RELEASE = 3;
     GIT_HUB_EVENT_TYPE_MANUAL = 4;
   }
+  GitHubEventType type = 1;
 }
 
-// -----------------------------------------------------------------------------
-// GitHub Event Phase (lifecycle of a GitHubEvent CR)
-// -----------------------------------------------------------------------------
 message GitHubEventPhase {
   enum GitHubEventPhase {
     GIT_HUB_EVENT_PHASE_UNSPECIFIED = 0;
-    GIT_HUB_EVENT_PHASE_PENDING = 1; // CR created, Argo stack not yet provisioned
-    GIT_HUB_EVENT_PHASE_READY = 2; // Argo EventSource + Sensor active
-    GIT_HUB_EVENT_PHASE_FAILED = 3; // Provisioning failed
+    GIT_HUB_EVENT_PHASE_PENDING = 1;
+    GIT_HUB_EVENT_PHASE_READY = 2;
+    GIT_HUB_EVENT_PHASE_FAILED = 3;
   }
+  GitHubEventPhase phase = 1;
 }
 
-// -----------------------------------------------------------------------------
-// GitHub Payload Phase (lifecycle of a GitHubPayload CR)
-// -----------------------------------------------------------------------------
 message GitHubPayloadPhase {
   enum GitHubPayloadPhase {
     GIT_HUB_PAYLOAD_PHASE_UNSPECIFIED = 0;
-    GIT_HUB_PAYLOAD_PHASE_RECEIVED = 1; // Created by Sensor, awaiting evaluation
-    GIT_HUB_PAYLOAD_PHASE_MATCHED = 2; // BuildTrigger matched, build fired
-    GIT_HUB_PAYLOAD_PHASE_UNMATCHED = 3; // No BuildTrigger matched, ignored
-    GIT_HUB_PAYLOAD_PHASE_FAILED = 4; // Evaluation error
+    GIT_HUB_PAYLOAD_PHASE_RECEIVED = 1;
+    GIT_HUB_PAYLOAD_PHASE_MATCHED = 2;
+    GIT_HUB_PAYLOAD_PHASE_UNMATCHED = 3;
+    GIT_HUB_PAYLOAD_PHASE_FAILED = 4;
   }
+  GitHubPayloadPhase phase = 1;
 }

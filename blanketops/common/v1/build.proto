@@ -11,9 +11,7 @@
    limitations under the License.
 */
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
@@ -21,36 +19,31 @@ message BuildStrategyKind {
   // Whether the strategy is cluster-scoped or namespace-scoped.
   enum BuildStrategyKind {
     BUILD_STRATEGY_KIND_UNSPECIFIED = 0;
-
     // ClusterBuildStrategy — available cluster-wide.
     // Standard for BlanketOps platform strategies.
     BUILD_STRATEGY_KIND_CLUSTER = 1;
-
     // BuildStrategy — scoped to a specific namespace.
     BUILD_STRATEGY_KIND_NAMESPACED = 2;
   }
+  BuildStrategyKind kind = 1;
 }
 
 message BuildStatusPhase {
   // The lifecycle phase of a Build.
   enum BuildStatusPhase {
     BUILD_STATUS_PHASE_UNSPECIFIED = 0;
-
     // Waiting for a trigger event or dependency to be ready.
     BUILD_STATUS_PHASE_PENDING = 1;
-
     // A BuildRun is currently executing.
     BUILD_STATUS_PHASE_RUNNING = 2;
-
     // The most recent BuildRun completed successfully.
     // Image has been pushed to the registry.
     BUILD_STATUS_PHASE_SUCCEEDED = 3;
-
     // The most recent BuildRun failed.
     // Check execution_ref for BuildRun details.
     BUILD_STATUS_PHASE_FAILED = 4;
-
     // The BuildRun was cancelled before completion.
     BUILD_STATUS_PHASE_CANCELLED = 5;
   }
+  BuildStatusPhase phase = 1;
 }

@@ -11,51 +11,38 @@
    limitations under the License.
 */
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
 message ServiceUnitDeploymentPhase {
-  // Deployment phase of this individual service unit.
   enum ServiceUnitDeploymentPhase {
     SERVICE_UNIT_DEPLOYMENT_PHASE_UNSPECIFIED = 0;
-    // Awaiting image resolution or dependency readiness.
     SERVICE_UNIT_DEPLOYMENT_PHASE_PENDING = 1;
-    // Workload is being rolled out.
     SERVICE_UNIT_DEPLOYMENT_PHASE_DEPLOYING = 2;
-    // Workload is deployed and healthy.
     SERVICE_UNIT_DEPLOYMENT_PHASE_READY = 3;
-    // Workload failed to deploy. Check error for details.
     SERVICE_UNIT_DEPLOYMENT_PHASE_FAILED = 4;
   }
+  ServiceUnitDeploymentPhase phase = 1;
 }
 
 message ServiceUnitType {
-  // How this service unit's image is sourced.
   enum ServiceUnitType {
     SERVICE_UNIT_TYPE_UNSPECIFIED = 0;
-    // Image pinned directly in spec.image.
     SERVICE_UNIT_TYPE_STATIC = 1;
-    // Image resolved from a Build CR's output via spec.build_ref.
     SERVICE_UNIT_TYPE_BUILD = 2;
-    // Image resolved from a SupplyChain's output via spec.supply_chain_ref.
     SERVICE_UNIT_TYPE_SUPPLYCHAIN = 3;
   }
+  ServiceUnitType type = 1;
 }
 
 message ServiceUnitRuntime {
-  // Runtime backend used to materialize the workload.
   enum ServiceUnitRuntime {
     SERVICE_UNIT_RUNTIME_UNSPECIFIED = 0;
-    // Native Kubernetes Deployment + Service.
     SERVICE_UNIT_RUNTIME_KUBERNETES = 1;
-    // Knative Service, served via Kourier.
     SERVICE_UNIT_RUNTIME_KNATIVE = 2;
-    // AWS ECS task (future).
     SERVICE_UNIT_RUNTIME_ECS = 3;
-    // WebAssembly workload (future).
     SERVICE_UNIT_RUNTIME_WASM = 4;
   }
+  ServiceUnitRuntime runtime = 1;
 }

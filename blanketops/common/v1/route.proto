@@ -11,53 +11,38 @@
    limitations under the License.
 */
 syntax = "proto3";
-
 package blanketops.common.v1;
-
 option csharp_namespace = "BlanketOps.Common.v1";
 option go_package = "github.com/ntlaletsi70/blanketops-environments-contract/blanketops/common/v1;commonv1";
 
-// Lifecycle phase of this Route.
 message RoutePhase {
   enum RoutePhase {
     ROUTE_PHASE_UNSPECIFIED = 0;
-    // Waiting for the runtime resource or TLS to become ready.
     ROUTE_PHASE_PENDING = 1;
-    // The route is materialized and serving traffic.
     ROUTE_PHASE_READY = 2;
-    // The route is serving but unhealthy (e.g. TLS expiring, backend flapping).
     ROUTE_PHASE_DEGRADED = 3;
-    // The route could not be materialized.
-    // Check message and conditions for details.
     ROUTE_PHASE_FAILED = 4;
   }
+  RoutePhase phase = 1;
 }
 
-// TLS provisioning state for this route.
 message RouteTLSStatus {
   enum RouteTLSStatus {
     ROUTE_TLS_STATUS_UNSPECIFIED = 0;
-    // TLS not requested in spec.
     ROUTE_TLS_STATUS_DISABLED = 1;
-    // Certificate request in flight (ACME challenge pending).
     ROUTE_TLS_STATUS_PROVISIONING = 2;
-    // Certificate issued and serving.
     ROUTE_TLS_STATUS_ACTIVE = 3;
-    // Certificate issuance failed.
-    // Check conditions for the cert-manager failure reason.
     ROUTE_TLS_STATUS_FAILED = 4;
   }
+  RouteTLSStatus status = 1;
 }
 
 message RouteRuntime {
-  // Runtime responsible for materializing this route.
   enum RouteRuntime {
     ROUTE_RUNTIME_UNSPECIFIED = 0;
-    // Standard Kubernetes Ingress.
     ROUTE_RUNTIME_KUBERNETES_CONTAINER = 1;
-    // Knative DomainMapping, served via Kourier.
     ROUTE_RUNTIME_KNATIVE_SERVICE = 2;
-    // Gateway API HTTPRoute (future).
     ROUTE_RUNTIME_GATEWAY_API = 3;
   }
+  RouteRuntime runtime = 1;
 }
