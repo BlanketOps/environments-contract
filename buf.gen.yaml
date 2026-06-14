@@ -4,22 +4,23 @@ inputs:
     paths:
       - blanketops
 plugins:
-  # Go — generated into blanketops/ alongside protos so import paths
-  # resolve as github.com/.../blanketops-environments-contract/blanketops/...
+  # Go — local plugins baked into the runner image.
+  # Generated into blanketops/ alongside protos so import paths resolve as
+  # github.com/.../blanketops-environments-contract/blanketops/...
   # This matches the go_package option declared in every proto file and
   # keeps the module path stable across releases.
-  - remote: buf.build/protocolbuffers/go:v1.36.6
+  - local: protoc-gen-go
     out: .
     opt:
       - paths=source_relative
-  - remote: buf.build/grpc/go:v1.5.1
+  - local: protoc-gen-go-grpc
     out: .
     opt:
       - paths=source_relative
 
   # TypeScript — protobuf-es v2, messages + service descriptors.
   # Generated alongside protos for consistent import resolution.
-  - remote: buf.build/bufbuild/es:v2.2.5
+  - local: protoc-gen-es
     out: .
     opt:
       - target=ts
