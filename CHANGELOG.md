@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [unreleased]
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Add generated Go contracts for v0.2.6 [skip ci]
+
+## [0.2.6] - 2026-06-14
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.2.5
+- Sync develop with main after release/v0.2.5
+- Sync develop with main after release/v0.2.6
+- Sync develop with main after release/v0.2.6
+
+### Bugfix
+
+- *(ci)* Do not re-download
+
+### Release
+
+- Merge release/v0.2.6 into main
+- Merge release/v0.2.6 into main
+- Merge release/v0.2.6 into main
+
 ## [0.2.5] - 2026-06-12
 
 ### ⚙️ Miscellaneous Tasks
