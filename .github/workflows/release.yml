@@ -24,6 +24,7 @@ jobs:
               run: |
                   git checkout main
                   git pull origin main
+                  
             - name: Generate CHANGELOG.md
               run: git-cliff --config .cliff.toml --output CHANGELOG.md
 
