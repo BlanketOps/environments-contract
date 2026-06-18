@@ -1,3 +1,9 @@
+## [0.3.9] - 2026-06-18
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Update changelog for v0.3.7
+- Sync develop with main after release/v0.3.7
 ## [0.3.7] - 2026-06-18
 
 ### ⚙️ Miscellaneous Tasks
