@@ -43,14 +43,15 @@ jobs:
         - name: Generate release notes
           run: git-cliff --config .cliff.toml --latest --output RELEASE_NOTES.md
 
-        # - name: Download contracts from latest CI
-        #   uses: dawidd6/action-download-artifact@v21
-        #   with:
-        #       github_token: ${{ secrets.GH_PAT }}
-        #       workflow: generate.yml # The filename of the workflow you pasted
-        #       workflow_conclusion: success
-        #       name: generated-contracts-${{ github.sha }} # Or 'latest' if you manage it that way
-        #       path: ./dist
+        - name: Download contracts from latest CI
+          id: download-artifact
+          uses: dawidd6/action-download-artifact@v21
+          with:
+              github_token: ${{ secrets.GH_PAT }}
+              workflow: generate.yml # The filename of the workflow you pasted
+              workflow_conclusion: success
+              name: generated-contracts-${{ github.sha }} # Or 'latest' if you manage it that way
+              path: ./dist
   
         - name: Create GitHub Release
           uses: softprops/action-gh-release@v2
