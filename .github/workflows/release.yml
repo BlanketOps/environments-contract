@@ -52,7 +52,7 @@ jobs:
         #       name: generated-contracts-${{ github.sha }} # Or 'latest' if you manage it that way
         #       path: ./dist
         - name: Download generated contracts
-          uses: dawidd6/action-download-artifact@v6
+          uses: dawidd6/action-download-artifact@v21
           with:
             github_token: ${{ secrets.GH_PAT }}
             # Force the action to look at the specific generator workflow
