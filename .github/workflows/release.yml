@@ -43,18 +43,18 @@ jobs:
         - name: Generate release notes
           run: git-cliff --config .cliff.toml --latest --output RELEASE_NOTES.md
 
-        - name: Download generated contracts
-          uses: dawidd6/action-download-artifact@v6
-          with:
-            github_token: ${{ secrets.GH_PAT }}
-            repo: ntlaletsi70/blanketops-environments-contract
-            workflow: generate.yml
-            # Search for the most recent successful run regardless of SHA
-            # This is much more reliable than trying to match the exact commit SHA
-            workflow_search: true
-            workflow_conclusion: success
-            name: generated-contracts-latest
-            path: ./dist
+        # - name: Download generated contracts
+        #   uses: dawidd6/action-download-artifact@v6
+        #   with:
+        #     github_token: ${{ secrets.GH_PAT }}
+        #     repo: ntlaletsi70/blanketops-environments-contract
+        #     workflow: generate.yml
+        #     # Search for the most recent successful run regardless of SHA
+        #     # This is much more reliable than trying to match the exact commit SHA
+        #     workflow_search: true
+        #     workflow_conclusion: success
+        #     name: generated-contracts-latest
+        #     path: ./dist
   
         - name: Create GitHub Release
           uses: softprops/action-gh-release@v2
