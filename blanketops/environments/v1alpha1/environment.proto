@@ -25,9 +25,9 @@ option java_package = "v1alpha1.blanketops.environments";
 //
 // The envelope of the delivery chain: a versioned, isolated execution
 // context where applications run (ESP-0001). Composes the CRs that make
-// up an application's delivery — builds, triggers, packages, service
-// units, deployment, and routing — by reference, and owns them via
-// ownerReference (cascade delete).
+// up an application's delivery — builds, packages, service units,
+// deployment, and routing — by reference, and owns them via ownerReference
+// (cascade delete).
 // =============================================================================
 // -----------------------------------------------------------------------------
 // Resource
@@ -44,10 +44,15 @@ message Environment {
 // Contract
 // -----------------------------------------------------------------------------
 // EnvironmentContract — platform-level bindings declared per environment.
-// Drives ESO, PKI, and policy enforcement at reconciliation time.
+// Drives ESO ClusterSecretStore selection at reconciliation time.
+// Each composed CR owns its own credential secrets — this declares only
+// which provider backs the environment so the platform can select the
+// correct ClusterSecretStore. Users may reference their own store by
+// setting provider accordingly.
 message EnvironmentContract {
   // External secrets backend for this environment.
-  // SecretStoreProvider and SecretStore are defined in blanketops/common/v1/environment.proto.
+  // Drives ESO ClusterSecretStore selection.
+  // Each CR manages its own credential secrets independently.
   blanketops.common.v1.SecretStore secret_store = 1;
 }
 // -----------------------------------------------------------------------------
@@ -83,8 +88,11 @@ message EnvironmentSpec {
   // Git repository associated with this environment.
   // The GitRepository CR owns branch, owner, and clone config.
   ObjectRef git_repository = 12;
-  // Platform-level bindings — secret store, PKI, policy.
+  // Platform-level bindings — secret store provider selection.
   EnvironmentContract contract = 13;
+  // GitHub event source for this environment.
+  // The GitHubEvent CR owns webhook event routing and Argo Events config.
+  ObjectRef git_hub_event = 14;
 }
 // -----------------------------------------------------------------------------
 // References (composition, not ownership)
@@ -124,8 +132,6 @@ message EnvironmentCondition {
 // -----------------------------------------------------------------------------
 // Requests / Responses
 // -----------------------------------------------------------------------------
-// CreateEnvironment — declare a new Environment.
-// Controller reconciles composed resources on creation.
 message CreateEnvironmentRequest {
   // Desired spec for the new Environment.
   EnvironmentSpec spec = 1;
@@ -134,7 +140,6 @@ message CreateEnvironmentResponse {
   // The created Environment including generated metadata and initial status.
   Environment environment = 1;
 }
-// GetEnvironment — fetch an Environment by name.
 message GetEnvironmentRequest {
   // Name of the Environment CR to fetch.
   string name = 1;
@@ -142,8 +147,6 @@ message GetEnvironmentRequest {
 message GetEnvironmentResponse {
   Environment environment = 1;
 }
-// UpdateEnvironment — full replace of the Environment spec.
-// Equivalent to kubectl apply — all fields replaced.
 message UpdateEnvironmentRequest {
   // Full Environment object including metadata and desired spec.
   Environment environment = 1;
@@ -152,8 +155,6 @@ message UpdateEnvironmentResponse {
   // The updated Environment as observed by the controller.
   Environment environment = 1;
 }
-// PatchEnvironment — partial update using JSON merge patch RFC 7396.
-// Only specified fields are updated — others left unchanged.
 message PatchEnvironmentRequest {
   // Name of the Environment CR to patch.
   string name = 1;
@@ -165,7 +166,6 @@ message PatchEnvironmentResponse {
   // The patched Environment as observed by the controller.
   Environment environment = 1;
 }
-// ListEnvironments — list Environment CRs with optional filtering and paging.
 message ListEnvironmentsRequest {
   // Filter by current aggregate phase.
   optional blanketops.common.v1.EnvironmentPhase phase = 1;
@@ -185,8 +185,6 @@ message ListEnvironmentsResponse {
   // Token to retrieve the next page. Empty if no more results.
   optional string next_page_token = 2;
 }
-// DeleteEnvironment — delete an Environment CR.
-// All owned resources are cascade-deleted via ownerReference.
 message DeleteEnvironmentRequest {
   // Name of the Environment CR to delete.
   string name = 1;
@@ -195,8 +193,6 @@ message DeleteEnvironmentResponse {
   // True if the Environment was successfully deleted.
   bool success = 1;
 }
-// WatchEnvironment — stream phase transitions for an Environment CR.
-// Delivers an event for every controller reconciliation loop.
 message WatchEnvironmentRequest {
   // Name of the Environment CR to watch.
   string name = 1;

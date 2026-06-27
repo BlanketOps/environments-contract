@@ -30,7 +30,7 @@ message EnvironmentPhase {
   EnvironmentPhase phase = 1;
 }
 message EnvironmentType {
-  enum EnvironmentType {
+enum EnvironmentType {
     ENVIRONMENT_TYPE_UNSPECIFIED = 0;
     // Development — ephemeral, relaxed guardrails.
     ENVIRONMENT_TYPE_DEVELOPMENT = 1;
