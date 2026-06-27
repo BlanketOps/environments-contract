@@ -22,7 +22,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file blanketops/common/v1/environment.proto.
  */
 export const file_blanketops_common_v1_environment: GenFile = /*@__PURE__*/
-  fileDesc("CiZibGFua2V0b3BzL2NvbW1vbi92MS9lbnZpcm9ubWVudC5wcm90bxIUYmxhbmtldG9wcy5jb21tb24udjEijAIKEEVudmlyb25tZW50UGhhc2USRgoFcGhhc2UYASABKA4yNy5ibGFua2V0b3BzLmNvbW1vbi52MS5FbnZpcm9ubWVudFBoYXNlLkVudmlyb25tZW50UGhhc2UirwEKEEVudmlyb25tZW50UGhhc2USIQodRU5WSVJPTk1FTlRfUEhBU0VfVU5TUEVDSUZJRUQQABIdChlFTlZJUk9OTUVOVF9QSEFTRV9QRU5ESU5HEAESGwoXRU5WSVJPTk1FTlRfUEhBU0VfUkVBRFkQAhIeChpFTlZJUk9OTUVOVF9QSEFTRV9ERUdSQURFRBADEhwKGEVOVklST05NRU5UX1BIQVNFX0ZBSUxFRBAEIosCCg9FbnZpcm9ubWVudFR5cGUSQwoEdHlwZRgBIAEoDjI1LmJsYW5rZXRvcHMuY29tbW9uLnYxLkVudmlyb25tZW50VHlwZS5FbnZpcm9ubWVudFR5cGUisgEKD0Vudmlyb25tZW50VHlwZRIgChxFTlZJUk9OTUVOVF9UWVBFX1VOU1BFQ0lGSUVEEAASIAocRU5WSVJPTk1FTlRfVFlQRV9ERVZFTE9QTUVOVBABEhwKGEVOVklST05NRU5UX1RZUEVfU1RBR0lORxACEh8KG0VOVklST05NRU5UX1RZUEVfUFJPRFVDVElPThADEhwKGEVOVklST05NRU5UX1RZUEVfVEVTVElORxAEIkoKC1NlY3JldFN0b3JlEjsKCHByb3ZpZGVyGAEgASgOMikuYmxhbmtldG9wcy5jb21tb24udjEuU2VjcmV0U3RvcmVQcm92aWRlciq8AQoTU2VjcmV0U3RvcmVQcm92aWRlchIlCiFTRUNSRVRfU1RPUkVfUFJPVklERVJfVU5TUEVDSUZJRUQQABIdChlTRUNSRVRfU1RPUkVfUFJPVklERVJfQVdTEAESHwobU0VDUkVUX1NUT1JFX1BST1ZJREVSX1ZBVUxUEAISHQoZU0VDUkVUX1NUT1JFX1BST1ZJREVSX0dDUBADEh8KG1NFQ1JFVF9TVE9SRV9QUk9WSURFUl9BWlVSRRAEQm5aVWdpdGh1Yi5jb20vbnRsYWxldHNpNzAvYmxhbmtldG9wcy1lbnZpcm9ubWVudHMtY29udHJhY3QvYmxhbmtldG9wcy9jb21tb24vdjE7Y29tbW9udjGqAhRCbGFua2V0T3BzLkNvbW1vbi52MWIGcHJvdG8z");
+  fileDesc("CiZibGFua2V0b3BzL2NvbW1vbi92MS9lbnZpcm9ubWVudC5wcm90bxIUYmxhbmtldG9wcy5jb21tb24udjEijAIKEEVudmlyb25tZW50UGhhc2USRgoFcGhhc2UYASABKA4yNy5ibGFua2V0b3BzLmNvbW1vbi52MS5FbnZpcm9ubWVudFBoYXNlLkVudmlyb25tZW50UGhhc2UirwEKEEVudmlyb25tZW50UGhhc2USIQodRU5WSVJPTk1FTlRfUEhBU0VfVU5TUEVDSUZJRUQQABIdChlFTlZJUk9OTUVOVF9QSEFTRV9QRU5ESU5HEAESGwoXRU5WSVJPTk1FTlRfUEhBU0VfUkVBRFkQAhIeChpFTlZJUk9OTUVOVF9QSEFTRV9ERUdSQURFRBADEhwKGEVOVklST05NRU5UX1BIQVNFX0ZBSUxFRBAEIosCCg9FbnZpcm9ubWVudFR5cGUSQwoEdHlwZRgBIAEoDjI1LmJsYW5rZXRvcHMuY29tbW9uLnYxLkVudmlyb25tZW50VHlwZS5FbnZpcm9ubWVudFR5cGUisgEKD0Vudmlyb25tZW50VHlwZRIgChxFTlZJUk9OTUVOVF9UWVBFX1VOU1BFQ0lGSUVEEAASIAocRU5WSVJPTk1FTlRfVFlQRV9ERVZFTE9QTUVOVBABEhwKGEVOVklST05NRU5UX1RZUEVfU1RBR0lORxACEh8KG0VOVklST05NRU5UX1RZUEVfUFJPRFVDVElPThADEhwKGEVOVklST05NRU5UX1RZUEVfVEVTVElORxAEIrICChNTZWNyZXRTdG9yZVByb3ZpZGVyElwKFXNlY3JldF9zdG9yZV9wcm92aWRlchgBIAEoDjI9LmJsYW5rZXRvcHMuY29tbW9uLnYxLlNlY3JldFN0b3JlUHJvdmlkZXIuU2VjcmV0U3RvcmVQcm92aWRlciK8AQoTU2VjcmV0U3RvcmVQcm92aWRlchIlCiFTRUNSRVRfU1RPUkVfUFJPVklERVJfVU5TUEVDSUZJRUQQABIdChlTRUNSRVRfU1RPUkVfUFJPVklERVJfQVdTEAESHwobU0VDUkVUX1NUT1JFX1BST1ZJREVSX1ZBVUxUEAISHQoZU0VDUkVUX1NUT1JFX1BST1ZJREVSX0dDUBADEh8KG1NFQ1JFVF9TVE9SRV9QUk9WSURFUl9BWlVSRRAEIkoKC1NlY3JldFN0b3JlEjsKCHByb3ZpZGVyGAEgASgLMikuYmxhbmtldG9wcy5jb21tb24udjEuU2VjcmV0U3RvcmVQcm92aWRlckJuWlVnaXRodWIuY29tL250bGFsZXRzaTcwL2JsYW5rZXRvcHMtZW52aXJvbm1lbnRzLWNvbnRyYWN0L2JsYW5rZXRvcHMvY29tbW9uL3YxO2NvbW1vbnYxqgIUQmxhbmtldE9wcy5Db21tb24udjFiBnByb3RvMw");
 
 /**
  * @generated from message blanketops.common.v1.EnvironmentPhase
@@ -147,36 +147,32 @@ export const EnvironmentType_EnvironmentTypeSchema: GenEnum<EnvironmentType_Envi
   enumDesc(file_blanketops_common_v1_environment, 1, 0);
 
 /**
- * SecretStore declares which external secrets backend backs a resource.
- *
- * @generated from message blanketops.common.v1.SecretStore
- */
-export type SecretStore = Message<"blanketops.common.v1.SecretStore"> & {
-  /**
-   * Backend provider. Drives ESO ClusterSecretStore selection.
-   *
-   * @generated from field: blanketops.common.v1.SecretStoreProvider provider = 1;
-   */
-  provider: SecretStoreProvider;
-};
-
-/**
- * Describes the message blanketops.common.v1.SecretStore.
- * Use `create(SecretStoreSchema)` to create a new message.
- */
-export const SecretStoreSchema: GenMessage<SecretStore> = /*@__PURE__*/
-  messageDesc(file_blanketops_common_v1_environment, 2);
-
-/**
  * =============================================================================
  * Contract
  * =============================================================================
  * SecretStoreProvider identifies the external secrets backend.
  * Drives ESO ClusterSecretStore selection at reconciliation time.
  *
- * @generated from enum blanketops.common.v1.SecretStoreProvider
+ * @generated from message blanketops.common.v1.SecretStoreProvider
  */
-export enum SecretStoreProvider {
+export type SecretStoreProvider = Message<"blanketops.common.v1.SecretStoreProvider"> & {
+  /**
+   * @generated from field: blanketops.common.v1.SecretStoreProvider.SecretStoreProvider secret_store_provider = 1;
+   */
+  secretStoreProvider: SecretStoreProvider_SecretStoreProvider;
+};
+
+/**
+ * Describes the message blanketops.common.v1.SecretStoreProvider.
+ * Use `create(SecretStoreProviderSchema)` to create a new message.
+ */
+export const SecretStoreProviderSchema: GenMessage<SecretStoreProvider> = /*@__PURE__*/
+  messageDesc(file_blanketops_common_v1_environment, 2);
+
+/**
+ * @generated from enum blanketops.common.v1.SecretStoreProvider.SecretStoreProvider
+ */
+export enum SecretStoreProvider_SecretStoreProvider {
   /**
    * @generated from enum value: SECRET_STORE_PROVIDER_UNSPECIFIED = 0;
    */
@@ -212,8 +208,29 @@ export enum SecretStoreProvider {
 }
 
 /**
- * Describes the enum blanketops.common.v1.SecretStoreProvider.
+ * Describes the enum blanketops.common.v1.SecretStoreProvider.SecretStoreProvider.
  */
-export const SecretStoreProviderSchema: GenEnum<SecretStoreProvider> = /*@__PURE__*/
-  enumDesc(file_blanketops_common_v1_environment, 0);
+export const SecretStoreProvider_SecretStoreProviderSchema: GenEnum<SecretStoreProvider_SecretStoreProvider> = /*@__PURE__*/
+  enumDesc(file_blanketops_common_v1_environment, 2, 0);
+
+/**
+ * SecretStore declares which external secrets backend backs a resource.
+ *
+ * @generated from message blanketops.common.v1.SecretStore
+ */
+export type SecretStore = Message<"blanketops.common.v1.SecretStore"> & {
+  /**
+   * Backend provider. Drives ESO ClusterSecretStore selection.
+   *
+   * @generated from field: blanketops.common.v1.SecretStoreProvider provider = 1;
+   */
+  provider?: SecretStoreProvider | undefined;
+};
+
+/**
+ * Describes the message blanketops.common.v1.SecretStore.
+ * Use `create(SecretStoreSchema)` to create a new message.
+ */
+export const SecretStoreSchema: GenMessage<SecretStore> = /*@__PURE__*/
+  messageDesc(file_blanketops_common_v1_environment, 3);
 
