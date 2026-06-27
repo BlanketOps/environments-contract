@@ -1,3 +1,26 @@
+## [0.4.3] - 2026-06-26
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.4.2
+## [0.4.2] - 2026-06-26
+
+### ⚙️ Miscellaneous Tasks
+
+- *(release)* Regenerate Go and TypeScript contracts for v0.4.2 [skip ci]
+## [0.4.1] - 2026-06-25
+
+### 🚀 Features
+
+- *(types)* Add domain to v1alpha1
+- *(types)* Add domain to v1alpha1
+- *(types)* Add domain to v1alpha1
+
+### ⚙️ Miscellaneous Tasks
+
+- Sync develop with main after release/v0.4.0
+- *(release)* Update changelog for v0.4.0
+- *(release)* Regenerate Go and TypeScript contracts for v0.4.1 [skip ci]
 ## [0.4.0] - 2026-06-18
 
 ### ⚙️ Miscellaneous Tasks
