@@ -15,7 +15,7 @@ option java_package = "v1alpha1.networks.blanketops";
 // =============================================================================
 // Route
 //
-// Declares the intent to expose a workload at a host and path.
+// Declares the intent to expose a ServiceUnit at a host and path.
 // The controller materializes the route through the selected runtime
 // (Kubernetes Ingress, Knative DomainMapping, or Gateway API HTTPRoute).
 // Owned by an Environment CR via ownerReference (cascade delete).
@@ -24,19 +24,34 @@ option java_package = "v1alpha1.networks.blanketops";
 //   kubernetes-container — standard Ingress resource
 //   knative-service      — Knative DomainMapping via Kourier
 //   gateway-api          — HTTPRoute (future)
+//
+// Workload resolution:
+//   Route.spec.service_unit_ref names the ServiceUnit in the same namespace.
+//   Controller derives the ksvc/service name by convention:
+//     ksvc name == ServiceUnit name
+//   No ServiceUnit status lookup required.
 // =============================================================================
+
+// -----------------------------------------------------------------------------
+// ServiceUnitRef
+//
+// Reference to a ServiceUnit CR in the same namespace as this Route.
+// The controller resolves the materialised ksvc or K8s service by convention:
+//   ksvc name == service_unit_ref.name
+// -----------------------------------------------------------------------------
+message ServiceUnitRef {
+  // Name of the ServiceUnit CR in this namespace.
+  string name = 1;
+}
 
 // -----------------------------------------------------------------------------
 // Resource
 // -----------------------------------------------------------------------------
-
 message Route {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
   blanketops.common.v1.Metadata metadata = 1;
-
   // Desired state declared by the operator.
   RouteSpec spec = 2;
-
   // Observed state set by the controller. Never manually edited.
   RouteStatus status = 3;
 }
@@ -44,7 +59,6 @@ message Route {
 // -----------------------------------------------------------------------------
 // Spec (intent)
 // -----------------------------------------------------------------------------
-
 message RouteSpec {
   // Fully qualified domain name to serve.
   // e.g. app.dev.blanketops.online
@@ -65,12 +79,18 @@ message RouteSpec {
 
   // Runtime responsible for materializing this route.
   blanketops.common.v1.RouteRuntime runtime = 5;
+
+  // Required. The ServiceUnit this route exposes.
+  // Controller derives the ksvc/K8s service name by convention:
+  //   ksvc name == service_unit_ref.name
+  // No ServiceUnit status lookup required — convention is enforced
+  // by the ServiceUnit controller at materialisation time.
+  ServiceUnitRef service_unit_ref = 6;
 }
 
 // -----------------------------------------------------------------------------
 // Status (observed state)
 // -----------------------------------------------------------------------------
-
 message RouteStatus {
   // Current lifecycle phase. Set by the controller.
   blanketops.common.v1.RoutePhase phase = 1;
@@ -95,7 +115,6 @@ message RouteStatus {
 // -----------------------------------------------------------------------------
 // Conditions
 // -----------------------------------------------------------------------------
-
 message RouteCondition {
   // Condition type. e.g. RouteResolved, TLSReady, RuntimeReady
   string type = 1;
@@ -123,7 +142,6 @@ message CreateRouteRequest {
   // Desired spec for the new Route.
   RouteSpec spec = 1;
 }
-
 message CreateRouteResponse {
   // The created Route including generated metadata and initial status.
   Route route = 1;
@@ -134,7 +152,6 @@ message GetRouteRequest {
   // Name of the Route CR to fetch.
   string name = 1;
 }
-
 message GetRouteResponse {
   Route route = 1;
 }
@@ -145,7 +162,6 @@ message UpdateRouteRequest {
   // Full Route object including metadata and desired spec.
   Route route = 1;
 }
-
 message UpdateRouteResponse {
   // The updated Route as observed by the controller.
   Route route = 1;
@@ -156,12 +172,10 @@ message UpdateRouteResponse {
 message PatchRouteRequest {
   // Name of the Route CR to patch.
   string name = 1;
-
   // JSON merge patch document — RFC 7396.
   // e.g. {"spec":{"enabled":false}}
   string patch = 2;
 }
-
 message PatchRouteResponse {
   // The patched Route as observed by the controller.
   Route route = 1;
@@ -171,25 +185,19 @@ message PatchRouteResponse {
 message ListRoutesRequest {
   // Filter by current lifecycle phase.
   optional blanketops.common.v1.RoutePhase phase = 1;
-
   // Filter by materializing runtime.
   optional blanketops.common.v1.RouteRuntime runtime = 2;
-
   // Filter by host FQDN.
   optional string host = 3;
-
   // Maximum number of results to return. Server may return fewer.
   optional int32 page_size = 4;
-
   // Token from a previous ListRoutesResponse.next_page_token.
   // Omit for the first request.
   optional string page_token = 5;
 }
-
 message ListRoutesResponse {
   // The list of Route CRs matching the request filters.
   repeated Route routes = 1;
-
   // Token to retrieve the next page. Empty if no more results.
   optional string next_page_token = 2;
 }
@@ -201,7 +209,6 @@ message DeleteRouteRequest {
   // Name of the Route CR to delete.
   string name = 1;
 }
-
 message DeleteRouteResponse {
   // True if the Route was successfully deleted.
   bool success = 1;
@@ -213,11 +220,9 @@ message WatchRouteRequest {
   // Name of the Route CR to watch.
   string name = 1;
 }
-
 message WatchRouteResponse {
   // Current state of the Route at this point in the stream.
   Route route = 1;
-
   // The type of change that triggered this event.
   blanketops.common.v1.EventType type = 2;
 }
@@ -225,7 +230,6 @@ message WatchRouteResponse {
 // -----------------------------------------------------------------------------
 // Service
 // -----------------------------------------------------------------------------
-
 service RouteService {
   // ── CRUD — aligned with BuildService pattern ─────────────────────────────
 
