@@ -183,3 +183,4 @@ message DomainCondition {
 
   // Machine-readable reason for the last transition.
   string reason = 3;
+}
