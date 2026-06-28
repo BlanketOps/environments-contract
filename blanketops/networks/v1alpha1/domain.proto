@@ -50,7 +50,6 @@ syntax = "proto3";
 package blanketops.networks.v1alpha1;
 
 import "blanketops/common/v1/domain.proto";
-import "blanketops/common/v1/event.proto";
 import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -183,3 +182,4 @@ message DomainCondition {
 
   // Machine-readable reason for the last transition.
   string reason = 3;
+}
