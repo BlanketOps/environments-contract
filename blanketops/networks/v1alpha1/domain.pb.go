@@ -35,6 +35,12 @@
 //   Applies only to custom strategy. Controls cert-manager's renewal window.
 //   Platform wildcard certs are renewed on the platform schedule regardless.
 //
+// Status refs:
+//   status.certificate_ref  — set by controller on custom strategy; used by
+//                             the Route mediator to gate DomainMapping dispatch
+//                             without deriving the TLS secret name externally.
+//   status.domain_mapping_ref — set once DomainMapping is materialized.
+//
 // APIVersion: networks.blanketops.dev/v1alpha1
 // =============================================================================
 
@@ -311,6 +317,65 @@ func (x *DomainMTLS) GetEnforced() bool {
 	return false
 }
 
+// DomainObjectRef is a namespaced reference to a Kubernetes resource
+// materialized by the Domain controller (Certificate, DomainMapping).
+// Set in status once the resource is created — never in spec.
+type DomainObjectRef struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of the referenced resource.
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	// Namespace of the referenced resource.
+	// For DomainMapping: same namespace as this Domain.
+	// For Certificate:   same namespace as this Domain.
+	Namespace     string `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DomainObjectRef) Reset() {
+	*x = DomainObjectRef{}
+	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DomainObjectRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DomainObjectRef) ProtoMessage() {}
+
+func (x *DomainObjectRef) ProtoReflect() protoreflect.Message {
+	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DomainObjectRef.ProtoReflect.Descriptor instead.
+func (*DomainObjectRef) Descriptor() ([]byte, []int) {
+	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *DomainObjectRef) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *DomainObjectRef) GetNamespace() string {
+	if x != nil {
+		return x.Namespace
+	}
+	return ""
+}
+
 type DomainStatus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Current lifecycle phase. Set by the controller.
@@ -319,6 +384,7 @@ type DomainStatus struct {
 	Message string `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
 	// CertIssued is true once a valid TLS certificate has been issued for this host.
 	// Always true for platform strategy once DomainMapping is active.
+	// Tracks cert-manager issuance for custom strategy.
 	CertIssued bool `protobuf:"varint,3,opt,name=cert_issued,json=certIssued,proto3" json:"cert_issued,omitempty"`
 	// TlsStatus is the current TLS provisioning state.
 	TlsStatus *v1.DomainTLSStatus `protobuf:"bytes,4,opt,name=tls_status,json=tlsStatus,proto3" json:"tls_status,omitempty"`
@@ -326,13 +392,25 @@ type DomainStatus struct {
 	Conditions []*DomainCondition `protobuf:"bytes,5,rep,name=conditions,proto3" json:"conditions,omitempty"`
 	// LastUpdatedAt is when the controller last wrote to this status.
 	LastUpdatedAt *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=last_updated_at,json=lastUpdatedAt,proto3" json:"last_updated_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// DomainReady is true when both DomainClaim and DomainMapping are
+	// reconciled and active. Mirrors the DomainMappingReady condition
+	// as a scalar for fast consumer reads.
+	DomainReady bool `protobuf:"varint,7,opt,name=domain_ready,json=domainReady,proto3" json:"domain_ready,omitempty"`
+	// CertificateRef is the Certificate resource emitted by the controller.
+	// Set only when tls_strategy is custom — empty for platform strategy.
+	// The Route mediator reads this ref to gate DomainMapping dispatch
+	// on TLS secret existence without deriving the secret name externally.
+	CertificateRef *DomainObjectRef `protobuf:"bytes,8,opt,name=certificate_ref,json=certificateRef,proto3" json:"certificate_ref,omitempty"`
+	// DomainMappingRef is the Knative DomainMapping resource emitted
+	// by the controller. Set once materialized, cleared on deletion.
+	DomainMappingRef *DomainObjectRef `protobuf:"bytes,9,opt,name=domain_mapping_ref,json=domainMappingRef,proto3" json:"domain_mapping_ref,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *DomainStatus) Reset() {
 	*x = DomainStatus{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[4]
+	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -344,7 +422,7 @@ func (x *DomainStatus) String() string {
 func (*DomainStatus) ProtoMessage() {}
 
 func (x *DomainStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[4]
+	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -357,7 +435,7 @@ func (x *DomainStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DomainStatus.ProtoReflect.Descriptor instead.
 func (*DomainStatus) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{4}
+	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DomainStatus) GetPhase() *v1.DomainPhase {
@@ -402,6 +480,27 @@ func (x *DomainStatus) GetLastUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *DomainStatus) GetDomainReady() bool {
+	if x != nil {
+		return x.DomainReady
+	}
+	return false
+}
+
+func (x *DomainStatus) GetCertificateRef() *DomainObjectRef {
+	if x != nil {
+		return x.CertificateRef
+	}
+	return nil
+}
+
+func (x *DomainStatus) GetDomainMappingRef() *DomainObjectRef {
+	if x != nil {
+		return x.DomainMappingRef
+	}
+	return nil
+}
+
 type DomainCondition struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Condition type. e.g. DomainResolved, CertIssued, MTLSReady, DomainMappingReady
@@ -409,18 +508,14 @@ type DomainCondition struct {
 	// Condition status: True, False, or Unknown.
 	Status string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
 	// Machine-readable reason for the last transition.
-	Reason string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
-	// Human-readable detail for the last transition.
-	Message string `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	// LastTransitionTime is when the condition last changed status.
-	LastTransitionTime *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=last_transition_time,json=lastTransitionTime,proto3" json:"last_transition_time,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	Reason        string `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *DomainCondition) Reset() {
 	*x = DomainCondition{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[5]
+	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -432,7 +527,7 @@ func (x *DomainCondition) String() string {
 func (*DomainCondition) ProtoMessage() {}
 
 func (x *DomainCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[5]
+	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -445,7 +540,7 @@ func (x *DomainCondition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DomainCondition.ProtoReflect.Descriptor instead.
 func (*DomainCondition) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{5}
+	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DomainCondition) GetType() string {
@@ -469,741 +564,11 @@ func (x *DomainCondition) GetReason() string {
 	return ""
 }
 
-func (x *DomainCondition) GetMessage() string {
-	if x != nil {
-		return x.Message
-	}
-	return ""
-}
-
-func (x *DomainCondition) GetLastTransitionTime() *timestamppb.Timestamp {
-	if x != nil {
-		return x.LastTransitionTime
-	}
-	return nil
-}
-
-// CreateDomain — declare a new Domain intent.
-// Controller materializes the cert/mapping chain on reconciliation.
-type CreateDomainRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Desired spec for the new Domain.
-	Spec          *DomainSpec `protobuf:"bytes,1,opt,name=spec,proto3" json:"spec,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateDomainRequest) Reset() {
-	*x = CreateDomainRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateDomainRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateDomainRequest) ProtoMessage() {}
-
-func (x *CreateDomainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateDomainRequest.ProtoReflect.Descriptor instead.
-func (*CreateDomainRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *CreateDomainRequest) GetSpec() *DomainSpec {
-	if x != nil {
-		return x.Spec
-	}
-	return nil
-}
-
-type CreateDomainResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The created Domain including generated metadata and initial status.
-	Domain        *Domain `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *CreateDomainResponse) Reset() {
-	*x = CreateDomainResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *CreateDomainResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*CreateDomainResponse) ProtoMessage() {}
-
-func (x *CreateDomainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use CreateDomainResponse.ProtoReflect.Descriptor instead.
-func (*CreateDomainResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *CreateDomainResponse) GetDomain() *Domain {
-	if x != nil {
-		return x.Domain
-	}
-	return nil
-}
-
-// GetDomain — fetch a Domain by name.
-type GetDomainRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Name of the Domain CR to fetch.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetDomainRequest) Reset() {
-	*x = GetDomainRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDomainRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDomainRequest) ProtoMessage() {}
-
-func (x *GetDomainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDomainRequest.ProtoReflect.Descriptor instead.
-func (*GetDomainRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetDomainRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-type GetDomainResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Domain        *Domain                `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetDomainResponse) Reset() {
-	*x = GetDomainResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetDomainResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetDomainResponse) ProtoMessage() {}
-
-func (x *GetDomainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetDomainResponse.ProtoReflect.Descriptor instead.
-func (*GetDomainResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetDomainResponse) GetDomain() *Domain {
-	if x != nil {
-		return x.Domain
-	}
-	return nil
-}
-
-// UpdateDomain — full replace of the Domain spec.
-// Equivalent to kubectl apply — all fields replaced.
-type UpdateDomainRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Full Domain object including metadata and desired spec.
-	Domain        *Domain `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateDomainRequest) Reset() {
-	*x = UpdateDomainRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateDomainRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateDomainRequest) ProtoMessage() {}
-
-func (x *UpdateDomainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateDomainRequest.ProtoReflect.Descriptor instead.
-func (*UpdateDomainRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *UpdateDomainRequest) GetDomain() *Domain {
-	if x != nil {
-		return x.Domain
-	}
-	return nil
-}
-
-type UpdateDomainResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The updated Domain as observed by the controller.
-	Domain        *Domain `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateDomainResponse) Reset() {
-	*x = UpdateDomainResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateDomainResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateDomainResponse) ProtoMessage() {}
-
-func (x *UpdateDomainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateDomainResponse.ProtoReflect.Descriptor instead.
-func (*UpdateDomainResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *UpdateDomainResponse) GetDomain() *Domain {
-	if x != nil {
-		return x.Domain
-	}
-	return nil
-}
-
-// PatchDomain — partial update using JSON merge patch RFC 7396.
-// Only specified fields are updated — others left unchanged.
-type PatchDomainRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Name of the Domain CR to patch.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// JSON merge patch document — RFC 7396.
-	// e.g. {"spec":{"mtls":{"enforced":true}}}
-	Patch         string `protobuf:"bytes,2,opt,name=patch,proto3" json:"patch,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PatchDomainRequest) Reset() {
-	*x = PatchDomainRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PatchDomainRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PatchDomainRequest) ProtoMessage() {}
-
-func (x *PatchDomainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PatchDomainRequest.ProtoReflect.Descriptor instead.
-func (*PatchDomainRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *PatchDomainRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *PatchDomainRequest) GetPatch() string {
-	if x != nil {
-		return x.Patch
-	}
-	return ""
-}
-
-type PatchDomainResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The patched Domain as observed by the controller.
-	Domain        *Domain `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *PatchDomainResponse) Reset() {
-	*x = PatchDomainResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *PatchDomainResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PatchDomainResponse) ProtoMessage() {}
-
-func (x *PatchDomainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PatchDomainResponse.ProtoReflect.Descriptor instead.
-func (*PatchDomainResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *PatchDomainResponse) GetDomain() *Domain {
-	if x != nil {
-		return x.Domain
-	}
-	return nil
-}
-
-// ListDomains — list Domain CRs with optional filtering and paging.
-type ListDomainsRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Filter by current lifecycle phase.
-	Phase *v1.DomainPhase `protobuf:"bytes,1,opt,name=phase,proto3,oneof" json:"phase,omitempty"`
-	// Filter by TLS strategy.
-	TlsStrategy *v1.DomainTLSStrategy `protobuf:"bytes,2,opt,name=tls_strategy,json=tlsStrategy,proto3,oneof" json:"tls_strategy,omitempty"`
-	// Filter by host FQDN.
-	Host *string `protobuf:"bytes,3,opt,name=host,proto3,oneof" json:"host,omitempty"`
-	// Filter by owning Route name.
-	RouteRefName *string `protobuf:"bytes,4,opt,name=route_ref_name,json=routeRefName,proto3,oneof" json:"route_ref_name,omitempty"`
-	// Maximum number of results to return. Server may return fewer.
-	PageSize *int32 `protobuf:"varint,5,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
-	// Token from a previous ListDomainsResponse.next_page_token.
-	// Omit for the first request.
-	PageToken     *string `protobuf:"bytes,6,opt,name=page_token,json=pageToken,proto3,oneof" json:"page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListDomainsRequest) Reset() {
-	*x = ListDomainsRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListDomainsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListDomainsRequest) ProtoMessage() {}
-
-func (x *ListDomainsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListDomainsRequest.ProtoReflect.Descriptor instead.
-func (*ListDomainsRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *ListDomainsRequest) GetPhase() *v1.DomainPhase {
-	if x != nil {
-		return x.Phase
-	}
-	return nil
-}
-
-func (x *ListDomainsRequest) GetTlsStrategy() *v1.DomainTLSStrategy {
-	if x != nil {
-		return x.TlsStrategy
-	}
-	return nil
-}
-
-func (x *ListDomainsRequest) GetHost() string {
-	if x != nil && x.Host != nil {
-		return *x.Host
-	}
-	return ""
-}
-
-func (x *ListDomainsRequest) GetRouteRefName() string {
-	if x != nil && x.RouteRefName != nil {
-		return *x.RouteRefName
-	}
-	return ""
-}
-
-func (x *ListDomainsRequest) GetPageSize() int32 {
-	if x != nil && x.PageSize != nil {
-		return *x.PageSize
-	}
-	return 0
-}
-
-func (x *ListDomainsRequest) GetPageToken() string {
-	if x != nil && x.PageToken != nil {
-		return *x.PageToken
-	}
-	return ""
-}
-
-type ListDomainsResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// The list of Domain CRs matching the request filters.
-	Domains []*Domain `protobuf:"bytes,1,rep,name=domains,proto3" json:"domains,omitempty"`
-	// Token to retrieve the next page. Empty if no more results.
-	NextPageToken *string `protobuf:"bytes,2,opt,name=next_page_token,json=nextPageToken,proto3,oneof" json:"next_page_token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListDomainsResponse) Reset() {
-	*x = ListDomainsResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListDomainsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListDomainsResponse) ProtoMessage() {}
-
-func (x *ListDomainsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListDomainsResponse.ProtoReflect.Descriptor instead.
-func (*ListDomainsResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *ListDomainsResponse) GetDomains() []*Domain {
-	if x != nil {
-		return x.Domains
-	}
-	return nil
-}
-
-func (x *ListDomainsResponse) GetNextPageToken() string {
-	if x != nil && x.NextPageToken != nil {
-		return *x.NextPageToken
-	}
-	return ""
-}
-
-// DeleteDomain — delete a Domain CR.
-// The controller garbage-collects the DomainMapping, Certificate (if any),
-// and DomainClaim owned by this Domain.
-type DeleteDomainRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Name of the Domain CR to delete.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteDomainRequest) Reset() {
-	*x = DeleteDomainRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteDomainRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteDomainRequest) ProtoMessage() {}
-
-func (x *DeleteDomainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteDomainRequest.ProtoReflect.Descriptor instead.
-func (*DeleteDomainRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *DeleteDomainRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-type DeleteDomainResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// True if the Domain was successfully deleted.
-	Success       bool `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteDomainResponse) Reset() {
-	*x = DeleteDomainResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteDomainResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteDomainResponse) ProtoMessage() {}
-
-func (x *DeleteDomainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteDomainResponse.ProtoReflect.Descriptor instead.
-func (*DeleteDomainResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *DeleteDomainResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-// WatchDomain — stream phase transitions for a Domain CR.
-// Delivers an event for every controller reconciliation loop.
-type WatchDomainRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Name of the Domain CR to watch.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WatchDomainRequest) Reset() {
-	*x = WatchDomainRequest{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WatchDomainRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WatchDomainRequest) ProtoMessage() {}
-
-func (x *WatchDomainRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WatchDomainRequest.ProtoReflect.Descriptor instead.
-func (*WatchDomainRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *WatchDomainRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-type WatchDomainResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Current state of the Domain at this point in the stream.
-	Domain *Domain `protobuf:"bytes,1,opt,name=domain,proto3" json:"domain,omitempty"`
-	// The type of change that triggered this event.
-	Type          v1.EventType `protobuf:"varint,2,opt,name=type,proto3,enum=blanketops.common.v1.EventType" json:"type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *WatchDomainResponse) Reset() {
-	*x = WatchDomainResponse{}
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *WatchDomainResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*WatchDomainResponse) ProtoMessage() {}
-
-func (x *WatchDomainResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_domain_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use WatchDomainResponse.ProtoReflect.Descriptor instead.
-func (*WatchDomainResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *WatchDomainResponse) GetDomain() *Domain {
-	if x != nil {
-		return x.Domain
-	}
-	return nil
-}
-
-func (x *WatchDomainResponse) GetType() v1.EventType {
-	if x != nil {
-		return x.Type
-	}
-	return v1.EventType(0)
-}
-
 var File_blanketops_networks_v1alpha1_domain_proto protoreflect.FileDescriptor
 
 const file_blanketops_networks_v1alpha1_domain_proto_rawDesc = "" +
 	"\n" +
-	")blanketops/networks/v1alpha1/domain.proto\x12\x1cblanketops.networks.v1alpha1\x1a!blanketops/common/v1/domain.proto\x1a blanketops/common/v1/event.proto\x1a#blanketops/common/v1/metadata.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc6\x01\n" +
+	")blanketops/networks/v1alpha1/domain.proto\x12\x1cblanketops.networks.v1alpha1\x1a!blanketops/common/v1/domain.proto\x1a#blanketops/common/v1/metadata.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc6\x01\n" +
 	"\x06Domain\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.blanketops.common.v1.MetadataR\bmetadata\x12<\n" +
 	"\x04spec\x18\x02 \x01(\v2(.blanketops.networks.v1alpha1.DomainSpecR\x04spec\x12B\n" +
@@ -1219,7 +584,10 @@ const file_blanketops_networks_v1alpha1_domain_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"(\n" +
 	"\n" +
 	"DomainMTLS\x12\x1a\n" +
-	"\benforced\x18\x01 \x01(\bR\benforced\"\xdb\x02\n" +
+	"\benforced\x18\x01 \x01(\bR\benforced\"C\n" +
+	"\x0fDomainObjectRef\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1c\n" +
+	"\tnamespace\x18\x02 \x01(\tR\tnamespace\"\xb3\x04\n" +
 	"\fDomainStatus\x127\n" +
 	"\x05phase\x18\x01 \x01(\v2!.blanketops.common.v1.DomainPhaseR\x05phase\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x1f\n" +
@@ -1230,66 +598,14 @@ const file_blanketops_networks_v1alpha1_domain_proto_rawDesc = "" +
 	"\n" +
 	"conditions\x18\x05 \x03(\v2-.blanketops.networks.v1alpha1.DomainConditionR\n" +
 	"conditions\x12B\n" +
-	"\x0flast_updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rlastUpdatedAt\"\xbd\x01\n" +
+	"\x0flast_updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\rlastUpdatedAt\x12!\n" +
+	"\fdomain_ready\x18\a \x01(\bR\vdomainReady\x12V\n" +
+	"\x0fcertificate_ref\x18\b \x01(\v2-.blanketops.networks.v1alpha1.DomainObjectRefR\x0ecertificateRef\x12[\n" +
+	"\x12domain_mapping_ref\x18\t \x01(\v2-.blanketops.networks.v1alpha1.DomainObjectRefR\x10domainMappingRef\"U\n" +
 	"\x0fDomainCondition\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x16\n" +
-	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\x12L\n" +
-	"\x14last_transition_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x12lastTransitionTime\"S\n" +
-	"\x13CreateDomainRequest\x12<\n" +
-	"\x04spec\x18\x01 \x01(\v2(.blanketops.networks.v1alpha1.DomainSpecR\x04spec\"T\n" +
-	"\x14CreateDomainResponse\x12<\n" +
-	"\x06domain\x18\x01 \x01(\v2$.blanketops.networks.v1alpha1.DomainR\x06domain\"&\n" +
-	"\x10GetDomainRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"Q\n" +
-	"\x11GetDomainResponse\x12<\n" +
-	"\x06domain\x18\x01 \x01(\v2$.blanketops.networks.v1alpha1.DomainR\x06domain\"S\n" +
-	"\x13UpdateDomainRequest\x12<\n" +
-	"\x06domain\x18\x01 \x01(\v2$.blanketops.networks.v1alpha1.DomainR\x06domain\"T\n" +
-	"\x14UpdateDomainResponse\x12<\n" +
-	"\x06domain\x18\x01 \x01(\v2$.blanketops.networks.v1alpha1.DomainR\x06domain\">\n" +
-	"\x12PatchDomainRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
-	"\x05patch\x18\x02 \x01(\tR\x05patch\"S\n" +
-	"\x13PatchDomainResponse\x12<\n" +
-	"\x06domain\x18\x01 \x01(\v2$.blanketops.networks.v1alpha1.DomainR\x06domain\"\x81\x03\n" +
-	"\x12ListDomainsRequest\x12<\n" +
-	"\x05phase\x18\x01 \x01(\v2!.blanketops.common.v1.DomainPhaseH\x00R\x05phase\x88\x01\x01\x12O\n" +
-	"\ftls_strategy\x18\x02 \x01(\v2'.blanketops.common.v1.DomainTLSStrategyH\x01R\vtlsStrategy\x88\x01\x01\x12\x17\n" +
-	"\x04host\x18\x03 \x01(\tH\x02R\x04host\x88\x01\x01\x12)\n" +
-	"\x0eroute_ref_name\x18\x04 \x01(\tH\x03R\frouteRefName\x88\x01\x01\x12 \n" +
-	"\tpage_size\x18\x05 \x01(\x05H\x04R\bpageSize\x88\x01\x01\x12\"\n" +
-	"\n" +
-	"page_token\x18\x06 \x01(\tH\x05R\tpageToken\x88\x01\x01B\b\n" +
-	"\x06_phaseB\x0f\n" +
-	"\r_tls_strategyB\a\n" +
-	"\x05_hostB\x11\n" +
-	"\x0f_route_ref_nameB\f\n" +
-	"\n" +
-	"_page_sizeB\r\n" +
-	"\v_page_token\"\x96\x01\n" +
-	"\x13ListDomainsResponse\x12>\n" +
-	"\adomains\x18\x01 \x03(\v2$.blanketops.networks.v1alpha1.DomainR\adomains\x12+\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_token\")\n" +
-	"\x13DeleteDomainRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"0\n" +
-	"\x14DeleteDomainResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\"(\n" +
-	"\x12WatchDomainRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"\x88\x01\n" +
-	"\x13WatchDomainResponse\x12<\n" +
-	"\x06domain\x18\x01 \x01(\v2$.blanketops.networks.v1alpha1.DomainR\x06domain\x123\n" +
-	"\x04type\x18\x02 \x01(\x0e2\x1f.blanketops.common.v1.EventTypeR\x04type2\xc0\x06\n" +
-	"\rDomainService\x12u\n" +
-	"\fCreateDomain\x121.blanketops.networks.v1alpha1.CreateDomainRequest\x1a2.blanketops.networks.v1alpha1.CreateDomainResponse\x12l\n" +
-	"\tGetDomain\x12..blanketops.networks.v1alpha1.GetDomainRequest\x1a/.blanketops.networks.v1alpha1.GetDomainResponse\x12u\n" +
-	"\fUpdateDomain\x121.blanketops.networks.v1alpha1.UpdateDomainRequest\x1a2.blanketops.networks.v1alpha1.UpdateDomainResponse\x12r\n" +
-	"\vPatchDomain\x120.blanketops.networks.v1alpha1.PatchDomainRequest\x1a1.blanketops.networks.v1alpha1.PatchDomainResponse\x12r\n" +
-	"\vListDomains\x120.blanketops.networks.v1alpha1.ListDomainsRequest\x1a1.blanketops.networks.v1alpha1.ListDomainsResponse\x12u\n" +
-	"\fDeleteDomain\x121.blanketops.networks.v1alpha1.DeleteDomainRequest\x1a2.blanketops.networks.v1alpha1.DeleteDomainResponse\x12t\n" +
-	"\vWatchDomain\x120.blanketops.networks.v1alpha1.WatchDomainRequest\x1a1.blanketops.networks.v1alpha1.WatchDomainResponse0\x01B\xa9\x01\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reasonB\xa9\x01\n" +
 	"\x1cv1alpha1.networks.blanketopsB\vDomainProtoZ]github.com/ntlaletsi70/blanketops-environments-contract/blanketops/networks/v1alpha1;v1alpha1\xaa\x02\x1cBlanketOps.Networks.v1Alpha1b\x06proto3"
 
 var (
@@ -1304,77 +620,39 @@ func file_blanketops_networks_v1alpha1_domain_proto_rawDescGZIP() []byte {
 	return file_blanketops_networks_v1alpha1_domain_proto_rawDescData
 }
 
-var file_blanketops_networks_v1alpha1_domain_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_blanketops_networks_v1alpha1_domain_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_blanketops_networks_v1alpha1_domain_proto_goTypes = []any{
 	(*Domain)(nil),                // 0: blanketops.networks.v1alpha1.Domain
 	(*DomainSpec)(nil),            // 1: blanketops.networks.v1alpha1.DomainSpec
 	(*DomainRouteRef)(nil),        // 2: blanketops.networks.v1alpha1.DomainRouteRef
 	(*DomainMTLS)(nil),            // 3: blanketops.networks.v1alpha1.DomainMTLS
-	(*DomainStatus)(nil),          // 4: blanketops.networks.v1alpha1.DomainStatus
-	(*DomainCondition)(nil),       // 5: blanketops.networks.v1alpha1.DomainCondition
-	(*CreateDomainRequest)(nil),   // 6: blanketops.networks.v1alpha1.CreateDomainRequest
-	(*CreateDomainResponse)(nil),  // 7: blanketops.networks.v1alpha1.CreateDomainResponse
-	(*GetDomainRequest)(nil),      // 8: blanketops.networks.v1alpha1.GetDomainRequest
-	(*GetDomainResponse)(nil),     // 9: blanketops.networks.v1alpha1.GetDomainResponse
-	(*UpdateDomainRequest)(nil),   // 10: blanketops.networks.v1alpha1.UpdateDomainRequest
-	(*UpdateDomainResponse)(nil),  // 11: blanketops.networks.v1alpha1.UpdateDomainResponse
-	(*PatchDomainRequest)(nil),    // 12: blanketops.networks.v1alpha1.PatchDomainRequest
-	(*PatchDomainResponse)(nil),   // 13: blanketops.networks.v1alpha1.PatchDomainResponse
-	(*ListDomainsRequest)(nil),    // 14: blanketops.networks.v1alpha1.ListDomainsRequest
-	(*ListDomainsResponse)(nil),   // 15: blanketops.networks.v1alpha1.ListDomainsResponse
-	(*DeleteDomainRequest)(nil),   // 16: blanketops.networks.v1alpha1.DeleteDomainRequest
-	(*DeleteDomainResponse)(nil),  // 17: blanketops.networks.v1alpha1.DeleteDomainResponse
-	(*WatchDomainRequest)(nil),    // 18: blanketops.networks.v1alpha1.WatchDomainRequest
-	(*WatchDomainResponse)(nil),   // 19: blanketops.networks.v1alpha1.WatchDomainResponse
-	(*v1.Metadata)(nil),           // 20: blanketops.common.v1.Metadata
-	(*v1.DomainTLSStrategy)(nil),  // 21: blanketops.common.v1.DomainTLSStrategy
-	(*v1.DomainPhase)(nil),        // 22: blanketops.common.v1.DomainPhase
-	(*v1.DomainTLSStatus)(nil),    // 23: blanketops.common.v1.DomainTLSStatus
-	(*timestamppb.Timestamp)(nil), // 24: google.protobuf.Timestamp
-	(v1.EventType)(0),             // 25: blanketops.common.v1.EventType
+	(*DomainObjectRef)(nil),       // 4: blanketops.networks.v1alpha1.DomainObjectRef
+	(*DomainStatus)(nil),          // 5: blanketops.networks.v1alpha1.DomainStatus
+	(*DomainCondition)(nil),       // 6: blanketops.networks.v1alpha1.DomainCondition
+	(*v1.Metadata)(nil),           // 7: blanketops.common.v1.Metadata
+	(*v1.DomainTLSStrategy)(nil),  // 8: blanketops.common.v1.DomainTLSStrategy
+	(*v1.DomainPhase)(nil),        // 9: blanketops.common.v1.DomainPhase
+	(*v1.DomainTLSStatus)(nil),    // 10: blanketops.common.v1.DomainTLSStatus
+	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
 }
 var file_blanketops_networks_v1alpha1_domain_proto_depIdxs = []int32{
-	20, // 0: blanketops.networks.v1alpha1.Domain.metadata:type_name -> blanketops.common.v1.Metadata
+	7,  // 0: blanketops.networks.v1alpha1.Domain.metadata:type_name -> blanketops.common.v1.Metadata
 	1,  // 1: blanketops.networks.v1alpha1.Domain.spec:type_name -> blanketops.networks.v1alpha1.DomainSpec
-	4,  // 2: blanketops.networks.v1alpha1.Domain.status:type_name -> blanketops.networks.v1alpha1.DomainStatus
+	5,  // 2: blanketops.networks.v1alpha1.Domain.status:type_name -> blanketops.networks.v1alpha1.DomainStatus
 	2,  // 3: blanketops.networks.v1alpha1.DomainSpec.route_ref:type_name -> blanketops.networks.v1alpha1.DomainRouteRef
-	21, // 4: blanketops.networks.v1alpha1.DomainSpec.tls_strategy:type_name -> blanketops.common.v1.DomainTLSStrategy
+	8,  // 4: blanketops.networks.v1alpha1.DomainSpec.tls_strategy:type_name -> blanketops.common.v1.DomainTLSStrategy
 	3,  // 5: blanketops.networks.v1alpha1.DomainSpec.mtls:type_name -> blanketops.networks.v1alpha1.DomainMTLS
-	22, // 6: blanketops.networks.v1alpha1.DomainStatus.phase:type_name -> blanketops.common.v1.DomainPhase
-	23, // 7: blanketops.networks.v1alpha1.DomainStatus.tls_status:type_name -> blanketops.common.v1.DomainTLSStatus
-	5,  // 8: blanketops.networks.v1alpha1.DomainStatus.conditions:type_name -> blanketops.networks.v1alpha1.DomainCondition
-	24, // 9: blanketops.networks.v1alpha1.DomainStatus.last_updated_at:type_name -> google.protobuf.Timestamp
-	24, // 10: blanketops.networks.v1alpha1.DomainCondition.last_transition_time:type_name -> google.protobuf.Timestamp
-	1,  // 11: blanketops.networks.v1alpha1.CreateDomainRequest.spec:type_name -> blanketops.networks.v1alpha1.DomainSpec
-	0,  // 12: blanketops.networks.v1alpha1.CreateDomainResponse.domain:type_name -> blanketops.networks.v1alpha1.Domain
-	0,  // 13: blanketops.networks.v1alpha1.GetDomainResponse.domain:type_name -> blanketops.networks.v1alpha1.Domain
-	0,  // 14: blanketops.networks.v1alpha1.UpdateDomainRequest.domain:type_name -> blanketops.networks.v1alpha1.Domain
-	0,  // 15: blanketops.networks.v1alpha1.UpdateDomainResponse.domain:type_name -> blanketops.networks.v1alpha1.Domain
-	0,  // 16: blanketops.networks.v1alpha1.PatchDomainResponse.domain:type_name -> blanketops.networks.v1alpha1.Domain
-	22, // 17: blanketops.networks.v1alpha1.ListDomainsRequest.phase:type_name -> blanketops.common.v1.DomainPhase
-	21, // 18: blanketops.networks.v1alpha1.ListDomainsRequest.tls_strategy:type_name -> blanketops.common.v1.DomainTLSStrategy
-	0,  // 19: blanketops.networks.v1alpha1.ListDomainsResponse.domains:type_name -> blanketops.networks.v1alpha1.Domain
-	0,  // 20: blanketops.networks.v1alpha1.WatchDomainResponse.domain:type_name -> blanketops.networks.v1alpha1.Domain
-	25, // 21: blanketops.networks.v1alpha1.WatchDomainResponse.type:type_name -> blanketops.common.v1.EventType
-	6,  // 22: blanketops.networks.v1alpha1.DomainService.CreateDomain:input_type -> blanketops.networks.v1alpha1.CreateDomainRequest
-	8,  // 23: blanketops.networks.v1alpha1.DomainService.GetDomain:input_type -> blanketops.networks.v1alpha1.GetDomainRequest
-	10, // 24: blanketops.networks.v1alpha1.DomainService.UpdateDomain:input_type -> blanketops.networks.v1alpha1.UpdateDomainRequest
-	12, // 25: blanketops.networks.v1alpha1.DomainService.PatchDomain:input_type -> blanketops.networks.v1alpha1.PatchDomainRequest
-	14, // 26: blanketops.networks.v1alpha1.DomainService.ListDomains:input_type -> blanketops.networks.v1alpha1.ListDomainsRequest
-	16, // 27: blanketops.networks.v1alpha1.DomainService.DeleteDomain:input_type -> blanketops.networks.v1alpha1.DeleteDomainRequest
-	18, // 28: blanketops.networks.v1alpha1.DomainService.WatchDomain:input_type -> blanketops.networks.v1alpha1.WatchDomainRequest
-	7,  // 29: blanketops.networks.v1alpha1.DomainService.CreateDomain:output_type -> blanketops.networks.v1alpha1.CreateDomainResponse
-	9,  // 30: blanketops.networks.v1alpha1.DomainService.GetDomain:output_type -> blanketops.networks.v1alpha1.GetDomainResponse
-	11, // 31: blanketops.networks.v1alpha1.DomainService.UpdateDomain:output_type -> blanketops.networks.v1alpha1.UpdateDomainResponse
-	13, // 32: blanketops.networks.v1alpha1.DomainService.PatchDomain:output_type -> blanketops.networks.v1alpha1.PatchDomainResponse
-	15, // 33: blanketops.networks.v1alpha1.DomainService.ListDomains:output_type -> blanketops.networks.v1alpha1.ListDomainsResponse
-	17, // 34: blanketops.networks.v1alpha1.DomainService.DeleteDomain:output_type -> blanketops.networks.v1alpha1.DeleteDomainResponse
-	19, // 35: blanketops.networks.v1alpha1.DomainService.WatchDomain:output_type -> blanketops.networks.v1alpha1.WatchDomainResponse
-	29, // [29:36] is the sub-list for method output_type
-	22, // [22:29] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	9,  // 6: blanketops.networks.v1alpha1.DomainStatus.phase:type_name -> blanketops.common.v1.DomainPhase
+	10, // 7: blanketops.networks.v1alpha1.DomainStatus.tls_status:type_name -> blanketops.common.v1.DomainTLSStatus
+	6,  // 8: blanketops.networks.v1alpha1.DomainStatus.conditions:type_name -> blanketops.networks.v1alpha1.DomainCondition
+	11, // 9: blanketops.networks.v1alpha1.DomainStatus.last_updated_at:type_name -> google.protobuf.Timestamp
+	4,  // 10: blanketops.networks.v1alpha1.DomainStatus.certificate_ref:type_name -> blanketops.networks.v1alpha1.DomainObjectRef
+	4,  // 11: blanketops.networks.v1alpha1.DomainStatus.domain_mapping_ref:type_name -> blanketops.networks.v1alpha1.DomainObjectRef
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_blanketops_networks_v1alpha1_domain_proto_init() }
@@ -1382,17 +660,15 @@ func file_blanketops_networks_v1alpha1_domain_proto_init() {
 	if File_blanketops_networks_v1alpha1_domain_proto != nil {
 		return
 	}
-	file_blanketops_networks_v1alpha1_domain_proto_msgTypes[14].OneofWrappers = []any{}
-	file_blanketops_networks_v1alpha1_domain_proto_msgTypes[15].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blanketops_networks_v1alpha1_domain_proto_rawDesc), len(file_blanketops_networks_v1alpha1_domain_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   20,
+			NumMessages:   7,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_blanketops_networks_v1alpha1_domain_proto_goTypes,
 		DependencyIndexes: file_blanketops_networks_v1alpha1_domain_proto_depIdxs,

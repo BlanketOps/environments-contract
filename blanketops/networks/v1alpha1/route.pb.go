@@ -23,6 +23,63 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// -----------------------------------------------------------------------------
+// ServiceUnitRef
+//
+// Reference to a ServiceUnit CR in the same namespace as this Route.
+// The controller resolves the materialised ksvc or K8s service by convention:
+//
+//	ksvc name == service_unit_ref.name
+//
+// -----------------------------------------------------------------------------
+type ServiceUnitRef struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Name of the ServiceUnit CR in this namespace.
+	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ServiceUnitRef) Reset() {
+	*x = ServiceUnitRef{}
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ServiceUnitRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ServiceUnitRef) ProtoMessage() {}
+
+func (x *ServiceUnitRef) ProtoReflect() protoreflect.Message {
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ServiceUnitRef.ProtoReflect.Descriptor instead.
+func (*ServiceUnitRef) Descriptor() ([]byte, []int) {
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *ServiceUnitRef) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// -----------------------------------------------------------------------------
+// Resource
+// -----------------------------------------------------------------------------
 type Route struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Standard BlanketOps metadata (name, namespace, labels, ownerRef).
@@ -37,7 +94,7 @@ type Route struct {
 
 func (x *Route) Reset() {
 	*x = Route{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[0]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -49,7 +106,7 @@ func (x *Route) String() string {
 func (*Route) ProtoMessage() {}
 
 func (x *Route) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[0]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,7 +119,7 @@ func (x *Route) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Route.ProtoReflect.Descriptor instead.
 func (*Route) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{0}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Route) GetMetadata() *v1.Metadata {
@@ -86,6 +143,9 @@ func (x *Route) GetStatus() *RouteStatus {
 	return nil
 }
 
+// -----------------------------------------------------------------------------
+// Spec (intent)
+// -----------------------------------------------------------------------------
 type RouteSpec struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Fully qualified domain name to serve.
@@ -102,14 +162,22 @@ type RouteSpec struct {
 	// platform issuer (DNS01 wildcard or namespaced HTTP01).
 	TlsEnabled bool `protobuf:"varint,4,opt,name=tls_enabled,json=tlsEnabled,proto3" json:"tls_enabled,omitempty"`
 	// Runtime responsible for materializing this route.
-	Runtime       *v1.RouteRuntime `protobuf:"bytes,5,opt,name=runtime,proto3" json:"runtime,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Runtime *v1.RouteRuntime `protobuf:"bytes,5,opt,name=runtime,proto3" json:"runtime,omitempty"`
+	// Required. The ServiceUnit this route exposes.
+	// Controller derives the ksvc/K8s service name by convention:
+	//
+	//	ksvc name == service_unit_ref.name
+	//
+	// No ServiceUnit status lookup required — convention is enforced
+	// by the ServiceUnit controller at materialisation time.
+	ServiceUnitRef *ServiceUnitRef `protobuf:"bytes,6,opt,name=service_unit_ref,json=serviceUnitRef,proto3" json:"service_unit_ref,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *RouteSpec) Reset() {
 	*x = RouteSpec{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[1]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -121,7 +189,7 @@ func (x *RouteSpec) String() string {
 func (*RouteSpec) ProtoMessage() {}
 
 func (x *RouteSpec) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[1]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -134,7 +202,7 @@ func (x *RouteSpec) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteSpec.ProtoReflect.Descriptor instead.
 func (*RouteSpec) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{1}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *RouteSpec) GetHost() string {
@@ -172,6 +240,16 @@ func (x *RouteSpec) GetRuntime() *v1.RouteRuntime {
 	return nil
 }
 
+func (x *RouteSpec) GetServiceUnitRef() *ServiceUnitRef {
+	if x != nil {
+		return x.ServiceUnitRef
+	}
+	return nil
+}
+
+// -----------------------------------------------------------------------------
+// Status (observed state)
+// -----------------------------------------------------------------------------
 type RouteStatus struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Current lifecycle phase. Set by the controller.
@@ -193,7 +271,7 @@ type RouteStatus struct {
 
 func (x *RouteStatus) Reset() {
 	*x = RouteStatus{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[2]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -205,7 +283,7 @@ func (x *RouteStatus) String() string {
 func (*RouteStatus) ProtoMessage() {}
 
 func (x *RouteStatus) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[2]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -218,7 +296,7 @@ func (x *RouteStatus) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteStatus.ProtoReflect.Descriptor instead.
 func (*RouteStatus) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{2}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RouteStatus) GetPhase() *v1.RoutePhase {
@@ -263,6 +341,9 @@ func (x *RouteStatus) GetLastUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+// -----------------------------------------------------------------------------
+// Conditions
+// -----------------------------------------------------------------------------
 type RouteCondition struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Condition type. e.g. RouteResolved, TLSReady, RuntimeReady
@@ -281,7 +362,7 @@ type RouteCondition struct {
 
 func (x *RouteCondition) Reset() {
 	*x = RouteCondition{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[3]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -293,7 +374,7 @@ func (x *RouteCondition) String() string {
 func (*RouteCondition) ProtoMessage() {}
 
 func (x *RouteCondition) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[3]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -306,7 +387,7 @@ func (x *RouteCondition) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteCondition.ProtoReflect.Descriptor instead.
 func (*RouteCondition) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{3}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RouteCondition) GetType() string {
@@ -356,7 +437,7 @@ type CreateRouteRequest struct {
 
 func (x *CreateRouteRequest) Reset() {
 	*x = CreateRouteRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[4]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -368,7 +449,7 @@ func (x *CreateRouteRequest) String() string {
 func (*CreateRouteRequest) ProtoMessage() {}
 
 func (x *CreateRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[4]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -381,7 +462,7 @@ func (x *CreateRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRouteRequest.ProtoReflect.Descriptor instead.
 func (*CreateRouteRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{4}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateRouteRequest) GetSpec() *RouteSpec {
@@ -401,7 +482,7 @@ type CreateRouteResponse struct {
 
 func (x *CreateRouteResponse) Reset() {
 	*x = CreateRouteResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[5]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -413,7 +494,7 @@ func (x *CreateRouteResponse) String() string {
 func (*CreateRouteResponse) ProtoMessage() {}
 
 func (x *CreateRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[5]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -426,7 +507,7 @@ func (x *CreateRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRouteResponse.ProtoReflect.Descriptor instead.
 func (*CreateRouteResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{5}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateRouteResponse) GetRoute() *Route {
@@ -447,7 +528,7 @@ type GetRouteRequest struct {
 
 func (x *GetRouteRequest) Reset() {
 	*x = GetRouteRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[6]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -459,7 +540,7 @@ func (x *GetRouteRequest) String() string {
 func (*GetRouteRequest) ProtoMessage() {}
 
 func (x *GetRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[6]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -472,7 +553,7 @@ func (x *GetRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRouteRequest.ProtoReflect.Descriptor instead.
 func (*GetRouteRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{6}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetRouteRequest) GetName() string {
@@ -491,7 +572,7 @@ type GetRouteResponse struct {
 
 func (x *GetRouteResponse) Reset() {
 	*x = GetRouteResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[7]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -503,7 +584,7 @@ func (x *GetRouteResponse) String() string {
 func (*GetRouteResponse) ProtoMessage() {}
 
 func (x *GetRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[7]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -516,7 +597,7 @@ func (x *GetRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRouteResponse.ProtoReflect.Descriptor instead.
 func (*GetRouteResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{7}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetRouteResponse) GetRoute() *Route {
@@ -538,7 +619,7 @@ type UpdateRouteRequest struct {
 
 func (x *UpdateRouteRequest) Reset() {
 	*x = UpdateRouteRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[8]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -550,7 +631,7 @@ func (x *UpdateRouteRequest) String() string {
 func (*UpdateRouteRequest) ProtoMessage() {}
 
 func (x *UpdateRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[8]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -563,7 +644,7 @@ func (x *UpdateRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRouteRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRouteRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{8}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateRouteRequest) GetRoute() *Route {
@@ -583,7 +664,7 @@ type UpdateRouteResponse struct {
 
 func (x *UpdateRouteResponse) Reset() {
 	*x = UpdateRouteResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[9]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -595,7 +676,7 @@ func (x *UpdateRouteResponse) String() string {
 func (*UpdateRouteResponse) ProtoMessage() {}
 
 func (x *UpdateRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[9]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,7 +689,7 @@ func (x *UpdateRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRouteResponse.ProtoReflect.Descriptor instead.
 func (*UpdateRouteResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{9}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateRouteResponse) GetRoute() *Route {
@@ -633,7 +714,7 @@ type PatchRouteRequest struct {
 
 func (x *PatchRouteRequest) Reset() {
 	*x = PatchRouteRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[10]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -645,7 +726,7 @@ func (x *PatchRouteRequest) String() string {
 func (*PatchRouteRequest) ProtoMessage() {}
 
 func (x *PatchRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[10]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -658,7 +739,7 @@ func (x *PatchRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PatchRouteRequest.ProtoReflect.Descriptor instead.
 func (*PatchRouteRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{10}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *PatchRouteRequest) GetName() string {
@@ -685,7 +766,7 @@ type PatchRouteResponse struct {
 
 func (x *PatchRouteResponse) Reset() {
 	*x = PatchRouteResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[11]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -697,7 +778,7 @@ func (x *PatchRouteResponse) String() string {
 func (*PatchRouteResponse) ProtoMessage() {}
 
 func (x *PatchRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[11]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -710,7 +791,7 @@ func (x *PatchRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PatchRouteResponse.ProtoReflect.Descriptor instead.
 func (*PatchRouteResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{11}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *PatchRouteResponse) GetRoute() *Route {
@@ -740,7 +821,7 @@ type ListRoutesRequest struct {
 
 func (x *ListRoutesRequest) Reset() {
 	*x = ListRoutesRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[12]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -752,7 +833,7 @@ func (x *ListRoutesRequest) String() string {
 func (*ListRoutesRequest) ProtoMessage() {}
 
 func (x *ListRoutesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[12]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -765,7 +846,7 @@ func (x *ListRoutesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoutesRequest.ProtoReflect.Descriptor instead.
 func (*ListRoutesRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{12}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *ListRoutesRequest) GetPhase() *v1.RoutePhase {
@@ -815,7 +896,7 @@ type ListRoutesResponse struct {
 
 func (x *ListRoutesResponse) Reset() {
 	*x = ListRoutesResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[13]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -827,7 +908,7 @@ func (x *ListRoutesResponse) String() string {
 func (*ListRoutesResponse) ProtoMessage() {}
 
 func (x *ListRoutesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[13]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -840,7 +921,7 @@ func (x *ListRoutesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRoutesResponse.ProtoReflect.Descriptor instead.
 func (*ListRoutesResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{13}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListRoutesResponse) GetRoutes() []*Route {
@@ -870,7 +951,7 @@ type DeleteRouteRequest struct {
 
 func (x *DeleteRouteRequest) Reset() {
 	*x = DeleteRouteRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[14]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -882,7 +963,7 @@ func (x *DeleteRouteRequest) String() string {
 func (*DeleteRouteRequest) ProtoMessage() {}
 
 func (x *DeleteRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[14]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -895,7 +976,7 @@ func (x *DeleteRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRouteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRouteRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{14}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DeleteRouteRequest) GetName() string {
@@ -915,7 +996,7 @@ type DeleteRouteResponse struct {
 
 func (x *DeleteRouteResponse) Reset() {
 	*x = DeleteRouteResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[15]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -927,7 +1008,7 @@ func (x *DeleteRouteResponse) String() string {
 func (*DeleteRouteResponse) ProtoMessage() {}
 
 func (x *DeleteRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[15]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -940,7 +1021,7 @@ func (x *DeleteRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRouteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteRouteResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{15}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *DeleteRouteResponse) GetSuccess() bool {
@@ -962,7 +1043,7 @@ type WatchRouteRequest struct {
 
 func (x *WatchRouteRequest) Reset() {
 	*x = WatchRouteRequest{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[16]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -974,7 +1055,7 @@ func (x *WatchRouteRequest) String() string {
 func (*WatchRouteRequest) ProtoMessage() {}
 
 func (x *WatchRouteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[16]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -987,7 +1068,7 @@ func (x *WatchRouteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchRouteRequest.ProtoReflect.Descriptor instead.
 func (*WatchRouteRequest) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{16}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *WatchRouteRequest) GetName() string {
@@ -1009,7 +1090,7 @@ type WatchRouteResponse struct {
 
 func (x *WatchRouteResponse) Reset() {
 	*x = WatchRouteResponse{}
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[17]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1021,7 +1102,7 @@ func (x *WatchRouteResponse) String() string {
 func (*WatchRouteResponse) ProtoMessage() {}
 
 func (x *WatchRouteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[17]
+	mi := &file_blanketops_networks_v1alpha1_route_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1034,7 +1115,7 @@ func (x *WatchRouteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WatchRouteResponse.ProtoReflect.Descriptor instead.
 func (*WatchRouteResponse) Descriptor() ([]byte, []int) {
-	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{17}
+	return file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *WatchRouteResponse) GetRoute() *Route {
@@ -1055,18 +1136,21 @@ var File_blanketops_networks_v1alpha1_route_proto protoreflect.FileDescriptor
 
 const file_blanketops_networks_v1alpha1_route_proto_rawDesc = "" +
 	"\n" +
-	"(blanketops/networks/v1alpha1/route.proto\x12\x1cblanketops.networks.v1alpha1\x1a blanketops/common/v1/event.proto\x1a#blanketops/common/v1/metadata.proto\x1a blanketops/common/v1/route.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc3\x01\n" +
+	"(blanketops/networks/v1alpha1/route.proto\x12\x1cblanketops.networks.v1alpha1\x1a blanketops/common/v1/event.proto\x1a#blanketops/common/v1/metadata.proto\x1a blanketops/common/v1/route.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"$\n" +
+	"\x0eServiceUnitRef\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\xc3\x01\n" +
 	"\x05Route\x12:\n" +
 	"\bmetadata\x18\x01 \x01(\v2\x1e.blanketops.common.v1.MetadataR\bmetadata\x12;\n" +
 	"\x04spec\x18\x02 \x01(\v2'.blanketops.networks.v1alpha1.RouteSpecR\x04spec\x12A\n" +
-	"\x06status\x18\x03 \x01(\v2).blanketops.networks.v1alpha1.RouteStatusR\x06status\"\xac\x01\n" +
+	"\x06status\x18\x03 \x01(\v2).blanketops.networks.v1alpha1.RouteStatusR\x06status\"\x84\x02\n" +
 	"\tRouteSpec\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12\x12\n" +
 	"\x04path\x18\x03 \x01(\tR\x04path\x12\x1f\n" +
 	"\vtls_enabled\x18\x04 \x01(\bR\n" +
 	"tlsEnabled\x12<\n" +
-	"\aruntime\x18\x05 \x01(\v2\".blanketops.common.v1.RouteRuntimeR\aruntime\"\xe1\x02\n" +
+	"\aruntime\x18\x05 \x01(\v2\".blanketops.common.v1.RouteRuntimeR\aruntime\x12V\n" +
+	"\x10service_unit_ref\x18\x06 \x01(\v2,.blanketops.networks.v1alpha1.ServiceUnitRefR\x0eserviceUnitRef\"\xe1\x02\n" +
 	"\vRouteStatus\x126\n" +
 	"\x05phase\x18\x01 \x01(\v2 .blanketops.common.v1.RoutePhaseR\x05phase\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12)\n" +
@@ -1153,73 +1237,75 @@ func file_blanketops_networks_v1alpha1_route_proto_rawDescGZIP() []byte {
 	return file_blanketops_networks_v1alpha1_route_proto_rawDescData
 }
 
-var file_blanketops_networks_v1alpha1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_blanketops_networks_v1alpha1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_blanketops_networks_v1alpha1_route_proto_goTypes = []any{
-	(*Route)(nil),                 // 0: blanketops.networks.v1alpha1.Route
-	(*RouteSpec)(nil),             // 1: blanketops.networks.v1alpha1.RouteSpec
-	(*RouteStatus)(nil),           // 2: blanketops.networks.v1alpha1.RouteStatus
-	(*RouteCondition)(nil),        // 3: blanketops.networks.v1alpha1.RouteCondition
-	(*CreateRouteRequest)(nil),    // 4: blanketops.networks.v1alpha1.CreateRouteRequest
-	(*CreateRouteResponse)(nil),   // 5: blanketops.networks.v1alpha1.CreateRouteResponse
-	(*GetRouteRequest)(nil),       // 6: blanketops.networks.v1alpha1.GetRouteRequest
-	(*GetRouteResponse)(nil),      // 7: blanketops.networks.v1alpha1.GetRouteResponse
-	(*UpdateRouteRequest)(nil),    // 8: blanketops.networks.v1alpha1.UpdateRouteRequest
-	(*UpdateRouteResponse)(nil),   // 9: blanketops.networks.v1alpha1.UpdateRouteResponse
-	(*PatchRouteRequest)(nil),     // 10: blanketops.networks.v1alpha1.PatchRouteRequest
-	(*PatchRouteResponse)(nil),    // 11: blanketops.networks.v1alpha1.PatchRouteResponse
-	(*ListRoutesRequest)(nil),     // 12: blanketops.networks.v1alpha1.ListRoutesRequest
-	(*ListRoutesResponse)(nil),    // 13: blanketops.networks.v1alpha1.ListRoutesResponse
-	(*DeleteRouteRequest)(nil),    // 14: blanketops.networks.v1alpha1.DeleteRouteRequest
-	(*DeleteRouteResponse)(nil),   // 15: blanketops.networks.v1alpha1.DeleteRouteResponse
-	(*WatchRouteRequest)(nil),     // 16: blanketops.networks.v1alpha1.WatchRouteRequest
-	(*WatchRouteResponse)(nil),    // 17: blanketops.networks.v1alpha1.WatchRouteResponse
-	(*v1.Metadata)(nil),           // 18: blanketops.common.v1.Metadata
-	(*v1.RouteRuntime)(nil),       // 19: blanketops.common.v1.RouteRuntime
-	(*v1.RoutePhase)(nil),         // 20: blanketops.common.v1.RoutePhase
-	(*v1.RouteTLSStatus)(nil),     // 21: blanketops.common.v1.RouteTLSStatus
-	(*timestamppb.Timestamp)(nil), // 22: google.protobuf.Timestamp
-	(v1.EventType)(0),             // 23: blanketops.common.v1.EventType
+	(*ServiceUnitRef)(nil),        // 0: blanketops.networks.v1alpha1.ServiceUnitRef
+	(*Route)(nil),                 // 1: blanketops.networks.v1alpha1.Route
+	(*RouteSpec)(nil),             // 2: blanketops.networks.v1alpha1.RouteSpec
+	(*RouteStatus)(nil),           // 3: blanketops.networks.v1alpha1.RouteStatus
+	(*RouteCondition)(nil),        // 4: blanketops.networks.v1alpha1.RouteCondition
+	(*CreateRouteRequest)(nil),    // 5: blanketops.networks.v1alpha1.CreateRouteRequest
+	(*CreateRouteResponse)(nil),   // 6: blanketops.networks.v1alpha1.CreateRouteResponse
+	(*GetRouteRequest)(nil),       // 7: blanketops.networks.v1alpha1.GetRouteRequest
+	(*GetRouteResponse)(nil),      // 8: blanketops.networks.v1alpha1.GetRouteResponse
+	(*UpdateRouteRequest)(nil),    // 9: blanketops.networks.v1alpha1.UpdateRouteRequest
+	(*UpdateRouteResponse)(nil),   // 10: blanketops.networks.v1alpha1.UpdateRouteResponse
+	(*PatchRouteRequest)(nil),     // 11: blanketops.networks.v1alpha1.PatchRouteRequest
+	(*PatchRouteResponse)(nil),    // 12: blanketops.networks.v1alpha1.PatchRouteResponse
+	(*ListRoutesRequest)(nil),     // 13: blanketops.networks.v1alpha1.ListRoutesRequest
+	(*ListRoutesResponse)(nil),    // 14: blanketops.networks.v1alpha1.ListRoutesResponse
+	(*DeleteRouteRequest)(nil),    // 15: blanketops.networks.v1alpha1.DeleteRouteRequest
+	(*DeleteRouteResponse)(nil),   // 16: blanketops.networks.v1alpha1.DeleteRouteResponse
+	(*WatchRouteRequest)(nil),     // 17: blanketops.networks.v1alpha1.WatchRouteRequest
+	(*WatchRouteResponse)(nil),    // 18: blanketops.networks.v1alpha1.WatchRouteResponse
+	(*v1.Metadata)(nil),           // 19: blanketops.common.v1.Metadata
+	(*v1.RouteRuntime)(nil),       // 20: blanketops.common.v1.RouteRuntime
+	(*v1.RoutePhase)(nil),         // 21: blanketops.common.v1.RoutePhase
+	(*v1.RouteTLSStatus)(nil),     // 22: blanketops.common.v1.RouteTLSStatus
+	(*timestamppb.Timestamp)(nil), // 23: google.protobuf.Timestamp
+	(v1.EventType)(0),             // 24: blanketops.common.v1.EventType
 }
 var file_blanketops_networks_v1alpha1_route_proto_depIdxs = []int32{
-	18, // 0: blanketops.networks.v1alpha1.Route.metadata:type_name -> blanketops.common.v1.Metadata
-	1,  // 1: blanketops.networks.v1alpha1.Route.spec:type_name -> blanketops.networks.v1alpha1.RouteSpec
-	2,  // 2: blanketops.networks.v1alpha1.Route.status:type_name -> blanketops.networks.v1alpha1.RouteStatus
-	19, // 3: blanketops.networks.v1alpha1.RouteSpec.runtime:type_name -> blanketops.common.v1.RouteRuntime
-	20, // 4: blanketops.networks.v1alpha1.RouteStatus.phase:type_name -> blanketops.common.v1.RoutePhase
-	21, // 5: blanketops.networks.v1alpha1.RouteStatus.tls_status:type_name -> blanketops.common.v1.RouteTLSStatus
-	3,  // 6: blanketops.networks.v1alpha1.RouteStatus.conditions:type_name -> blanketops.networks.v1alpha1.RouteCondition
-	22, // 7: blanketops.networks.v1alpha1.RouteStatus.last_updated_at:type_name -> google.protobuf.Timestamp
-	22, // 8: blanketops.networks.v1alpha1.RouteCondition.last_transition_time:type_name -> google.protobuf.Timestamp
-	1,  // 9: blanketops.networks.v1alpha1.CreateRouteRequest.spec:type_name -> blanketops.networks.v1alpha1.RouteSpec
-	0,  // 10: blanketops.networks.v1alpha1.CreateRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
-	0,  // 11: blanketops.networks.v1alpha1.GetRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
-	0,  // 12: blanketops.networks.v1alpha1.UpdateRouteRequest.route:type_name -> blanketops.networks.v1alpha1.Route
-	0,  // 13: blanketops.networks.v1alpha1.UpdateRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
-	0,  // 14: blanketops.networks.v1alpha1.PatchRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
-	20, // 15: blanketops.networks.v1alpha1.ListRoutesRequest.phase:type_name -> blanketops.common.v1.RoutePhase
-	19, // 16: blanketops.networks.v1alpha1.ListRoutesRequest.runtime:type_name -> blanketops.common.v1.RouteRuntime
-	0,  // 17: blanketops.networks.v1alpha1.ListRoutesResponse.routes:type_name -> blanketops.networks.v1alpha1.Route
-	0,  // 18: blanketops.networks.v1alpha1.WatchRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
-	23, // 19: blanketops.networks.v1alpha1.WatchRouteResponse.type:type_name -> blanketops.common.v1.EventType
-	4,  // 20: blanketops.networks.v1alpha1.RouteService.CreateRoute:input_type -> blanketops.networks.v1alpha1.CreateRouteRequest
-	6,  // 21: blanketops.networks.v1alpha1.RouteService.GetRoute:input_type -> blanketops.networks.v1alpha1.GetRouteRequest
-	8,  // 22: blanketops.networks.v1alpha1.RouteService.UpdateRoute:input_type -> blanketops.networks.v1alpha1.UpdateRouteRequest
-	10, // 23: blanketops.networks.v1alpha1.RouteService.PatchRoute:input_type -> blanketops.networks.v1alpha1.PatchRouteRequest
-	12, // 24: blanketops.networks.v1alpha1.RouteService.ListRoutes:input_type -> blanketops.networks.v1alpha1.ListRoutesRequest
-	14, // 25: blanketops.networks.v1alpha1.RouteService.DeleteRoute:input_type -> blanketops.networks.v1alpha1.DeleteRouteRequest
-	16, // 26: blanketops.networks.v1alpha1.RouteService.WatchRoute:input_type -> blanketops.networks.v1alpha1.WatchRouteRequest
-	5,  // 27: blanketops.networks.v1alpha1.RouteService.CreateRoute:output_type -> blanketops.networks.v1alpha1.CreateRouteResponse
-	7,  // 28: blanketops.networks.v1alpha1.RouteService.GetRoute:output_type -> blanketops.networks.v1alpha1.GetRouteResponse
-	9,  // 29: blanketops.networks.v1alpha1.RouteService.UpdateRoute:output_type -> blanketops.networks.v1alpha1.UpdateRouteResponse
-	11, // 30: blanketops.networks.v1alpha1.RouteService.PatchRoute:output_type -> blanketops.networks.v1alpha1.PatchRouteResponse
-	13, // 31: blanketops.networks.v1alpha1.RouteService.ListRoutes:output_type -> blanketops.networks.v1alpha1.ListRoutesResponse
-	15, // 32: blanketops.networks.v1alpha1.RouteService.DeleteRoute:output_type -> blanketops.networks.v1alpha1.DeleteRouteResponse
-	17, // 33: blanketops.networks.v1alpha1.RouteService.WatchRoute:output_type -> blanketops.networks.v1alpha1.WatchRouteResponse
-	27, // [27:34] is the sub-list for method output_type
-	20, // [20:27] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	19, // 0: blanketops.networks.v1alpha1.Route.metadata:type_name -> blanketops.common.v1.Metadata
+	2,  // 1: blanketops.networks.v1alpha1.Route.spec:type_name -> blanketops.networks.v1alpha1.RouteSpec
+	3,  // 2: blanketops.networks.v1alpha1.Route.status:type_name -> blanketops.networks.v1alpha1.RouteStatus
+	20, // 3: blanketops.networks.v1alpha1.RouteSpec.runtime:type_name -> blanketops.common.v1.RouteRuntime
+	0,  // 4: blanketops.networks.v1alpha1.RouteSpec.service_unit_ref:type_name -> blanketops.networks.v1alpha1.ServiceUnitRef
+	21, // 5: blanketops.networks.v1alpha1.RouteStatus.phase:type_name -> blanketops.common.v1.RoutePhase
+	22, // 6: blanketops.networks.v1alpha1.RouteStatus.tls_status:type_name -> blanketops.common.v1.RouteTLSStatus
+	4,  // 7: blanketops.networks.v1alpha1.RouteStatus.conditions:type_name -> blanketops.networks.v1alpha1.RouteCondition
+	23, // 8: blanketops.networks.v1alpha1.RouteStatus.last_updated_at:type_name -> google.protobuf.Timestamp
+	23, // 9: blanketops.networks.v1alpha1.RouteCondition.last_transition_time:type_name -> google.protobuf.Timestamp
+	2,  // 10: blanketops.networks.v1alpha1.CreateRouteRequest.spec:type_name -> blanketops.networks.v1alpha1.RouteSpec
+	1,  // 11: blanketops.networks.v1alpha1.CreateRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
+	1,  // 12: blanketops.networks.v1alpha1.GetRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
+	1,  // 13: blanketops.networks.v1alpha1.UpdateRouteRequest.route:type_name -> blanketops.networks.v1alpha1.Route
+	1,  // 14: blanketops.networks.v1alpha1.UpdateRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
+	1,  // 15: blanketops.networks.v1alpha1.PatchRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
+	21, // 16: blanketops.networks.v1alpha1.ListRoutesRequest.phase:type_name -> blanketops.common.v1.RoutePhase
+	20, // 17: blanketops.networks.v1alpha1.ListRoutesRequest.runtime:type_name -> blanketops.common.v1.RouteRuntime
+	1,  // 18: blanketops.networks.v1alpha1.ListRoutesResponse.routes:type_name -> blanketops.networks.v1alpha1.Route
+	1,  // 19: blanketops.networks.v1alpha1.WatchRouteResponse.route:type_name -> blanketops.networks.v1alpha1.Route
+	24, // 20: blanketops.networks.v1alpha1.WatchRouteResponse.type:type_name -> blanketops.common.v1.EventType
+	5,  // 21: blanketops.networks.v1alpha1.RouteService.CreateRoute:input_type -> blanketops.networks.v1alpha1.CreateRouteRequest
+	7,  // 22: blanketops.networks.v1alpha1.RouteService.GetRoute:input_type -> blanketops.networks.v1alpha1.GetRouteRequest
+	9,  // 23: blanketops.networks.v1alpha1.RouteService.UpdateRoute:input_type -> blanketops.networks.v1alpha1.UpdateRouteRequest
+	11, // 24: blanketops.networks.v1alpha1.RouteService.PatchRoute:input_type -> blanketops.networks.v1alpha1.PatchRouteRequest
+	13, // 25: blanketops.networks.v1alpha1.RouteService.ListRoutes:input_type -> blanketops.networks.v1alpha1.ListRoutesRequest
+	15, // 26: blanketops.networks.v1alpha1.RouteService.DeleteRoute:input_type -> blanketops.networks.v1alpha1.DeleteRouteRequest
+	17, // 27: blanketops.networks.v1alpha1.RouteService.WatchRoute:input_type -> blanketops.networks.v1alpha1.WatchRouteRequest
+	6,  // 28: blanketops.networks.v1alpha1.RouteService.CreateRoute:output_type -> blanketops.networks.v1alpha1.CreateRouteResponse
+	8,  // 29: blanketops.networks.v1alpha1.RouteService.GetRoute:output_type -> blanketops.networks.v1alpha1.GetRouteResponse
+	10, // 30: blanketops.networks.v1alpha1.RouteService.UpdateRoute:output_type -> blanketops.networks.v1alpha1.UpdateRouteResponse
+	12, // 31: blanketops.networks.v1alpha1.RouteService.PatchRoute:output_type -> blanketops.networks.v1alpha1.PatchRouteResponse
+	14, // 32: blanketops.networks.v1alpha1.RouteService.ListRoutes:output_type -> blanketops.networks.v1alpha1.ListRoutesResponse
+	16, // 33: blanketops.networks.v1alpha1.RouteService.DeleteRoute:output_type -> blanketops.networks.v1alpha1.DeleteRouteResponse
+	18, // 34: blanketops.networks.v1alpha1.RouteService.WatchRoute:output_type -> blanketops.networks.v1alpha1.WatchRouteResponse
+	28, // [28:35] is the sub-list for method output_type
+	21, // [21:28] is the sub-list for method input_type
+	21, // [21:21] is the sub-list for extension type_name
+	21, // [21:21] is the sub-list for extension extendee
+	0,  // [0:21] is the sub-list for field type_name
 }
 
 func init() { file_blanketops_networks_v1alpha1_route_proto_init() }
@@ -1227,15 +1313,15 @@ func file_blanketops_networks_v1alpha1_route_proto_init() {
 	if File_blanketops_networks_v1alpha1_route_proto != nil {
 		return
 	}
-	file_blanketops_networks_v1alpha1_route_proto_msgTypes[12].OneofWrappers = []any{}
 	file_blanketops_networks_v1alpha1_route_proto_msgTypes[13].OneofWrappers = []any{}
+	file_blanketops_networks_v1alpha1_route_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_blanketops_networks_v1alpha1_route_proto_rawDesc), len(file_blanketops_networks_v1alpha1_route_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

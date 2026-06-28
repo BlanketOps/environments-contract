@@ -35,6 +35,12 @@
 //   Applies only to custom strategy. Controls cert-manager's renewal window.
 //   Platform wildcard certs are renewed on the platform schedule regardless.
 //
+// Status refs:
+//   status.certificate_ref  — set by controller on custom strategy; used by
+//                             the Route mediator to gate DomainMapping dispatch
+//                             without deriving the TLS secret name externally.
+//   status.domain_mapping_ref — set once DomainMapping is materialized.
+//
 // APIVersion: networks.blanketops.dev/v1alpha1
 // =============================================================================
 
@@ -42,12 +48,10 @@
 // @generated from file blanketops/networks/v1alpha1/domain.proto (package blanketops.networks.v1alpha1, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
+import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import type { DomainPhase, DomainTLSStatus, DomainTLSStrategy } from "../../common/v1/domain_pb";
 import { file_blanketops_common_v1_domain } from "../../common/v1/domain_pb";
-import type { EventType } from "../../common/v1/event_pb";
-import { file_blanketops_common_v1_event } from "../../common/v1/event_pb";
 import type { Metadata } from "../../common/v1/metadata_pb";
 import { file_blanketops_common_v1_metadata } from "../../common/v1/metadata_pb";
 import type { Timestamp } from "@bufbuild/protobuf/wkt";
@@ -58,7 +62,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file blanketops/networks/v1alpha1/domain.proto.
  */
 export const file_blanketops_networks_v1alpha1_domain: GenFile = /*@__PURE__*/
-  fileDesc("CilibGFua2V0b3BzL25ldHdvcmtzL3YxYWxwaGExL2RvbWFpbi5wcm90bxIcYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMSKuAQoGRG9tYWluEjAKCG1ldGFkYXRhGAEgASgLMh4uYmxhbmtldG9wcy5jb21tb24udjEuTWV0YWRhdGESNgoEc3BlYxgCIAEoCzIoLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluU3BlYxI6CgZzdGF0dXMYAyABKAsyKi5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkRvbWFpblN0YXR1cyLoAQoKRG9tYWluU3BlYxIMCgRob3N0GAEgASgJEj8KCXJvdXRlX3JlZhgCIAEoCzIsLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluUm91dGVSZWYSPQoMdGxzX3N0cmF0ZWd5GAMgASgLMicuYmxhbmtldG9wcy5jb21tb24udjEuRG9tYWluVExTU3RyYXRlZ3kSNgoEbXRscxgEIAEoCzIoLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluTVRMUxIUCgxyZW5ld19iZWZvcmUYBSABKAkiHgoORG9tYWluUm91dGVSZWYSDAoEbmFtZRgBIAEoCSIeCgpEb21haW5NVExTEhAKCGVuZm9yY2VkGAEgASgIIpkCCgxEb21haW5TdGF0dXMSMAoFcGhhc2UYASABKAsyIS5ibGFua2V0b3BzLmNvbW1vbi52MS5Eb21haW5QaGFzZRIPCgdtZXNzYWdlGAIgASgJEhMKC2NlcnRfaXNzdWVkGAMgASgIEjkKCnRsc19zdGF0dXMYBCABKAsyJS5ibGFua2V0b3BzLmNvbW1vbi52MS5Eb21haW5UTFNTdGF0dXMSQQoKY29uZGl0aW9ucxgFIAMoCzItLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluQ29uZGl0aW9uEjMKD2xhc3RfdXBkYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiigEKD0RvbWFpbkNvbmRpdGlvbhIMCgR0eXBlGAEgASgJEg4KBnN0YXR1cxgCIAEoCRIOCgZyZWFzb24YAyABKAkSDwoHbWVzc2FnZRgEIAEoCRI4ChRsYXN0X3RyYW5zaXRpb25fdGltZRgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAiTQoTQ3JlYXRlRG9tYWluUmVxdWVzdBI2CgRzcGVjGAEgASgLMiguYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMS5Eb21haW5TcGVjIkwKFENyZWF0ZURvbWFpblJlc3BvbnNlEjQKBmRvbWFpbhgBIAEoCzIkLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluIiAKEEdldERvbWFpblJlcXVlc3QSDAoEbmFtZRgBIAEoCSJJChFHZXREb21haW5SZXNwb25zZRI0CgZkb21haW4YASABKAsyJC5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkRvbWFpbiJLChNVcGRhdGVEb21haW5SZXF1ZXN0EjQKBmRvbWFpbhgBIAEoCzIkLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluIkwKFFVwZGF0ZURvbWFpblJlc3BvbnNlEjQKBmRvbWFpbhgBIAEoCzIkLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluIjEKElBhdGNoRG9tYWluUmVxdWVzdBIMCgRuYW1lGAEgASgJEg0KBXBhdGNoGAIgASgJIksKE1BhdGNoRG9tYWluUmVzcG9uc2USNAoGZG9tYWluGAEgASgLMiQuYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMS5Eb21haW4ixAIKEkxpc3REb21haW5zUmVxdWVzdBI1CgVwaGFzZRgBIAEoCzIhLmJsYW5rZXRvcHMuY29tbW9uLnYxLkRvbWFpblBoYXNlSACIAQESQgoMdGxzX3N0cmF0ZWd5GAIgASgLMicuYmxhbmtldG9wcy5jb21tb24udjEuRG9tYWluVExTU3RyYXRlZ3lIAYgBARIRCgRob3N0GAMgASgJSAKIAQESGwoOcm91dGVfcmVmX25hbWUYBCABKAlIA4gBARIWCglwYWdlX3NpemUYBSABKAVIBIgBARIXCgpwYWdlX3Rva2VuGAYgASgJSAWIAQFCCAoGX3BoYXNlQg8KDV90bHNfc3RyYXRlZ3lCBwoFX2hvc3RCEQoPX3JvdXRlX3JlZl9uYW1lQgwKCl9wYWdlX3NpemVCDQoLX3BhZ2VfdG9rZW4ifgoTTGlzdERvbWFpbnNSZXNwb25zZRI1Cgdkb21haW5zGAEgAygLMiQuYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMS5Eb21haW4SHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSACIAQFCEgoQX25leHRfcGFnZV90b2tlbiIjChNEZWxldGVEb21haW5SZXF1ZXN0EgwKBG5hbWUYASABKAkiJwoURGVsZXRlRG9tYWluUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCCIiChJXYXRjaERvbWFpblJlcXVlc3QSDAoEbmFtZRgBIAEoCSJ6ChNXYXRjaERvbWFpblJlc3BvbnNlEjQKBmRvbWFpbhgBIAEoCzIkLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluEi0KBHR5cGUYAiABKA4yHy5ibGFua2V0b3BzLmNvbW1vbi52MS5FdmVudFR5cGUywAYKDURvbWFpblNlcnZpY2USdQoMQ3JlYXRlRG9tYWluEjEuYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMS5DcmVhdGVEb21haW5SZXF1ZXN0GjIuYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMS5DcmVhdGVEb21haW5SZXNwb25zZRJsCglHZXREb21haW4SLi5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkdldERvbWFpblJlcXVlc3QaLy5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkdldERvbWFpblJlc3BvbnNlEnUKDFVwZGF0ZURvbWFpbhIxLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuVXBkYXRlRG9tYWluUmVxdWVzdBoyLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuVXBkYXRlRG9tYWluUmVzcG9uc2UScgoLUGF0Y2hEb21haW4SMC5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLlBhdGNoRG9tYWluUmVxdWVzdBoxLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuUGF0Y2hEb21haW5SZXNwb25zZRJyCgtMaXN0RG9tYWlucxIwLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuTGlzdERvbWFpbnNSZXF1ZXN0GjEuYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMS5MaXN0RG9tYWluc1Jlc3BvbnNlEnUKDERlbGV0ZURvbWFpbhIxLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRGVsZXRlRG9tYWluUmVxdWVzdBoyLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRGVsZXRlRG9tYWluUmVzcG9uc2USdAoLV2F0Y2hEb21haW4SMC5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLldhdGNoRG9tYWluUmVxdWVzdBoxLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuV2F0Y2hEb21haW5SZXNwb25zZTABQqkBChx2MWFscGhhMS5uZXR3b3Jrcy5ibGFua2V0b3BzQgtEb21haW5Qcm90b1pdZ2l0aHViLmNvbS9udGxhbGV0c2k3MC9ibGFua2V0b3BzLWVudmlyb25tZW50cy1jb250cmFjdC9ibGFua2V0b3BzL25ldHdvcmtzL3YxYWxwaGExO3YxYWxwaGExqgIcQmxhbmtldE9wcy5OZXR3b3Jrcy52MUFscGhhMWIGcHJvdG8z", [file_blanketops_common_v1_domain, file_blanketops_common_v1_event, file_blanketops_common_v1_metadata, file_google_protobuf_timestamp]);
+  fileDesc("CilibGFua2V0b3BzL25ldHdvcmtzL3YxYWxwaGExL2RvbWFpbi5wcm90bxIcYmxhbmtldG9wcy5uZXR3b3Jrcy52MWFscGhhMSKuAQoGRG9tYWluEjAKCG1ldGFkYXRhGAEgASgLMh4uYmxhbmtldG9wcy5jb21tb24udjEuTWV0YWRhdGESNgoEc3BlYxgCIAEoCzIoLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluU3BlYxI6CgZzdGF0dXMYAyABKAsyKi5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkRvbWFpblN0YXR1cyLoAQoKRG9tYWluU3BlYxIMCgRob3N0GAEgASgJEj8KCXJvdXRlX3JlZhgCIAEoCzIsLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluUm91dGVSZWYSPQoMdGxzX3N0cmF0ZWd5GAMgASgLMicuYmxhbmtldG9wcy5jb21tb24udjEuRG9tYWluVExTU3RyYXRlZ3kSNgoEbXRscxgEIAEoCzIoLmJsYW5rZXRvcHMubmV0d29ya3MudjFhbHBoYTEuRG9tYWluTVRMUxIUCgxyZW5ld19iZWZvcmUYBSABKAkiHgoORG9tYWluUm91dGVSZWYSDAoEbmFtZRgBIAEoCSIeCgpEb21haW5NVExTEhAKCGVuZm9yY2VkGAEgASgIIjIKD0RvbWFpbk9iamVjdFJlZhIMCgRuYW1lGAEgASgJEhEKCW5hbWVzcGFjZRgCIAEoCSLCAwoMRG9tYWluU3RhdHVzEjAKBXBoYXNlGAEgASgLMiEuYmxhbmtldG9wcy5jb21tb24udjEuRG9tYWluUGhhc2USDwoHbWVzc2FnZRgCIAEoCRITCgtjZXJ0X2lzc3VlZBgDIAEoCBI5Cgp0bHNfc3RhdHVzGAQgASgLMiUuYmxhbmtldG9wcy5jb21tb24udjEuRG9tYWluVExTU3RhdHVzEkEKCmNvbmRpdGlvbnMYBSADKAsyLS5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkRvbWFpbkNvbmRpdGlvbhIzCg9sYXN0X3VwZGF0ZWRfYXQYBiABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhQKDGRvbWFpbl9yZWFkeRgHIAEoCBJGCg9jZXJ0aWZpY2F0ZV9yZWYYCCABKAsyLS5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkRvbWFpbk9iamVjdFJlZhJJChJkb21haW5fbWFwcGluZ19yZWYYCSABKAsyLS5ibGFua2V0b3BzLm5ldHdvcmtzLnYxYWxwaGExLkRvbWFpbk9iamVjdFJlZiI/Cg9Eb21haW5Db25kaXRpb24SDAoEdHlwZRgBIAEoCRIOCgZzdGF0dXMYAiABKAkSDgoGcmVhc29uGAMgASgJQqkBChx2MWFscGhhMS5uZXR3b3Jrcy5ibGFua2V0b3BzQgtEb21haW5Qcm90b1pdZ2l0aHViLmNvbS9udGxhbGV0c2k3MC9ibGFua2V0b3BzLWVudmlyb25tZW50cy1jb250cmFjdC9ibGFua2V0b3BzL25ldHdvcmtzL3YxYWxwaGExO3YxYWxwaGExqgIcQmxhbmtldE9wcy5OZXR3b3Jrcy52MUFscGhhMWIGcHJvdG8z", [file_blanketops_common_v1_domain, file_blanketops_common_v1_metadata, file_google_protobuf_timestamp]);
 
 /**
  * @generated from message blanketops.networks.v1alpha1.Domain
@@ -195,6 +199,38 @@ export const DomainMTLSSchema: GenMessage<DomainMTLS> = /*@__PURE__*/
   messageDesc(file_blanketops_networks_v1alpha1_domain, 3);
 
 /**
+ * DomainObjectRef is a namespaced reference to a Kubernetes resource
+ * materialized by the Domain controller (Certificate, DomainMapping).
+ * Set in status once the resource is created — never in spec.
+ *
+ * @generated from message blanketops.networks.v1alpha1.DomainObjectRef
+ */
+export type DomainObjectRef = Message<"blanketops.networks.v1alpha1.DomainObjectRef"> & {
+  /**
+   * Name of the referenced resource.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * Namespace of the referenced resource.
+   * For DomainMapping: same namespace as this Domain.
+   * For Certificate:   same namespace as this Domain.
+   *
+   * @generated from field: string namespace = 2;
+   */
+  namespace: string;
+};
+
+/**
+ * Describes the message blanketops.networks.v1alpha1.DomainObjectRef.
+ * Use `create(DomainObjectRefSchema)` to create a new message.
+ */
+export const DomainObjectRefSchema: GenMessage<DomainObjectRef> = /*@__PURE__*/
+  messageDesc(file_blanketops_networks_v1alpha1_domain, 4);
+
+/**
  * @generated from message blanketops.networks.v1alpha1.DomainStatus
  */
 export type DomainStatus = Message<"blanketops.networks.v1alpha1.DomainStatus"> & {
@@ -215,6 +251,7 @@ export type DomainStatus = Message<"blanketops.networks.v1alpha1.DomainStatus"> 
   /**
    * CertIssued is true once a valid TLS certificate has been issued for this host.
    * Always true for platform strategy once DomainMapping is active.
+   * Tracks cert-manager issuance for custom strategy.
    *
    * @generated from field: bool cert_issued = 3;
    */
@@ -240,6 +277,33 @@ export type DomainStatus = Message<"blanketops.networks.v1alpha1.DomainStatus"> 
    * @generated from field: google.protobuf.Timestamp last_updated_at = 6;
    */
   lastUpdatedAt?: Timestamp | undefined;
+
+  /**
+   * DomainReady is true when both DomainClaim and DomainMapping are
+   * reconciled and active. Mirrors the DomainMappingReady condition
+   * as a scalar for fast consumer reads.
+   *
+   * @generated from field: bool domain_ready = 7;
+   */
+  domainReady: boolean;
+
+  /**
+   * CertificateRef is the Certificate resource emitted by the controller.
+   * Set only when tls_strategy is custom — empty for platform strategy.
+   * The Route mediator reads this ref to gate DomainMapping dispatch
+   * on TLS secret existence without deriving the secret name externally.
+   *
+   * @generated from field: blanketops.networks.v1alpha1.DomainObjectRef certificate_ref = 8;
+   */
+  certificateRef?: DomainObjectRef | undefined;
+
+  /**
+   * DomainMappingRef is the Knative DomainMapping resource emitted
+   * by the controller. Set once materialized, cleared on deletion.
+   *
+   * @generated from field: blanketops.networks.v1alpha1.DomainObjectRef domain_mapping_ref = 9;
+   */
+  domainMappingRef?: DomainObjectRef | undefined;
 };
 
 /**
@@ -247,7 +311,7 @@ export type DomainStatus = Message<"blanketops.networks.v1alpha1.DomainStatus"> 
  * Use `create(DomainStatusSchema)` to create a new message.
  */
 export const DomainStatusSchema: GenMessage<DomainStatus> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 4);
+  messageDesc(file_blanketops_networks_v1alpha1_domain, 5);
 
 /**
  * @generated from message blanketops.networks.v1alpha1.DomainCondition
@@ -273,20 +337,6 @@ export type DomainCondition = Message<"blanketops.networks.v1alpha1.DomainCondit
    * @generated from field: string reason = 3;
    */
   reason: string;
-
-  /**
-   * Human-readable detail for the last transition.
-   *
-   * @generated from field: string message = 4;
-   */
-  message: string;
-
-  /**
-   * LastTransitionTime is when the condition last changed status.
-   *
-   * @generated from field: google.protobuf.Timestamp last_transition_time = 5;
-   */
-  lastTransitionTime?: Timestamp | undefined;
 };
 
 /**
@@ -294,429 +344,5 @@ export type DomainCondition = Message<"blanketops.networks.v1alpha1.DomainCondit
  * Use `create(DomainConditionSchema)` to create a new message.
  */
 export const DomainConditionSchema: GenMessage<DomainCondition> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 5);
-
-/**
- * CreateDomain — declare a new Domain intent.
- * Controller materializes the cert/mapping chain on reconciliation.
- *
- * @generated from message blanketops.networks.v1alpha1.CreateDomainRequest
- */
-export type CreateDomainRequest = Message<"blanketops.networks.v1alpha1.CreateDomainRequest"> & {
-  /**
-   * Desired spec for the new Domain.
-   *
-   * @generated from field: blanketops.networks.v1alpha1.DomainSpec spec = 1;
-   */
-  spec?: DomainSpec | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.CreateDomainRequest.
- * Use `create(CreateDomainRequestSchema)` to create a new message.
- */
-export const CreateDomainRequestSchema: GenMessage<CreateDomainRequest> = /*@__PURE__*/
   messageDesc(file_blanketops_networks_v1alpha1_domain, 6);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.CreateDomainResponse
- */
-export type CreateDomainResponse = Message<"blanketops.networks.v1alpha1.CreateDomainResponse"> & {
-  /**
-   * The created Domain including generated metadata and initial status.
-   *
-   * @generated from field: blanketops.networks.v1alpha1.Domain domain = 1;
-   */
-  domain?: Domain | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.CreateDomainResponse.
- * Use `create(CreateDomainResponseSchema)` to create a new message.
- */
-export const CreateDomainResponseSchema: GenMessage<CreateDomainResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 7);
-
-/**
- * GetDomain — fetch a Domain by name.
- *
- * @generated from message blanketops.networks.v1alpha1.GetDomainRequest
- */
-export type GetDomainRequest = Message<"blanketops.networks.v1alpha1.GetDomainRequest"> & {
-  /**
-   * Name of the Domain CR to fetch.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.GetDomainRequest.
- * Use `create(GetDomainRequestSchema)` to create a new message.
- */
-export const GetDomainRequestSchema: GenMessage<GetDomainRequest> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 8);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.GetDomainResponse
- */
-export type GetDomainResponse = Message<"blanketops.networks.v1alpha1.GetDomainResponse"> & {
-  /**
-   * @generated from field: blanketops.networks.v1alpha1.Domain domain = 1;
-   */
-  domain?: Domain | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.GetDomainResponse.
- * Use `create(GetDomainResponseSchema)` to create a new message.
- */
-export const GetDomainResponseSchema: GenMessage<GetDomainResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 9);
-
-/**
- * UpdateDomain — full replace of the Domain spec.
- * Equivalent to kubectl apply — all fields replaced.
- *
- * @generated from message blanketops.networks.v1alpha1.UpdateDomainRequest
- */
-export type UpdateDomainRequest = Message<"blanketops.networks.v1alpha1.UpdateDomainRequest"> & {
-  /**
-   * Full Domain object including metadata and desired spec.
-   *
-   * @generated from field: blanketops.networks.v1alpha1.Domain domain = 1;
-   */
-  domain?: Domain | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.UpdateDomainRequest.
- * Use `create(UpdateDomainRequestSchema)` to create a new message.
- */
-export const UpdateDomainRequestSchema: GenMessage<UpdateDomainRequest> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 10);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.UpdateDomainResponse
- */
-export type UpdateDomainResponse = Message<"blanketops.networks.v1alpha1.UpdateDomainResponse"> & {
-  /**
-   * The updated Domain as observed by the controller.
-   *
-   * @generated from field: blanketops.networks.v1alpha1.Domain domain = 1;
-   */
-  domain?: Domain | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.UpdateDomainResponse.
- * Use `create(UpdateDomainResponseSchema)` to create a new message.
- */
-export const UpdateDomainResponseSchema: GenMessage<UpdateDomainResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 11);
-
-/**
- * PatchDomain — partial update using JSON merge patch RFC 7396.
- * Only specified fields are updated — others left unchanged.
- *
- * @generated from message blanketops.networks.v1alpha1.PatchDomainRequest
- */
-export type PatchDomainRequest = Message<"blanketops.networks.v1alpha1.PatchDomainRequest"> & {
-  /**
-   * Name of the Domain CR to patch.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-
-  /**
-   * JSON merge patch document — RFC 7396.
-   * e.g. {"spec":{"mtls":{"enforced":true}}}
-   *
-   * @generated from field: string patch = 2;
-   */
-  patch: string;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.PatchDomainRequest.
- * Use `create(PatchDomainRequestSchema)` to create a new message.
- */
-export const PatchDomainRequestSchema: GenMessage<PatchDomainRequest> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 12);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.PatchDomainResponse
- */
-export type PatchDomainResponse = Message<"blanketops.networks.v1alpha1.PatchDomainResponse"> & {
-  /**
-   * The patched Domain as observed by the controller.
-   *
-   * @generated from field: blanketops.networks.v1alpha1.Domain domain = 1;
-   */
-  domain?: Domain | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.PatchDomainResponse.
- * Use `create(PatchDomainResponseSchema)` to create a new message.
- */
-export const PatchDomainResponseSchema: GenMessage<PatchDomainResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 13);
-
-/**
- * ListDomains — list Domain CRs with optional filtering and paging.
- *
- * @generated from message blanketops.networks.v1alpha1.ListDomainsRequest
- */
-export type ListDomainsRequest = Message<"blanketops.networks.v1alpha1.ListDomainsRequest"> & {
-  /**
-   * Filter by current lifecycle phase.
-   *
-   * @generated from field: optional blanketops.common.v1.DomainPhase phase = 1;
-   */
-  phase?: DomainPhase | undefined;
-
-  /**
-   * Filter by TLS strategy.
-   *
-   * @generated from field: optional blanketops.common.v1.DomainTLSStrategy tls_strategy = 2;
-   */
-  tlsStrategy?: DomainTLSStrategy | undefined;
-
-  /**
-   * Filter by host FQDN.
-   *
-   * @generated from field: optional string host = 3;
-   */
-  host?: string | undefined;
-
-  /**
-   * Filter by owning Route name.
-   *
-   * @generated from field: optional string route_ref_name = 4;
-   */
-  routeRefName?: string | undefined;
-
-  /**
-   * Maximum number of results to return. Server may return fewer.
-   *
-   * @generated from field: optional int32 page_size = 5;
-   */
-  pageSize?: number | undefined;
-
-  /**
-   * Token from a previous ListDomainsResponse.next_page_token.
-   * Omit for the first request.
-   *
-   * @generated from field: optional string page_token = 6;
-   */
-  pageToken?: string | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.ListDomainsRequest.
- * Use `create(ListDomainsRequestSchema)` to create a new message.
- */
-export const ListDomainsRequestSchema: GenMessage<ListDomainsRequest> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 14);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.ListDomainsResponse
- */
-export type ListDomainsResponse = Message<"blanketops.networks.v1alpha1.ListDomainsResponse"> & {
-  /**
-   * The list of Domain CRs matching the request filters.
-   *
-   * @generated from field: repeated blanketops.networks.v1alpha1.Domain domains = 1;
-   */
-  domains: Domain[];
-
-  /**
-   * Token to retrieve the next page. Empty if no more results.
-   *
-   * @generated from field: optional string next_page_token = 2;
-   */
-  nextPageToken?: string | undefined;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.ListDomainsResponse.
- * Use `create(ListDomainsResponseSchema)` to create a new message.
- */
-export const ListDomainsResponseSchema: GenMessage<ListDomainsResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 15);
-
-/**
- * DeleteDomain — delete a Domain CR.
- * The controller garbage-collects the DomainMapping, Certificate (if any),
- * and DomainClaim owned by this Domain.
- *
- * @generated from message blanketops.networks.v1alpha1.DeleteDomainRequest
- */
-export type DeleteDomainRequest = Message<"blanketops.networks.v1alpha1.DeleteDomainRequest"> & {
-  /**
-   * Name of the Domain CR to delete.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.DeleteDomainRequest.
- * Use `create(DeleteDomainRequestSchema)` to create a new message.
- */
-export const DeleteDomainRequestSchema: GenMessage<DeleteDomainRequest> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 16);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.DeleteDomainResponse
- */
-export type DeleteDomainResponse = Message<"blanketops.networks.v1alpha1.DeleteDomainResponse"> & {
-  /**
-   * True if the Domain was successfully deleted.
-   *
-   * @generated from field: bool success = 1;
-   */
-  success: boolean;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.DeleteDomainResponse.
- * Use `create(DeleteDomainResponseSchema)` to create a new message.
- */
-export const DeleteDomainResponseSchema: GenMessage<DeleteDomainResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 17);
-
-/**
- * WatchDomain — stream phase transitions for a Domain CR.
- * Delivers an event for every controller reconciliation loop.
- *
- * @generated from message blanketops.networks.v1alpha1.WatchDomainRequest
- */
-export type WatchDomainRequest = Message<"blanketops.networks.v1alpha1.WatchDomainRequest"> & {
-  /**
-   * Name of the Domain CR to watch.
-   *
-   * @generated from field: string name = 1;
-   */
-  name: string;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.WatchDomainRequest.
- * Use `create(WatchDomainRequestSchema)` to create a new message.
- */
-export const WatchDomainRequestSchema: GenMessage<WatchDomainRequest> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 18);
-
-/**
- * @generated from message blanketops.networks.v1alpha1.WatchDomainResponse
- */
-export type WatchDomainResponse = Message<"blanketops.networks.v1alpha1.WatchDomainResponse"> & {
-  /**
-   * Current state of the Domain at this point in the stream.
-   *
-   * @generated from field: blanketops.networks.v1alpha1.Domain domain = 1;
-   */
-  domain?: Domain | undefined;
-
-  /**
-   * The type of change that triggered this event.
-   *
-   * @generated from field: blanketops.common.v1.EventType type = 2;
-   */
-  type: EventType;
-};
-
-/**
- * Describes the message blanketops.networks.v1alpha1.WatchDomainResponse.
- * Use `create(WatchDomainResponseSchema)` to create a new message.
- */
-export const WatchDomainResponseSchema: GenMessage<WatchDomainResponse> = /*@__PURE__*/
-  messageDesc(file_blanketops_networks_v1alpha1_domain, 19);
-
-/**
- * ── CRUD — aligned with RouteService pattern ──────────────────────────────
- *
- * @generated from service blanketops.networks.v1alpha1.DomainService
- */
-export const DomainService: GenService<{
-  /**
-   * Declare a new Domain intent.
-   * Controller materializes the cert/mapping chain on reconciliation.
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.CreateDomain
-   */
-  createDomain: {
-    methodKind: "unary";
-    input: typeof CreateDomainRequestSchema;
-    output: typeof CreateDomainResponseSchema;
-  },
-  /**
-   * Fetch a Domain CR by name.
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.GetDomain
-   */
-  getDomain: {
-    methodKind: "unary";
-    input: typeof GetDomainRequestSchema;
-    output: typeof GetDomainResponseSchema;
-  },
-  /**
-   * Full replace of a Domain spec.
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.UpdateDomain
-   */
-  updateDomain: {
-    methodKind: "unary";
-    input: typeof UpdateDomainRequestSchema;
-    output: typeof UpdateDomainResponseSchema;
-  },
-  /**
-   * Partial update via JSON merge patch RFC 7396.
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.PatchDomain
-   */
-  patchDomain: {
-    methodKind: "unary";
-    input: typeof PatchDomainRequestSchema;
-    output: typeof PatchDomainResponseSchema;
-  },
-  /**
-   * List Domain CRs with optional phase/strategy/host filter and paging.
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.ListDomains
-   */
-  listDomains: {
-    methodKind: "unary";
-    input: typeof ListDomainsRequestSchema;
-    output: typeof ListDomainsResponseSchema;
-  },
-  /**
-   * Delete a Domain CR and its materialized resources (DomainMapping,
-   * Certificate, DomainClaim).
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.DeleteDomain
-   */
-  deleteDomain: {
-    methodKind: "unary";
-    input: typeof DeleteDomainRequestSchema;
-    output: typeof DeleteDomainResponseSchema;
-  },
-  /**
-   * Stream phase transitions for a Domain CR.
-   * Streams indefinitely — domains have no terminal phase; close client-side.
-   *
-   * @generated from rpc blanketops.networks.v1alpha1.DomainService.WatchDomain
-   */
-  watchDomain: {
-    methodKind: "server_streaming";
-    input: typeof WatchDomainRequestSchema;
-    output: typeof WatchDomainResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_blanketops_networks_v1alpha1_domain, 0);
 
