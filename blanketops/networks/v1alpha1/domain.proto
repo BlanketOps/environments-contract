@@ -36,6 +36,12 @@
 //   Applies only to custom strategy. Controls cert-manager's renewal window.
 //   Platform wildcard certs are renewed on the platform schedule regardless.
 //
+// Status refs:
+//   status.certificate_ref  — set by controller on custom strategy; used by
+//                             the Route mediator to gate DomainMapping dispatch
+//                             without deriving the TLS secret name externally.
+//   status.domain_mapping_ref — set once DomainMapping is materialized.
+//
 // APIVersion: networks.blanketops.dev/v1alpha1
 // =============================================================================
 
@@ -60,10 +66,8 @@ option java_package = "v1alpha1.networks.blanketops";
 message Domain {
   // Standard BlanketOps metadata (name, namespace, labels, ownerRef).
   blanketops.common.v1.Metadata metadata = 1;
-
   // Desired state declared by the operator.
   DomainSpec spec = 2;
-
   // Observed state set by the controller. Never manually edited.
   DomainStatus status = 3;
 }
@@ -113,6 +117,18 @@ message DomainMTLS {
   bool enforced = 1;
 }
 
+// DomainObjectRef is a namespaced reference to a Kubernetes resource
+// materialized by the Domain controller (Certificate, DomainMapping).
+// Set in status once the resource is created — never in spec.
+message DomainObjectRef {
+  // Name of the referenced resource.
+  string name = 1;
+  // Namespace of the referenced resource.
+  // For DomainMapping: same namespace as this Domain.
+  // For Certificate:   same namespace as this Domain.
+  string namespace = 2;
+}
+
 // =============================================================================
 // Status (observed state)
 // =============================================================================
@@ -126,6 +142,7 @@ message DomainStatus {
 
   // CertIssued is true once a valid TLS certificate has been issued for this host.
   // Always true for platform strategy once DomainMapping is active.
+  // Tracks cert-manager issuance for custom strategy.
   bool cert_issued = 3;
 
   // TlsStatus is the current TLS provisioning state.
@@ -136,6 +153,21 @@ message DomainStatus {
 
   // LastUpdatedAt is when the controller last wrote to this status.
   google.protobuf.Timestamp last_updated_at = 6;
+
+  // DomainReady is true when both DomainClaim and DomainMapping are
+  // reconciled and active. Mirrors the DomainMappingReady condition
+  // as a scalar for fast consumer reads.
+  bool domain_ready = 7;
+
+  // CertificateRef is the Certificate resource emitted by the controller.
+  // Set only when tls_strategy is custom — empty for platform strategy.
+  // The Route mediator reads this ref to gate DomainMapping dispatch
+  // on TLS secret existence without deriving the secret name externally.
+  DomainObjectRef certificate_ref = 8;
+
+  // DomainMappingRef is the Knative DomainMapping resource emitted
+  // by the controller. Set once materialized, cleared on deletion.
+  DomainObjectRef domain_mapping_ref = 9;
 }
 
 // =============================================================================
@@ -151,156 +183,3 @@ message DomainCondition {
 
   // Machine-readable reason for the last transition.
   string reason = 3;
-
-  // Human-readable detail for the last transition.
-  string message = 4;
-
-  // LastTransitionTime is when the condition last changed status.
-  google.protobuf.Timestamp last_transition_time = 5;
-}
-
-// =============================================================================
-// Requests / Responses
-// =============================================================================
-
-// CreateDomain — declare a new Domain intent.
-// Controller materializes the cert/mapping chain on reconciliation.
-message CreateDomainRequest {
-  // Desired spec for the new Domain.
-  DomainSpec spec = 1;
-}
-
-message CreateDomainResponse {
-  // The created Domain including generated metadata and initial status.
-  Domain domain = 1;
-}
-
-// GetDomain — fetch a Domain by name.
-message GetDomainRequest {
-  // Name of the Domain CR to fetch.
-  string name = 1;
-}
-
-message GetDomainResponse {
-  Domain domain = 1;
-}
-
-// UpdateDomain — full replace of the Domain spec.
-// Equivalent to kubectl apply — all fields replaced.
-message UpdateDomainRequest {
-  // Full Domain object including metadata and desired spec.
-  Domain domain = 1;
-}
-
-message UpdateDomainResponse {
-  // The updated Domain as observed by the controller.
-  Domain domain = 1;
-}
-
-// PatchDomain — partial update using JSON merge patch RFC 7396.
-// Only specified fields are updated — others left unchanged.
-message PatchDomainRequest {
-  // Name of the Domain CR to patch.
-  string name = 1;
-
-  // JSON merge patch document — RFC 7396.
-  // e.g. {"spec":{"mtls":{"enforced":true}}}
-  string patch = 2;
-}
-
-message PatchDomainResponse {
-  // The patched Domain as observed by the controller.
-  Domain domain = 1;
-}
-
-// ListDomains — list Domain CRs with optional filtering and paging.
-message ListDomainsRequest {
-  // Filter by current lifecycle phase.
-  optional blanketops.common.v1.DomainPhase phase = 1;
-
-  // Filter by TLS strategy.
-  optional blanketops.common.v1.DomainTLSStrategy tls_strategy = 2;
-
-  // Filter by host FQDN.
-  optional string host = 3;
-
-  // Filter by owning Route name.
-  optional string route_ref_name = 4;
-
-  // Maximum number of results to return. Server may return fewer.
-  optional int32 page_size = 5;
-
-  // Token from a previous ListDomainsResponse.next_page_token.
-  // Omit for the first request.
-  optional string page_token = 6;
-}
-
-message ListDomainsResponse {
-  // The list of Domain CRs matching the request filters.
-  repeated Domain domains = 1;
-
-  // Token to retrieve the next page. Empty if no more results.
-  optional string next_page_token = 2;
-}
-
-// DeleteDomain — delete a Domain CR.
-// The controller garbage-collects the DomainMapping, Certificate (if any),
-// and DomainClaim owned by this Domain.
-message DeleteDomainRequest {
-  // Name of the Domain CR to delete.
-  string name = 1;
-}
-
-message DeleteDomainResponse {
-  // True if the Domain was successfully deleted.
-  bool success = 1;
-}
-
-// WatchDomain — stream phase transitions for a Domain CR.
-// Delivers an event for every controller reconciliation loop.
-message WatchDomainRequest {
-  // Name of the Domain CR to watch.
-  string name = 1;
-}
-
-message WatchDomainResponse {
-  // Current state of the Domain at this point in the stream.
-  Domain domain = 1;
-
-  // The type of change that triggered this event.
-  blanketops.common.v1.EventType type = 2;
-}
-
-// =============================================================================
-// Service
-// =============================================================================
-
-service DomainService {
-  // ── CRUD — aligned with RouteService pattern ──────────────────────────────
-
-  // Declare a new Domain intent.
-  // Controller materializes the cert/mapping chain on reconciliation.
-  rpc CreateDomain(CreateDomainRequest) returns (CreateDomainResponse);
-
-  // Fetch a Domain CR by name.
-  rpc GetDomain(GetDomainRequest) returns (GetDomainResponse);
-
-  // Full replace of a Domain spec.
-  rpc UpdateDomain(UpdateDomainRequest) returns (UpdateDomainResponse);
-
-  // Partial update via JSON merge patch RFC 7396.
-  rpc PatchDomain(PatchDomainRequest) returns (PatchDomainResponse);
-
-  // List Domain CRs with optional phase/strategy/host filter and paging.
-  rpc ListDomains(ListDomainsRequest) returns (ListDomainsResponse);
-
-  // Delete a Domain CR and its materialized resources (DomainMapping,
-  // Certificate, DomainClaim).
-  rpc DeleteDomain(DeleteDomainRequest) returns (DeleteDomainResponse);
-
-  // ── Streaming ─────────────────────────────────────────────────────────────
-
-  // Stream phase transitions for a Domain CR.
-  // Streams indefinitely — domains have no terminal phase; close client-side.
-  rpc WatchDomain(WatchDomainRequest) returns (stream WatchDomainResponse);
-}
