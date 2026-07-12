@@ -21,7 +21,7 @@ import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Environments.V1";
-option go_package = "github.com/BlanketOps/environments-contract/blanketops/environments/v1;v1";
+option go_package = "github.com/blanketops/environments-contract/blanketops/environments/v1;v1";
 option java_outer_classname = "EnvironmentProto";
 option java_package = "v1.blanketops.environments";
 

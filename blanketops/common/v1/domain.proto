@@ -34,7 +34,7 @@ package blanketops.common.v1;
 
 // Options must match every other file in the blanketops.common.v1 package exactly.
 option csharp_namespace = "BlanketOps.Common.v1";
-option go_package = "github.com/BlanketOps/environments-contract/blanketops/common/v1;commonv1";
+option go_package = "github.com/blanketops/environments-contract/blanketops/common/v1;commonv1";
 option java_outer_classname = "DomainProto";
 
 // =============================================================================

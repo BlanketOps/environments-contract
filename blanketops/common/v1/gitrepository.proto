@@ -13,7 +13,7 @@
 syntax = "proto3";
 package blanketops.common.v1;
 option csharp_namespace = "BlanketOps.Common.v1";
-option go_package = "github.com/BlanketOps/environments-contract/blanketops/common/v1;commonv1";
+option go_package = "github.com/blanketops/environments-contract/blanketops/common/v1;commonv1";
 
 message GitProvider {
   // Source provider hosting the repository.
