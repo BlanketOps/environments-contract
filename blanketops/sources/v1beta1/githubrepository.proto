@@ -19,7 +19,7 @@ import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Sources.V1beta1";
-option go_package = "github.com/BlanketOps/environments-contract/blanketops/sources/v1beta1;v1beta1";
+option go_package = "github.com/blanketops/environments-contract/blanketops/sources/v1beta1;v1beta1";
 option java_outer_classname = "GitRepositoryProto";
 option java_package = "v1beta1.blanketops.sources";
 

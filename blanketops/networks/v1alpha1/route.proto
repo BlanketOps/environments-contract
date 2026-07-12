@@ -8,7 +8,7 @@ import "blanketops/common/v1/route.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Networks.v1Alpha1";
-option go_package = "github.com/BlanketOps/environments-contract/blanketops/networks/v1alpha1;v1alpha1";
+option go_package = "github.com/blanketops/environments-contract/blanketops/networks/v1alpha1;v1alpha1";
 option java_outer_classname = "RouteProto";
 option java_package = "v1alpha1.networks.blanketops";
 

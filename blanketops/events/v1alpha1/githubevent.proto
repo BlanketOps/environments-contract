@@ -19,7 +19,7 @@ import "blanketops/common/v1/metadata.proto";
 import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "BlanketOps.Events.V1Alpha1";
-option go_package = "github.com/BlanketOps/environments-contract/blanketops/events/v1alpha1;v1alpha1";
+option go_package = "github.com/blanketops/environments-contract/blanketops/events/v1alpha1;v1alpha1";
 option java_outer_classname = "GitHubEventProto";
 option java_package = "v1alpha1.blanketops.events";
 
